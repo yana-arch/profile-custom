@@ -3,8 +3,8 @@ import { ProfileData } from '../../../types';
 import AnimatedProfileSection from '../AnimatedProfileSection';
 import { LinkedInIcon, GitHubIcon, GlobeAltIcon } from '../../icons/Icons';
 
-const AboutSection: React.FC<{ data: ProfileData }> = ({ data }) => (
-  <AnimatedProfileSection title="About Me" id="about">
+const AboutSection: React.FC<{ data: ProfileData; animated: boolean; }> = ({ data, animated }) => (
+  <AnimatedProfileSection title="About Me" id="about" animated={animated}>
     <div className="flex flex-col md:flex-row items-center gap-12">
       <img src={data.personalInfo.avatar} alt={data.personalInfo.name} className="w-48 h-48 rounded-full shadow-lg object-cover" />
       <div className="flex-1 text-lg text-text-secondary">

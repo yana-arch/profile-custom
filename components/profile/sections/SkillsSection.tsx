@@ -2,8 +2,8 @@ import React from 'react';
 import { ProfileData } from '../../../types';
 import AnimatedProfileSection from '../AnimatedProfileSection';
 
-const SkillsSection: React.FC<{ data: ProfileData }> = ({ data }) => (
-  <AnimatedProfileSection title="Skills" id="skills">
+const SkillsSection: React.FC<{ data: ProfileData; animated: boolean; }> = ({ data, animated }) => (
+  <AnimatedProfileSection title="Skills" id="skills" animated={animated}>
     <div className="grid md:grid-cols-2 gap-12">
       <div>
         <h3 className="text-2xl font-semibold text-text-primary mb-6">Frontend</h3>

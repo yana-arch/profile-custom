@@ -9,11 +9,13 @@ export const ProfileSection: React.FC<{ title: string; id: string; children: Rea
   </section>
 );
 
-const AnimatedProfileSection: React.FC<{ title: string; id: string; children: React.ReactNode }> = ({ title, id, children }) => {
+const AnimatedProfileSection: React.FC<{ title: string; id: string; children: React.ReactNode; animated?: boolean; }> = ({ title, id, children, animated = true }) => {
     const [isVisible, setIsVisible] = useState(false);
     const sectionRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
+        if (!animated) return;
+
         const observer = new IntersectionObserver(
             ([entry]) => {
                 if (entry.isIntersecting) {
@@ -38,7 +40,15 @@ const AnimatedProfileSection: React.FC<{ title: string; id: string; children: Re
                 observer.unobserve(currentRef);
             }
         };
-    }, []);
+    }, [animated]);
+
+    if (!animated) {
+        return (
+            <ProfileSection title={title} id={id}>
+                {children}
+            </ProfileSection>
+        );
+    }
 
     return (
         <div ref={sectionRef} className={`transition-opacity duration-1000 ease-in-out ${isVisible ? 'opacity-100' : 'opacity-0'}`}>

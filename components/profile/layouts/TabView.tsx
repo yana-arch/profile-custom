@@ -27,6 +27,7 @@ const TabView: React.FC<{ data: ProfileData }> = ({ data }) => {
     
     const visibleTabs = allTabs.filter(tab => data.settings.sections[tab.id as keyof typeof data.settings.sections]);
     const [activeTab, setActiveTab] = useState(visibleTabs[0]?.id || '');
+    const animated = data.settings.enableAnimations;
 
     // Reset active tab if it's been disabled
     useEffect(() => {
@@ -58,13 +59,13 @@ const TabView: React.FC<{ data: ProfileData }> = ({ data }) => {
                 ))}
             </nav>
             <main>
-              {activeTab === 'about' && data.settings.sections.about && <AboutSection data={data} />}
-              {activeTab === 'experience' && data.settings.sections.experience && <ExperienceSection data={data} />}
-              {activeTab === 'education' && data.settings.sections.education && <EducationSection data={data} />}
-              {activeTab === 'projects' && data.settings.sections.projects && <ProjectsSection data={data} />}
-              {activeTab === 'skills' && data.settings.sections.skills && <SkillsSection data={data} />}
-              {activeTab === 'certifications' && data.settings.sections.certifications && <CertificationsSection data={data} />}
-              {activeTab === 'contact' && data.settings.sections.contact && <ContactSection data={data} />}
+              {activeTab === 'about' && data.settings.sections.about && <AboutSection data={data} animated={animated} />}
+              {activeTab === 'experience' && data.settings.sections.experience && <ExperienceSection data={data} animated={animated} />}
+              {activeTab === 'education' && data.settings.sections.education && <EducationSection data={data} animated={animated} />}
+              {activeTab === 'projects' && data.settings.sections.projects && <ProjectsSection data={data} animated={animated} />}
+              {activeTab === 'skills' && data.settings.sections.skills && <SkillsSection data={data} animated={animated} />}
+              {activeTab === 'certifications' && data.settings.sections.certifications && <CertificationsSection data={data} animated={animated} />}
+              {activeTab === 'contact' && data.settings.sections.contact && <ContactSection data={data} animated={animated} />}
             </main>
             <Footer data={data} />
         </div>

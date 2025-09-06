@@ -3,8 +3,12 @@ import { ProfileData } from '../../../types';
 import AnimatedProfileSection from '../AnimatedProfileSection';
 import { CertificateIcon } from '../../icons/Icons';
 
-const CertificationsSection: React.FC<{ data: ProfileData }> = ({ data }) => (
-    <AnimatedProfileSection title="Certifications" id="certifications">
+const CertificationsSection: React.FC<{ data: ProfileData; animated: boolean; }> = ({ data, animated }) => {
+  const cardClasses = `block bg-card-background rounded-lg shadow-md group overflow-hidden transition-all duration-300 ${animated ? 'hover:shadow-xl hover:-translate-y-1' : ''}`;
+  const imageClasses = `w-full h-40 object-cover ${animated ? 'group-hover:scale-105 transition-transform duration-300' : ''}`;
+
+  return (
+    <AnimatedProfileSection title="Certifications" id="certifications" animated={animated}>
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
         {data.certifications.map(cert => (
           <a 
@@ -12,10 +16,10 @@ const CertificationsSection: React.FC<{ data: ProfileData }> = ({ data }) => (
             href={cert.credentialUrl} 
             target="_blank" 
             rel="noopener noreferrer" 
-            className="block bg-card-background rounded-lg shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group overflow-hidden"
+            className={cardClasses}
           >
             {cert.image ? (
-                <img src={cert.image} alt={cert.name} className="w-full h-40 object-cover group-hover:scale-105 transition-transform duration-300" />
+                <img src={cert.image} alt={cert.name} className={imageClasses} />
             ) : (
                 <div className="flex items-center justify-center h-40 bg-primary/5">
                     <CertificateIcon className="w-16 h-16 text-primary/40"/>
@@ -29,6 +33,7 @@ const CertificationsSection: React.FC<{ data: ProfileData }> = ({ data }) => (
         ))}
       </div>
     </AnimatedProfileSection>
-);
+  );
+};
 
 export default CertificationsSection;

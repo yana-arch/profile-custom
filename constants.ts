@@ -102,12 +102,9 @@ export const DEFAULT_PROFILE_DATA: ProfileData = {
     secondaryColor: "#10b981", // emerald-500
     fontFamily: "Roboto",
     customCss: `
-/* Custom CSS example */
-.project-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-}
+/* Custom CSS can be added here */
     `,
+    enableAnimations: true,
     sections: {
         about: true,
         experience: true,

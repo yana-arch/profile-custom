@@ -13,7 +13,7 @@ const DisplaySettings: React.FC<Props> = ({ data, setData }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSettingsChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
+    const { name, value, type } = e.target;
 
     if (name.startsWith('section_')) {
       const isChecked = (e.target as HTMLInputElement).checked;
@@ -22,6 +22,12 @@ const DisplaySettings: React.FC<Props> = ({ data, setData }) => {
           ...prev,
           settings: { ...prev.settings, sections: { ...prev.settings.sections, [sectionName]: isChecked } }
       }));
+    } else if (type === 'checkbox') {
+        const isChecked = (e.target as HTMLInputElement).checked;
+        setData(prev => ({
+            ...prev,
+            settings: { ...prev.settings, [name]: isChecked }
+        }));
     } else {
         setData(prev => ({
           ...prev,
@@ -119,6 +125,13 @@ const DisplaySettings: React.FC<Props> = ({ data, setData }) => {
                       </label>
                   ))}
               </div>
+           </div>
+           <div className="col-span-1 md:col-span-2">
+              <h4 className="font-semibold text-text-primary mb-2">Visual Effects</h4>
+               <label className="flex items-center">
+                  <input type="checkbox" name="enableAnimations" checked={data.settings.enableAnimations} onChange={handleSettingsChange} className="form-checkbox text-primary rounded" />
+                  <span className="ml-2 capitalize text-text-secondary">Enable Animations & Effects</span>
+              </label>
            </div>
       </div>
       <div className="mt-6">

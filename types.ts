@@ -73,6 +73,7 @@ export interface Settings {
   secondaryColor: string;
   fontFamily: string;
   customCss: string;
+  enableAnimations: boolean;
   sections: {
       about: boolean;
       experience: boolean;
