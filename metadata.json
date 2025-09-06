@@ -1,0 +1,5 @@
+{
+  "name": "MyDynamicProfile",
+  "description": "A highly customizable personal profile and interactive resume web application. Users can switch between different layouts, customize colors, fonts, and even inject custom CSS to create a unique personal page.",
+  "requestFramePermissions": []
+}
