@@ -80,19 +80,17 @@ export const DEFAULT_PROFILE_DATA: ProfileData = {
   ],
   skills: {
     frontend: [
-      { id: uuidv4(), name: "React", level: 95 },
-      { id: uuidv4(), name: "Vue.js", level: 85 },
-      { id: uuidv4(), name: "TypeScript", level: 90 },
+      { id: uuidv4(), name: "React", level: 95, icon: 'react' },
+      { id: uuidv4(), name: "Vue", level: 80, icon: 'vue' },
+      { id: uuidv4(), name: "TypeScript", level: 90, icon: 'typescript' },
     ],
     backend: [
-      { id: uuidv4(), name: "Node.js", level: 80 },
-      { id: uuidv4(), name: "Python", level: 70 },
-      { id: uuidv4(), name: "SQL", level: 75 },
+      { id: uuidv4(), name: "Node.js", level: 80, icon: 'nodejs' },
+      { id: uuidv4(), name: "Python", level: 70, icon: 'python' },
     ],
     tools: [
-      { id: uuidv4(), name: "Docker", level: 70 },
-      { id: uuidv4(), name: "Git", level: 95 },
-      { id: uuidv4(), name: "AWS", level: 65 },
+      { id: uuidv4(), name: "Docker", level: 70, icon: 'docker' },
+      { id: uuidv4(), name: "AWS", level: 70, icon: 'aws' },
     ],
   },
   settings: {
@@ -104,7 +102,10 @@ export const DEFAULT_PROFILE_DATA: ProfileData = {
     customCss: `
 /* Custom CSS can be added here */
     `,
-    enableAnimations: true,
+    animations: {
+      scrollAnimation: 'fadeIn',
+      hoverEffect: 'lift',
+    },
     sections: {
         about: true,
         experience: true,
@@ -113,6 +114,10 @@ export const DEFAULT_PROFILE_DATA: ProfileData = {
         skills: true,
         certifications: true,
         contact: true,
-    }
+    },
+    viewMode: 'enhanced',
+    borderRadius: 8,
+    boxShadowStrength: 'md',
+    transitionDuration: 300,
   },
 };

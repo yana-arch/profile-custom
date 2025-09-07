@@ -3,12 +3,27 @@ import { ProfileData } from '../../../types';
 import AnimatedProfileSection from '../AnimatedProfileSection';
 import { CertificateIcon } from '../../icons/Icons';
 
-const CertificationsSection: React.FC<{ data: ProfileData; animated: boolean; }> = ({ data, animated }) => {
-  const cardClasses = `block bg-card-background rounded-lg shadow-md group overflow-hidden transition-all duration-300 ${animated ? 'hover:shadow-xl hover:-translate-y-1' : ''}`;
-  const imageClasses = `w-full h-40 object-cover ${animated ? 'group-hover:scale-105 transition-transform duration-300' : ''}`;
+const getHoverClasses = (effect: 'none' | 'lift' | 'grow') => {
+    if (effect === 'none') return '';
+    const base = ''; // transition is now handled by dynamic-card
+    if (effect === 'lift') return `${base} transform hover:-translate-y-1 hover:shadow-xl`;
+    if (effect === 'grow') return `${base} transform hover:scale-[1.03]`;
+    return '';
+}
+
+const CertificationsSection: React.FC<{ data: ProfileData; }> = ({ data }) => {
+  const { animations, viewMode } = data.settings;
+  const hoverEffect = viewMode === 'simple' ? 'none' : animations.hoverEffect;
+  const cardClasses = `block bg-card-background group overflow-hidden dynamic-card ${getHoverClasses(hoverEffect)}`;
+  const imageClasses = `w-full h-40 object-cover ${hoverEffect !== 'none' ? 'group-hover:scale-105 transition-transform duration-300' : ''}`;
 
   return (
-    <AnimatedProfileSection title="Certifications" id="certifications" animated={animated}>
+    <AnimatedProfileSection 
+        title="Certifications" 
+        id="certifications" 
+        scrollAnimation={animations.scrollAnimation}
+        viewMode={viewMode}
+    >
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
         {data.certifications.map(cert => (
           <a 

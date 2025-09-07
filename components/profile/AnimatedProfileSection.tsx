@@ -1,20 +1,31 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { AnimationSettings, Settings } from '../../types';
 
 export const ProfileSection: React.FC<{ title: string; id: string; children: React.ReactNode }> = ({ title, id, children }) => (
   <section id={id} className="py-16 md:py-24 px-4 sm:px-6 lg:px-8 w-full">
     <div className="max-w-5xl mx-auto">
-      <h2 className="text-3xl font-bold text-text-primary mb-12 border-b-2 border-primary pb-2 inline-block">{title}</h2>
+      <h2 className="text-2xl md:text-3xl font-bold text-text-primary mb-12 border-b-2 border-primary pb-2 inline-block">{title}</h2>
       {children}
     </div>
   </section>
 );
 
-const AnimatedProfileSection: React.FC<{ title: string; id: string; children: React.ReactNode; animated?: boolean; }> = ({ title, id, children, animated = true }) => {
+interface AnimatedProfileSectionProps {
+    title: string;
+    id: string;
+    children: React.ReactNode;
+    scrollAnimation: AnimationSettings['scrollAnimation'];
+    viewMode: Settings['viewMode'];
+}
+
+const AnimatedProfileSection: React.FC<AnimatedProfileSectionProps> = ({ title, id, children, scrollAnimation, viewMode }) => {
     const [isVisible, setIsVisible] = useState(false);
     const sectionRef = useRef<HTMLDivElement>(null);
 
+    const isAnimated = viewMode === 'enhanced' && scrollAnimation !== 'none';
+
     useEffect(() => {
-        if (!animated) return;
+        if (!isAnimated) return;
 
         const observer = new IntersectionObserver(
             ([entry]) => {
@@ -40,18 +51,25 @@ const AnimatedProfileSection: React.FC<{ title: string; id: string; children: Re
                 observer.unobserve(currentRef);
             }
         };
-    }, [animated]);
+    }, [isAnimated]);
 
-    if (!animated) {
+    if (!isAnimated) {
         return (
             <ProfileSection title={title} id={id}>
                 {children}
             </ProfileSection>
         );
     }
+    
+    const animationClass = {
+        'fadeIn': 'animate-fadeIn',
+        'slideUp': 'animate-slideUp',
+        'none': ''
+    }[scrollAnimation] || '';
+
 
     return (
-        <div ref={sectionRef} className={`transition-opacity duration-1000 ease-in-out ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
+        <div ref={sectionRef} className={isVisible ? animationClass : 'opacity-0'}>
             <ProfileSection title={title} id={id}>
                 {children}
             </ProfileSection>

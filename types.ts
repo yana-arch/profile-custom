@@ -58,12 +58,18 @@ export interface Skill {
   id: string;
   name: string;
   level: number;
+  icon?: string;
 }
 
 export interface Skills {
   frontend: Skill[];
   backend: Skill[];
   tools: Skill[];
+}
+
+export interface AnimationSettings {
+  scrollAnimation: 'none' | 'fadeIn' | 'slideUp';
+  hoverEffect: 'none' | 'lift' | 'grow';
 }
 
 export interface Settings {
@@ -73,7 +79,7 @@ export interface Settings {
   secondaryColor: string;
   fontFamily: string;
   customCss: string;
-  enableAnimations: boolean;
+  animations: AnimationSettings;
   sections: {
       about: boolean;
       experience: boolean;
@@ -82,7 +88,12 @@ export interface Settings {
       skills: boolean;
       certifications: boolean;
       contact: boolean;
-  }
+  };
+  // New settings for deeper customization and performance
+  viewMode: 'simple' | 'enhanced';
+  borderRadius: number; // in pixels
+  boxShadowStrength: 'none' | 'sm' | 'md' | 'lg' | 'xl';
+  transitionDuration: number; // in milliseconds
 }
 
 export interface ProfileData {

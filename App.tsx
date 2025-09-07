@@ -1,9 +1,9 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { ProfileData } from './types';
 import { DEFAULT_PROFILE_DATA } from './constants';
 import Profile from './components/Profile';
 import AdminPanel from './components/AdminPanel';
+import { SparklesIcon, ViewSimpleIcon } from './components/icons/Icons';
 
 const App: React.FC = () => {
   const [profileData, setProfileData] = useState<ProfileData>(() => {
@@ -36,6 +36,16 @@ const App: React.FC = () => {
       root.classList.remove('dark');
     }
 
+    const shadowMap = {
+      'none': 'none',
+      'sm': '0 1px 2px 0 rgb(0 0 0 / 0.05)',
+      'md': '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+      'lg': '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
+      'xl': '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
+    };
+    
+    const boxShadow = shadowMap[settings.boxShadowStrength] || shadowMap.md;
+
     const style = document.createElement('style');
     style.innerHTML = `
       :root {
@@ -47,6 +57,26 @@ const App: React.FC = () => {
         --card-background-color: ${settings.theme === 'dark' ? '#1f2937' : '#ffffff'};
         --border-color: ${settings.theme === 'dark' ? '#374151' : '#e5e7eb'};
         font-family: '${settings.fontFamily}', sans-serif;
+        --border-radius-base: ${settings.borderRadius}px;
+        --border-radius-sm: ${Math.max(2, settings.borderRadius * 0.75)}px;
+        --box-shadow-base: ${boxShadow};
+        --transition-duration-base: ${settings.transitionDuration}ms;
+      }
+
+      .dynamic-card {
+        border-radius: var(--border-radius-base);
+        box-shadow: var(--box-shadow-base);
+        transition: all var(--transition-duration-base) ease-in-out;
+      }
+
+      .dynamic-button {
+        border-radius: var(--border-radius-base);
+        transition: all var(--transition-duration-base) ease-in-out;
+      }
+      
+      .dynamic-button-sm {
+        border-radius: var(--border-radius-sm);
+        transition: all var(--transition-duration-base) ease-in-out;
       }
     `;
     document.head.appendChild(style);
@@ -76,12 +106,32 @@ const App: React.FC = () => {
     };
   }, [settings.fontFamily]);
 
+  const toggleViewMode = () => {
+    setProfileData(prev => ({
+      ...prev,
+      settings: {
+        ...prev.settings,
+        viewMode: prev.settings.viewMode === 'enhanced' ? 'simple' : 'enhanced'
+      }
+    }));
+  }
+
   const memoizedProfile = useMemo(() => <Profile data={profileData} />, [profileData]);
   const memoizedAdminPanel = useMemo(() => <AdminPanel data={profileData} setData={setProfileData} />, [profileData]);
 
 
   return (
     <div className="bg-background text-text-primary min-h-screen transition-colors duration-300">
+      {!isAdminView && (
+        <button
+          onClick={toggleViewMode}
+          className="fixed bottom-20 right-4 bg-secondary text-white p-3 rounded-full shadow-lg z-50 hover:opacity-90 transition-opacity"
+          aria-label={`Switch to ${settings.viewMode === 'enhanced' ? 'simple' : 'enhanced'} view`}
+        >
+          {settings.viewMode === 'enhanced' ? <SparklesIcon className="h-6 w-6" /> : <ViewSimpleIcon className="h-6 w-6" />}
+        </button>
+      )}
+
       <button
         onClick={() => setIsAdminView(!isAdminView)}
         className="fixed bottom-4 right-4 bg-primary text-white p-3 rounded-full shadow-lg z-50 hover:opacity-90 transition-opacity"

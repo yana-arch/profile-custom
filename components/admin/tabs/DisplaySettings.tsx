@@ -3,6 +3,7 @@ import { ProfileData } from '../../../types';
 import AdminSection from '../form/AdminSection';
 import SelectField from '../form/SelectField';
 import TextAreaField from '../form/TextAreaField';
+import InputField from '../form/InputField';
 
 type Props = {
   data: ProfileData;
@@ -22,16 +23,11 @@ const DisplaySettings: React.FC<Props> = ({ data, setData }) => {
           ...prev,
           settings: { ...prev.settings, sections: { ...prev.settings.sections, [sectionName]: isChecked } }
       }));
-    } else if (type === 'checkbox') {
-        const isChecked = (e.target as HTMLInputElement).checked;
-        setData(prev => ({
-            ...prev,
-            settings: { ...prev.settings, [name]: isChecked }
-        }));
     } else {
+        const parsedValue = type === 'range' || type === 'number' ? parseFloat(value) : value;
         setData(prev => ({
           ...prev,
-          settings: { ...prev.settings, [name]: value }
+          settings: { ...prev.settings, [name]: parsedValue }
         }));
     }
   };
@@ -76,8 +72,8 @@ const DisplaySettings: React.FC<Props> = ({ data, setData }) => {
 
   return (
     <AdminSection title="Display Settings">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+          <div className="col-span-1 md:col-span-2">
               <h4 className="font-semibold text-text-primary mb-2">Layout Options</h4>
               <div className="flex space-x-4">
                   {['scroll', 'tab', 'slide'].map(layout => (
@@ -88,7 +84,7 @@ const DisplaySettings: React.FC<Props> = ({ data, setData }) => {
                   ))}
               </div>
           </div>
-          <div>
+          <div className="col-span-1 md:col-span-2">
               <h4 className="font-semibold text-text-primary mb-2">Theme</h4>
               <div className="flex space-x-4">
                   {['light', 'dark'].map(theme => (
@@ -115,7 +111,27 @@ const DisplaySettings: React.FC<Props> = ({ data, setData }) => {
                   <option>Montserrat</option>
              </SelectField>
           </div>
-           <div className="col-span-1 md:col-span-2">
+          <div className="col-span-1 md:col-span-2 border-t border-border-color pt-4 mt-2">
+              <h4 className="font-semibold text-text-primary mb-2">Appearance Customization</h4>
+               <div className="space-y-4">
+                    <div>
+                        <label htmlFor="borderRadius" className="block text-sm font-medium text-text-secondary mb-1">Border Radius ({data.settings.borderRadius}px)</label>
+                        <input type="range" name="borderRadius" id="borderRadius" min="0" max="24" value={data.settings.borderRadius} onChange={handleSettingsChange} className="w-full" />
+                    </div>
+                    <SelectField label="Box Shadow Strength" name="boxShadowStrength" value={data.settings.boxShadowStrength} onChange={handleSettingsChange}>
+                        <option value="none">None</option>
+                        <option value="sm">Small</option>
+                        <option value="md">Medium</option>
+                        <option value="lg">Large</option>
+                        <option value="xl">Extra Large</option>
+                    </SelectField>
+                    <div>
+                        <label htmlFor="transitionDuration" className="block text-sm font-medium text-text-secondary mb-1">Transition Duration ({data.settings.transitionDuration}ms)</label>
+                        <input type="range" name="transitionDuration" id="transitionDuration" min="75" max="1000" step="25" value={data.settings.transitionDuration} onChange={handleSettingsChange} className="w-full" />
+                    </div>
+               </div>
+          </div>
+           <div className="col-span-1 md:col-span-2 border-t border-border-color pt-4 mt-2">
               <h4 className="font-semibold text-text-primary mb-2">Sections Visibility</h4>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                   {Object.keys(data.settings.sections).map(sectionKey => (
@@ -125,13 +141,6 @@ const DisplaySettings: React.FC<Props> = ({ data, setData }) => {
                       </label>
                   ))}
               </div>
-           </div>
-           <div className="col-span-1 md:col-span-2">
-              <h4 className="font-semibold text-text-primary mb-2">Visual Effects</h4>
-               <label className="flex items-center">
-                  <input type="checkbox" name="enableAnimations" checked={data.settings.enableAnimations} onChange={handleSettingsChange} className="form-checkbox text-primary rounded" />
-                  <span className="ml-2 capitalize text-text-secondary">Enable Animations & Effects</span>
-              </label>
            </div>
       </div>
       <div className="mt-6">

@@ -8,6 +8,7 @@ import EducationSettings from './admin/tabs/EducationSettings';
 import ProjectsSettings from './admin/tabs/ProjectsSettings';
 import CertificationsSettings from './admin/tabs/CertificationsSettings';
 import SkillsSettings from './admin/tabs/SkillsSettings';
+import AnimationSettings from './admin/tabs/AnimationSettings';
 
 type AdminPanelProps = {
   data: ProfileData;
@@ -17,6 +18,7 @@ type AdminPanelProps = {
 const AdminPanel: React.FC<AdminPanelProps> = ({ data, setData }) => {
   const initialTabs = [
     { id: 'display', name: 'Display Settings' },
+    { id: 'animations', name: 'Animations & Effects' },
     { id: 'personal', name: 'Personal Info' },
     { id: 'experience', name: 'Experience' },
     { id: 'education', name: 'Education' },
@@ -56,6 +58,8 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ data, setData }) => {
     switch(activeTab) {
       case 'display':
         return <DisplaySettings data={data} setData={setData} />;
+      case 'animations':
+        return <AnimationSettings data={data} setData={setData} />;
       case 'personal':
         return <PersonalInfoSettings data={data} setData={setData} />;
       case 'experience':
@@ -117,6 +121,12 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ data, setData }) => {
           </div>
         </div>
       </main>
+      <div className="flex-1 flex md:hidden items-center justify-center p-8 text-center text-text-secondary">
+        <div>
+          <h3 className="text-xl font-semibold">Live Preview</h3>
+          <p className="mt-2">The live preview is available on larger screens. Please switch to a tablet or desktop to see your changes in real-time.</p>
+        </div>
+      </div>
     </div>
   );
 };

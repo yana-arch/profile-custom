@@ -64,3 +64,68 @@ export const ChevronRightIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props)
         <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
     </svg>
 );
+
+export const SparklesIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456Z" /></svg>
+);
+
+export const ViewSimpleIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M5.25 7.5A2.25 2.25 0 0 1 7.5 5.25h9a2.25 2.25 0 0 1 2.25 2.25v9a2.25 2.25 0 0 1-2.25 2.25h-9a2.25 2.25 0 0 1-2.25-2.25v-9Z" /></svg>
+);
+
+export const Bars3Icon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" /></svg>
+);
+
+export const XMarkIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
+);
+
+export const ReactIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="-11.5 -10.23174 23 20.46348" fill="currentColor" {...props}>
+        <circle cx="0" cy="0" r="2.05" fill="currentColor"></circle>
+        <g stroke="currentColor" strokeWidth="1" fill="none">
+            <ellipse rx="11" ry="4.2"></ellipse>
+            <ellipse rx="11" ry="4.2" transform="rotate(60)"></ellipse>
+            <ellipse rx="11" ry="4.2" transform="rotate(120)"></ellipse>
+        </g>
+    </svg>
+);
+
+export const VueIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 221" fill="currentColor" {...props}>
+        <path d="M204.8,0,128,133.12,51.2,0H0L128,220.5,256,0Z" fill="#41B883"/>
+        <path d="M204.8,0,128,133.12,51.2,0H102.4l25.6,44.1,25.6-44.1Z" fill="#34495E"/>
+    </svg>
+);
+
+export const NodeJsIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" {...props}>
+        <path d="M12.37.24a1.72,1.72,0,0,0-.74,0L3,4.22a1.72,1.72,0,0,0-.86,1.5v8.56a1.72,1.72,0,0,0,.86,1.5L11.63,20a1.72,1.72,0,0,0,.74,0l8.63-3.72a1.72,1.72,0,0,0,.86-1.5V5.72a1.72,1.72,0,0,0-.86-1.5L12.37.24Zm6.25,14.24-2.13.91L13.2,12.7a.34.34,0,0,0-.31-.22h-1.4a.23.23,0,0,0-.23.23v2.88a.23.23,0,0,0,.23.23h1.88a.23.23,0,0,1,.23.23v.85a.23.23,0,0,1-.23.23H9.88a.23.23,0,0,1-.23-.23V14.1a.23.23,0,0,1,.23-.23h2.55a.34.34,0,0,0,.31-.22l3.41-2.8,2.13-.91a.23.23,0,0,1,.3.22v6.69a.23.23,0,0,1-.3.23ZM8.5,10.3a.23.23,0,0,1-.23.23H6.39a.23.23,0,0,1-.23-.23V7.12a.23.23,0,0,1,.23-.23h1.88a.23.23,0,0,1,.23.23Z"/>
+    </svg>
+);
+
+export const PythonIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" {...props}>
+        <path d="M14.25,22.25H20.5V20.5H15.75V17.75H20.5V16H15.75V13.25H22.25V7H20.5V5.25H18.75V3.5H11.25V7H9.5V8.75H7.75V10.5H6V16H7.75V17.75H9.5V19.5H11.25V22.25H12.75V19.5H14.25V22.25M14.25,19.5H12.75V16H11.25V13.25H9.5V10.5H11.25V7H17.25V13.25H14.25V16H17.25V17.75H14.25V19.5M12.75,10.5A1.5,1.5,0,0,0,11.25,9A1.5,1.5,0,0,0,9.75,10.5A1.5,1.5,0,0,0,11.25,12A1.5,1.5,0,0,0,12.75,10.5M18.75,5.25A1.5,1.5,0,0,0,17.25,3.75A1.5,1.5,0,0,0,15.75,5.25A1.5,1.5,0,0,0,17.25,6.75A1.5,1.5,0,0,0,18.75,5.25Z"/>
+    </svg>
+);
+
+export const TypeScriptIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" {...props}>
+        <path d="M2,2H22V22H2V2M10.2,16.2H12.5V10.5H15.8V8.2H10.2V16.2M13.8,16.2H16.1V14.6H13.8V16.2Z" />
+    </svg>
+);
+
+export const DockerIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" {...props}>
+        <path d="M22.2,9.3c-1-2.9-3.8-5-7-5.2C14.1,2.8,12.7,2,11.2,2c-3.1,0-5.8,2-7,4.8c-2.5,0.2-4.2,2.3-4.2,4.8v.2c0,1,0.3,1.9,0.8,2.7 c0.5,0.8,0.7,1.6,0.6,2.5c0,1-0.2,1.9-0.5,2.7c1,0.2,1.8,0.8,2.5,1.6c0.7,0.8,1,1.6,1,2.6c0,0.4-0.2,0.6-0.2,0.6h0.1 c0.3,0,0.6-0.1,0.8-0.2c0.7-0.3,1.3-0.9,1.6-1.6c0.4-0.7,0.5-1.5,0.2-2.3c-0.2-0.8-0.1-1.6,0.2-2.4c0.3-0.8,0.9-1.3,1.6-1.6 c0.7-0.3,1.5-0.5,2.3-0.2c0.8,0.2,1.6,0.1,2.4-0.2c0.8-0.3,1.3-0.9,1.6-1.6c0.3-0.7,0.5-1.5,0.2-2.3c-0.2-0.8-0.1-1.6,0.2-2.4 c0.3-0.8,0.9-1.3,1.6-1.6C21.7,10.2,22.1,9.8,22.2,9.3z M8.2,12.5H6.2v2H8.2V12.5z M11.2,12.5H9.2v2h2V12.5z M11.2,10.5H9.2v2h2V10.5z M14.2,12.5h-2v2h2V12.5z M14.2,10.5h-2v2h2V10.5z M17.2,12.5h-2v2h2V12.5z"/>
+    </svg>
+);
+
+export const AwsIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" {...props}>
+        <path d="M13.6,15.3c-1.1,0.2-2.2,0.3-3.4,0.3c-2,0-3.9-0.4-5.6-1.1c-0.3-0.1-0.5,0-0.6,0.3c-0.4,1.1,0,2.4,1,3.1 c1.5,1.2,3.6,1.9,5.7,1.9c1.9,0,3.7-0.5,5.3-1.6c0.3-0.2,0.3-0.5,0.1-0.8c-0.2-0.3-0.5-0.3-0.7-0.1c-1.3,0.9-2.8,1.3-4.3,1.3 c-1.7,0-3.3-0.5-4.6-1.4c-0.6-0.4-0.7-1.1-0.4-1.7c0.1-0.2,0.2-0.3,0.4-0.3c0.1,0,0.1,0,0.2,0c1.6,0.7,3.4,1,5.2,1 c1.1,0,2.1-0.1,3.1-0.3c0.3,0,0.5-0.3,0.5-0.6C14.1,15.5,13.9,15.3,13.6,15.3z"/>
+        <path d="M21.2,8.1c-1-0.6-2.1-1-3.2-1.3c-1.5-0.3-3-0.5-4.6-0.5c-3.1,0-6,0.8-8.2,2.3c-0.3,0.2-0.3,0.5-0.1,0.8 c0.2,0.3,0.5,0.3,0.7,0.1c1.9-1.3,4.5-2,7.2-2c1.5,0,2.9,0.2,4.3,0.4c1,0.2,2,0.5,2.8,1c0.3,0.2,0.6,0.1,0.8-0.2 C21.7,8.6,21.5,8.2,21.2,8.1z"/>
+    </svg>
+);

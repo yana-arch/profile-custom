@@ -50,7 +50,7 @@ const SkillsSettings: React.FC<Props> = ({ data, setData }) => {
         ...prev,
         skills: {
             ...prev.skills,
-            [category]: [...prev.skills[category], { id: uuidv4(), name: '', level: 50 }]
+            [category]: [...prev.skills[category], { id: uuidv4(), name: '', level: 50, icon: '' }]
         }
     }));
   };
@@ -74,13 +74,16 @@ const SkillsSettings: React.FC<Props> = ({ data, setData }) => {
         <div key={category} className="mb-8">
           <h4 className="text-lg font-bold text-text-primary capitalize mb-4">{category}</h4>
           {data.skills[category].map((skill, index) => (
-             <div key={skill.id} className="flex items-center gap-4 mb-2">
-                <div className="flex-1">
-                  <InputField label="" name="name" value={skill.name} onChange={e => handleSkillChange(category, index, e)} onBlur={e => handleBlur(category, index, e)} placeholder="Skill name" error={errors[category]?.[index]?.name} />
+             <div key={skill.id} className="border-b border-border-color/50 pb-3 mb-3">
+                <div className="flex items-center gap-4 mb-2">
+                    <div className="flex-1">
+                        <InputField label="Skill Name" name="name" value={skill.name} onChange={e => handleSkillChange(category, index, e)} onBlur={e => handleBlur(category, index, e)} placeholder="e.g., React" error={errors[category]?.[index]?.name} />
+                    </div>
+                    <button onClick={() => removeSkill(category, index)} className="text-red-500 text-sm p-2 rounded-full hover:bg-red-500/10 mt-6">X</button>
                 </div>
-                <input type="range" name="level" min="0" max="100" value={skill.level} onChange={e => handleSkillChange(category, index, e)} className="flex-1" />
-                <span className="w-12 text-right">{skill.level}%</span>
-                <button onClick={() => removeSkill(category, index)} className="text-red-500 text-sm p-2 rounded-full hover:bg-red-500/10">X</button>
+                <InputField label="Icon Name (optional)" name="icon" value={skill.icon || ''} onChange={e => handleSkillChange(category, index, e)} placeholder="e.g., react, vue, nodejs" />
+                <label className="block text-sm font-medium text-text-secondary mb-1">Proficiency Level: {skill.level}%</label>
+                <input type="range" name="level" min="0" max="100" value={skill.level} onChange={e => handleSkillChange(category, index, e)} className="w-full" />
              </div>
           ))}
           <button onClick={() => addSkill(category)} className="bg-secondary/20 text-secondary px-3 py-1 text-sm rounded-md mt-2">Add {category} skill</button>

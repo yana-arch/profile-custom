@@ -13,17 +13,16 @@ import ContactSection from '../sections/ContactSection';
 const SlideView: React.FC<{ data: ProfileData }> = ({ data }) => {
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const [currentSlide, setCurrentSlide] = useState(0);
-    const animated = data.settings.enableAnimations;
 
     const slides = [
         { id: 'hero', component: <HeroSection data={data} />, visible: true },
-        { id: 'about', component: <AboutSection data={data} animated={animated} />, visible: data.settings.sections.about },
-        { id: 'experience', component: <ExperienceSection data={data} animated={animated} />, visible: data.settings.sections.experience },
-        { id: 'education', component: <EducationSection data={data} animated={animated} />, visible: data.settings.sections.education },
-        { id: 'projects', component: <ProjectsSection data={data} animated={animated} />, visible: data.settings.sections.projects },
-        { id: 'skills', component: <SkillsSection data={data} animated={animated} />, visible: data.settings.sections.skills },
-        { id: 'certifications', component: <CertificationsSection data={data} animated={animated} />, visible: data.settings.sections.certifications },
-        { id: 'contact', component: <ContactSection data={data} animated={animated} />, visible: data.settings.sections.contact },
+        { id: 'about', component: <AboutSection data={data} />, visible: data.settings.sections.about },
+        { id: 'experience', component: <ExperienceSection data={data} />, visible: data.settings.sections.experience },
+        { id: 'education', component: <EducationSection data={data} />, visible: data.settings.sections.education },
+        { id: 'projects', component: <ProjectsSection data={data} />, visible: data.settings.sections.projects },
+        { id: 'skills', component: <SkillsSection data={data} />, visible: data.settings.sections.skills },
+        { id: 'certifications', component: <CertificationsSection data={data} />, visible: data.settings.sections.certifications },
+        { id: 'contact', component: <ContactSection data={data} />, visible: data.settings.sections.contact },
     ].filter(slide => slide.visible);
 
     const scrollToSlide = (index: number) => {

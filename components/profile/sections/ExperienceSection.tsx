@@ -2,8 +2,13 @@ import React from 'react';
 import { ProfileData } from '../../../types';
 import AnimatedProfileSection from '../AnimatedProfileSection';
 
-const ExperienceSection: React.FC<{ data: ProfileData; animated: boolean; }> = ({ data, animated }) => (
-  <AnimatedProfileSection title="Experience" id="experience" animated={animated}>
+const ExperienceSection: React.FC<{ data: ProfileData; }> = ({ data }) => (
+  <AnimatedProfileSection 
+    title="Experience" 
+    id="experience" 
+    scrollAnimation={data.settings.animations.scrollAnimation}
+    viewMode={data.settings.viewMode}
+  >
     <div className="relative border-l-2 border-border-color pl-8 space-y-12">
       {data.experience.map((job) => (
         <div key={job.id} className="relative">
