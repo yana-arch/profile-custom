@@ -129,3 +129,21 @@ export const AwsIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
         <path d="M21.2,8.1c-1-0.6-2.1-1-3.2-1.3c-1.5-0.3-3-0.5-4.6-0.5c-3.1,0-6,0.8-8.2,2.3c-0.3,0.2-0.3,0.5-0.1,0.8 c0.2,0.3,0.5,0.3,0.7,0.1c1.9-1.3,4.5-2,7.2-2c1.5,0,2.9,0.2,4.3,0.4c1,0.2,2,0.5,2.8,1c0.3,0.2,0.6,0.1,0.8-0.2 C21.7,8.6,21.5,8.2,21.2,8.1z"/>
     </svg>
 );
+
+export const DesktopComputerIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 17.25v1.007a3 3 0 0 1-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0 1 15 18.257V17.25m6-12V15a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 15V5.25A2.25 2.25 0 0 1 5.25 3h13.5A2.25 2.25 0 0 1 21 5.25Z" />
+    </svg>
+);
+
+export const TabletIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 0 0 6 3.75v16.5a2.25 2.25 0 0 0 2.25 2.25h7.5A2.25 2.25 0 0 0 18 20.25V3.75a2.25 2.25 0 0 0-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18h3" />
+    </svg>
+);
+
+export const DevicePhoneMobileIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 0 0 6 3.75v16.5a2.25 2.25 0 0 0 2.25 2.25h7.5A2.25 2.25 0 0 0 18 20.25V3.75a2.25 2.25 0 0 0-2.25-2.25H13.5m-3 0h3m-3.75 16.5h3.75" />
+    </svg>
+);

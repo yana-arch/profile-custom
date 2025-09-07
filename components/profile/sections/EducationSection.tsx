@@ -16,7 +16,10 @@ const EducationSection: React.FC<{ data: ProfileData; }> = ({ data }) => (
             <p className="text-sm font-semibold text-secondary">{edu.startDate} - {edu.endDate}</p>
             <h3 className="text-xl font-bold text-text-primary mt-1">{edu.degree}</h3>
             <p className="text-md text-text-secondary">{edu.school} - {edu.fieldOfStudy}</p>
-            <p className="mt-2 text-text-secondary">{edu.description}</p>
+            <div 
+              className="mt-2 text-text-secondary prose" 
+              dangerouslySetInnerHTML={{ __html: edu.description }}
+            />
           </div>
         ))}
       </div>

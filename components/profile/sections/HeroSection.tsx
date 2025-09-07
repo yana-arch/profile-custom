@@ -1,10 +1,41 @@
 import React from 'react';
 import { ProfileData } from '../../../types';
 
+const generateImageSrcSet = (imageUrl: string, sizes: number[] = [800, 1200, 1600, 2000]): string => {
+  if (!imageUrl || !imageUrl.includes('picsum.photos/seed/')) return '';
+  try {
+    const url = new URL(imageUrl);
+    const parts = url.pathname.split('/');
+    if (parts.length < 5) return '';
+    const seed = parts[2];
+    const width = parseInt(parts[3], 10);
+    const height = parseInt(parts[4], 10);
+    if (isNaN(width) || isNaN(height) || width === 0) return '';
+
+    const aspectRatio = height / width;
+    return sizes
+      .map(w => {
+        const h = Math.round(w * aspectRatio);
+        return `https://picsum.photos/seed/${seed}/${w}/${h} ${w}w`;
+      })
+      .join(', ');
+  } catch (e) {
+    return '';
+  }
+};
+
+
 const HeroSection: React.FC<{ data: ProfileData }> = ({ data }) => (
   <section className="relative h-full w-full flex items-center justify-center text-white text-center p-4">
     <div className="absolute inset-0 bg-black opacity-50 z-0"></div>
-    <img src={data.personalInfo.heroImage} alt="Hero background" className="absolute inset-0 w-full h-full object-cover z-[-1]" />
+    <img 
+      id="hero-bg-image" 
+      src={data.personalInfo.heroImage} 
+      srcSet={generateImageSrcSet(data.personalInfo.heroImage)}
+      sizes="100vw"
+      alt="Hero background" 
+      className="absolute inset-0 w-full h-full object-cover z-[-1]" 
+    />
     <div className="z-10">
       <h1 className="text-4xl sm:text-5xl md:text-7xl font-extrabold tracking-tight mb-4">{data.personalInfo.name}</h1>
       <p className="text-lg sm:text-xl md:text-2xl font-light text-gray-200 mb-8">{data.personalInfo.title}</p>

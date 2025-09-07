@@ -78,6 +78,100 @@ const App: React.FC = () => {
         border-radius: var(--border-radius-sm);
         transition: all var(--transition-duration-base) ease-in-out;
       }
+
+      /* Rich Text Editor Theme */
+      .rich-text-editor .ql-toolbar {
+        background-color: var(--background-color);
+        border-top-left-radius: var(--border-radius-sm);
+        border-top-right-radius: var(--border-radius-sm);
+        border-color: var(--border-color) !important;
+      }
+      .rich-text-editor .ql-container {
+        background-color: var(--background-color);
+        border-bottom-left-radius: var(--border-radius-sm);
+        border-bottom-right-radius: var(--border-radius-sm);
+        border-color: var(--border-color) !important;
+        color: var(--text-primary-color);
+        min-height: 150px;
+        font-size: 1rem;
+      }
+      .rich-text-editor .ql-editor::before {
+        color: var(--text-secondary-color);
+        font-style: normal !important;
+      }
+      .rich-text-editor .ql-snow .ql-stroke { stroke: var(--text-secondary-color); }
+      .rich-text-editor .ql-snow .ql-picker-label { color: var(--text-secondary-color); }
+      .rich-text-editor .ql-snow .ql-fill { fill: var(--text-secondary-color); }
+      
+      /* Prose styles for rendered rich text */
+      .prose {
+        color: var(--text-secondary-color);
+        line-height: 1.6;
+      }
+      .prose p { margin-bottom: 1em; }
+      .prose a { color: var(--primary-color); text-decoration: underline; }
+      .prose ul, .prose ol { padding-left: 1.5em; margin-bottom: 1em; }
+      .prose ul { list-style-type: disc; }
+      .prose ol { list-style-type: decimal; }
+      .prose li { margin-bottom: 0.5em; }
+      .prose strong { color: var(--text-primary-color); font-weight: 600; }
+      .prose em { font-style: italic; }
+      .prose blockquote {
+        border-left: 4px solid var(--border-color);
+        padding-left: 1em;
+        margin: 1em 0;
+        font-style: italic;
+      }
+      .prose h1, .prose h2, .prose h3 { color: var(--text-primary-color); margin-bottom: 0.5em; }
+
+      /* Print-friendly styles */
+      @media print {
+        .print-hidden, header, footer, [aria-label*="admin"], [aria-label*="Switch to"] {
+          display: none !important;
+        }
+        body {
+          font-family: 'Georgia', serif;
+          background-color: #fff !important;
+          color: #000 !important;
+          font-size: 11pt;
+        }
+        section {
+          padding-top: 1.5rem !important;
+          padding-bottom: 1.5rem !important;
+          page-break-inside: avoid;
+        }
+        * {
+          background-color: transparent !important;
+          color: #000 !important;
+          box-shadow: none !important;
+          text-shadow: none !important;
+        }
+        h1, h2, h3 { page-break-after: avoid; }
+        h2 { border-bottom: 2px solid #000 !important; }
+        
+        a { text-decoration: none !important; }
+        a[href^="http"]:after {
+            content: " (" attr(href) ")";
+            font-size: 9pt;
+            color: #555 !important;
+        }
+
+        #hero-container { height: auto !important; min-height: 0 !important; padding: 0 !important; margin-bottom: 2rem; }
+        #hero-container > section { padding: 0 !important; text-align: left !important; }
+        #hero-container h1, #hero-container p { text-align: left !important; }
+        #hero-bg-image { display: none !important; }
+        #hero-container .z-10 { position: static !important; }
+        #hero-container .space-x-4 { display: none !important; }
+        
+        .relative.border-l-2 { border-left-color: #ccc !important; }
+        .absolute.-left-\\[42px\\] { border-color: #fff !important; background-color: #ccc !important; }
+        
+        .bg-border-color\\/50 { background-color: #eee !important; }
+        .bg-primary { background-color: #888 !important; }
+        
+        .grid { grid-template-columns: repeat(1, minmax(0, 1fr)) !important; }
+        .project-card img, .dynamic-card img { border: 1px solid #ddd; }
+      }
     `;
     document.head.appendChild(style);
 
@@ -125,7 +219,7 @@ const App: React.FC = () => {
       {!isAdminView && (
         <button
           onClick={toggleViewMode}
-          className="fixed bottom-20 right-4 bg-secondary text-white p-3 rounded-full shadow-lg z-50 hover:opacity-90 transition-opacity"
+          className="fixed bottom-20 right-4 bg-secondary text-white p-3 rounded-full shadow-lg z-50 hover:opacity-90 transition-opacity print-hidden"
           aria-label={`Switch to ${settings.viewMode === 'enhanced' ? 'simple' : 'enhanced'} view`}
         >
           {settings.viewMode === 'enhanced' ? <SparklesIcon className="h-6 w-6" /> : <ViewSimpleIcon className="h-6 w-6" />}
@@ -134,7 +228,7 @@ const App: React.FC = () => {
 
       <button
         onClick={() => setIsAdminView(!isAdminView)}
-        className="fixed bottom-4 right-4 bg-primary text-white p-3 rounded-full shadow-lg z-50 hover:opacity-90 transition-opacity"
+        className="fixed bottom-4 right-4 bg-primary text-white p-3 rounded-full shadow-lg z-50 hover:opacity-90 transition-opacity print-hidden"
         aria-label="Toggle admin panel"
       >
         {isAdminView ? (

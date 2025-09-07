@@ -15,7 +15,7 @@ const ScrollView: React.FC<{ data: ProfileData }> = ({ data }) => {
   return (
     <>
       <Header data={data} />
-      <section className="h-[70vh] min-h-[500px]">
+      <section id="hero-container" className="h-[70vh] min-h-[500px]">
           <HeroSection data={data} />
       </section>
       <main>

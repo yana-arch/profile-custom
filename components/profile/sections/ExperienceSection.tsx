@@ -16,7 +16,10 @@ const ExperienceSection: React.FC<{ data: ProfileData; }> = ({ data }) => (
           <p className="text-sm font-semibold text-primary">{job.startDate} - {job.endDate}</p>
           <h3 className="text-xl font-bold text-text-primary mt-1">{job.title}</h3>
           <p className="text-md text-text-secondary">{job.company}</p>
-          <p className="mt-2 text-text-secondary">{job.description}</p>
+          <div 
+            className="mt-2 text-text-secondary prose"
+            dangerouslySetInnerHTML={{ __html: job.description }}
+          />
           <div className="mt-3 flex flex-wrap gap-2">
             {job.skillsUsed.map(skill => <span key={skill} className="bg-primary/10 text-primary text-xs font-semibold px-2.5 py-0.5 rounded-full">{skill}</span>)}
           </div>

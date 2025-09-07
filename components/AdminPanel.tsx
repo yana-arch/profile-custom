@@ -9,6 +9,7 @@ import ProjectsSettings from './admin/tabs/ProjectsSettings';
 import CertificationsSettings from './admin/tabs/CertificationsSettings';
 import SkillsSettings from './admin/tabs/SkillsSettings';
 import AnimationSettings from './admin/tabs/AnimationSettings';
+import { DesktopComputerIcon, TabletIcon, DevicePhoneMobileIcon } from './icons/Icons';
 
 type AdminPanelProps = {
   data: ProfileData;
@@ -29,8 +30,15 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ data, setData }) => {
 
   const [tabs, setTabs] = useState(initialTabs);
   const [activeTab, setActiveTab] = useState('display');
+  const [previewMode, setPreviewMode] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
   const dragItemIndex = useRef<number | null>(null);
   const [draggedItem, setDraggedItem] = useState<number | null>(null);
+
+  const previewSizes = {
+    desktop: '100%',
+    tablet: '768px',
+    mobile: '390px',
+  };
 
   const handleDragStart = (e: React.DragEvent<HTMLButtonElement>, index: number) => {
     dragItemIndex.current = index;
@@ -84,7 +92,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ data, setData }) => {
         <div className="p-4 border-b border-border-color">
           <h2 className="text-2xl font-bold text-text-primary">Admin Panel</h2>
         </div>
-        <nav className="p-4 flex flex-row md:flex-col overflow-x-auto border-b border-border-color">
+        <nav className="p-4 flex flex-col border-b border-border-color">
           {tabs.map((tab, index) => (
             <button 
               key={tab.id} 
@@ -94,7 +102,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ data, setData }) => {
               onDragEnter={() => handleDragEnter(index)}
               onDragEnd={handleDragEnd}
               onDragOver={(e) => e.preventDefault()}
-              className={`text-left p-3 rounded-lg mb-2 whitespace-nowrap transition-all duration-200 w-full md:w-auto 
+              className={`text-left p-3 rounded-lg mb-2 transition-all duration-200 w-full
                 ${activeTab === tab.id ? 'bg-primary text-white' : 'hover:bg-border-color text-text-secondary'}
                 ${draggedItem === index ? 'opacity-50' : ''}
                 cursor-grab active:cursor-grabbing
@@ -109,15 +117,39 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ data, setData }) => {
       </aside>
 
       {/* Live Preview Panel */}
-      <main className="flex-1 hidden md:flex items-center justify-center p-8 bg-background overflow-hidden">
-        <div className="w-full h-full rounded-xl shadow-2xl bg-card-background border border-border-color overflow-hidden">
-          <div className="h-8 bg-border-color/50 flex items-center px-4 space-x-2">
-            <div className="w-3 h-3 rounded-full bg-red-500"></div>
-            <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-            <div className="w-3 h-3 rounded-full bg-green-500"></div>
+      <main className="flex-1 hidden md:flex flex-col items-center justify-center p-8 bg-background overflow-hidden">
+        <div className="w-full max-w-[1400px] h-full rounded-xl shadow-2xl bg-card-background border border-border-color overflow-hidden flex flex-col">
+          <div className="h-10 bg-border-color/50 flex-shrink-0 flex items-center justify-between px-4 space-x-2">
+            <div className="flex items-center space-x-2">
+                <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                <div className="w-3 h-3 rounded-full bg-green-500"></div>
+            </div>
+            <div className="flex items-center space-x-2">
+                {(['desktop', 'tablet', 'mobile'] as const).map((mode) => (
+                    <button 
+                      key={mode} 
+                      onClick={() => setPreviewMode(mode)} 
+                      className={`p-1 rounded ${previewMode === mode ? 'bg-primary/20 text-primary' : 'text-text-secondary hover:bg-border-color'}`}
+                      aria-label={`Preview on ${mode}`}
+                    >
+                        {mode === 'desktop' && <DesktopComputerIcon className="w-5 h-5" />}
+                        {mode === 'tablet' && <TabletIcon className="w-5 h-5" />}
+                        {mode === 'mobile' && <DevicePhoneMobileIcon className="w-5 h-5" />}
+                    </button>
+                ))}
+            </div>
+            <div className="w-12"></div> {/* Spacer to balance the controls */}
           </div>
-          <div className="w-full h-[calc(100%-2rem)] overflow-y-auto">
-            <Profile data={data} />
+          <div className="w-full flex-1 overflow-y-auto p-4 bg-background flex justify-center">
+            <div 
+              className="h-full bg-card-background shadow-lg transition-all duration-300 ease-in-out" 
+              style={{ width: previewSizes[previewMode] }}
+            >
+              <div className="w-full h-full overflow-y-auto">
+                <Profile data={data} />
+              </div>
+            </div>
           </div>
         </div>
       </main>

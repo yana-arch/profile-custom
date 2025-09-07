@@ -6,7 +6,7 @@ export const DEFAULT_PROFILE_DATA: ProfileData = {
     name: "Nguyen Van A",
     title: "Frontend Developer",
     bio: "A passionate Frontend Developer with experience in building responsive and user-friendly web applications using modern technologies like React, TypeScript, and Tailwind CSS. Always eager to learn and adapt to new challenges.",
-    avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704d",
+    avatar: "https://i.pravatar.cc/300?u=a042581f4e29026704d",
     heroImage: "https://picsum.photos/seed/hero/1200/600",
     cvFileUrl: "#", // Placeholder for CV download link
     contact: {
