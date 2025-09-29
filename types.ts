@@ -1,23 +1,22 @@
 export interface PersonalInfo {
   name: string;
   title: string;
-  bio: string;
   avatar: string;
   heroImage: string;
-  cvFileUrl: string;
+  bio: string;
   contact: {
     email: string;
-    phone: string;
     linkedin: string;
     github: string;
     portfolio: string;
   };
+  cvFileUrl: string;
 }
 
 export interface Experience {
   id: string;
-  company: string;
   title: string;
+  company: string;
   startDate: string;
   endDate: string;
   description: string;
@@ -25,34 +24,24 @@ export interface Experience {
 }
 
 export interface Education {
-    id: string;
-    school: string;
-    degree: string;
-    fieldOfStudy: string;
-    startDate: string;
-    endDate: string;
-    description: string;
+  id: string;
+  school: string;
+  degree: string;
+  fieldOfStudy: string;
+  startDate: string;
+  endDate: string;
+  description: string;
 }
 
 export interface Project {
   id: string;
   name: string;
   description: string;
-  demoLink: string;
-  repoLink: string;
   image: string;
+  repoLink: string;
+  demoLink: string;
   tags: string[];
 }
-
-export interface Certification {
-    id: string;
-    name: string;
-    issuingOrganization: string;
-    date: string;
-    credentialUrl: string;
-    image?: string;
-}
-
 
 export interface Skill {
   id: string;
@@ -67,9 +56,26 @@ export interface Skills {
   tools: Skill[];
 }
 
+export interface Certification {
+  id: string;
+  name: string;
+  issuingOrganization: string;
+  date: string;
+  credentialUrl: string;
+  image?: string;
+}
+
 export interface AnimationSettings {
   scrollAnimation: 'none' | 'fadeIn' | 'slideUp';
   hoverEffect: 'none' | 'lift' | 'grow';
+}
+
+export interface AiSettings {
+  provider: 'gemini' | 'openrouter' | 'custom';
+  apiKey: string;
+  openRouterModel?: string;
+  customApiUrl?: string;
+  customModel?: string;
 }
 
 export interface Settings {
@@ -78,22 +84,22 @@ export interface Settings {
   primaryColor: string;
   secondaryColor: string;
   fontFamily: string;
-  customCss: string;
-  animations: AnimationSettings;
-  sections: {
-      about: boolean;
-      experience: boolean;
-      education: boolean;
-      projects: boolean;
-      skills: boolean;
-      certifications: boolean;
-      contact: boolean;
-  };
-  // New settings for deeper customization and performance
-  viewMode: 'simple' | 'enhanced';
-  borderRadius: number; // in pixels
+  borderRadius: number;
   boxShadowStrength: 'none' | 'sm' | 'md' | 'lg' | 'xl';
-  transitionDuration: number; // in milliseconds
+  transitionDuration: number;
+  customCss: string;
+  viewMode: 'enhanced' | 'simple';
+  sections: {
+    about: boolean;
+    experience: boolean;
+    education: boolean;
+    projects: boolean;
+    skills: boolean;
+    certifications: boolean;
+    contact: boolean;
+  };
+  animations: AnimationSettings;
+  ai: AiSettings;
 }
 
 export interface ProfileData {
@@ -101,7 +107,7 @@ export interface ProfileData {
   experience: Experience[];
   education: Education[];
   projects: Project[];
-  certifications: Certification[];
   skills: Skills;
+  certifications: Certification[];
   settings: Settings;
 }

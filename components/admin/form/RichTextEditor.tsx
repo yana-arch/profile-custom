@@ -2,7 +2,7 @@ import React from 'react';
 import ReactQuill from 'react-quill';
 
 interface RichTextEditorProps {
-  label: string;
+  label?: string;
   value: string;
   onChange: (value: string) => void;
   name: string;
@@ -21,7 +21,8 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ label, value, onChange,
 
   return (
     <div className="mb-4 rich-text-editor">
-      <label htmlFor={name} className="block text-sm font-medium text-text-secondary mb-1">{label}</label>
+      {/* FIX: Conditionally render the label only if it's provided */}
+      {label && <label htmlFor={name} className="block text-sm font-medium text-text-secondary mb-1">{label}</label>}
       <ReactQuill
         theme="snow"
         value={value}

@@ -1,38 +1,31 @@
 import React, { useState, useRef } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import ReactQuill from 'react-quill';
-import { GoogleGenAI } from "@google/genai";
 import { ProfileData, Experience } from '../../../types';
 import AdminSection from '../form/AdminSection';
 import InputField from '../form/InputField';
+import RichTextEditor from '../form/RichTextEditor';
 import { Bars3Icon, SparklesIcon, SpinnerIcon } from '../../icons/Icons';
+import { generateContent } from '../../../utils/ai';
 
 type Props = {
   data: ProfileData;
   setData: React.Dispatch<React.SetStateAction<ProfileData>>;
 };
 
-type ExperienceErrors = Partial<Record<keyof Omit<Experience, 'id' | 'skillsUsed' | 'description'>, string>>;
+type ExperienceErrors = Partial<Record<keyof Omit<Experience, 'id' | 'description' | 'skillsUsed'>, string>>;
 
 const ExperienceSettings: React.FC<Props> = ({ data, setData }) => {
   const [errors, setErrors] = useState<ExperienceErrors[]>([]);
   const [draggedItem, setDraggedItem] = useState<number | null>(null);
+  const [generatingStates, setGeneratingStates] = useState<Record<string, boolean>>({});
   const dragItemIndex = useRef<number | null>(null);
-  const [generatingIndex, setGeneratingIndex] = useState<number | null>(null);
-  const [suggestingSkillsIndex, setSuggestingSkillsIndex] = useState<number | null>(null);
 
-  const modules = {
-    toolbar: [
-      [{ 'header': [1, 2, 3, false] }],
-      ['bold', 'italic', 'underline', 'strike', 'blockquote'],
-      [{'list': 'ordered'}, {'list': 'bullet'}, {'indent': '-1'}, {'indent': '+1'}],
-      ['link', 'image', 'video'],
-      ['clean']
-    ],
+  const setGenerating = (id: string, value: boolean) => {
+    setGeneratingStates(prev => ({...prev, [id]: value}));
   };
 
   const validateField = (name: string, value: string): string => {
-    if ((name === 'company' || name === 'title') && !value.trim()) {
+    if ((name === 'title' || name === 'company') && !value.trim()) {
       return 'This field is required.';
     }
     return '';
@@ -48,12 +41,16 @@ const ExperienceSettings: React.FC<Props> = ({ data, setData }) => {
         return newErrors;
     });
   };
-  
+
   const handleItemChange = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setData(prev => {
       const newItems = [...prev.experience];
-      newItems[index] = { ...newItems[index], [name]: value };
+      if (name === 'skillsUsed') {
+        newItems[index] = { ...newItems[index], skillsUsed: value.split(',').map(s => s.trim()).filter(Boolean) };
+      } else {
+        newItems[index] = { ...newItems[index], [name]: value };
+      }
       return { ...prev, experience: newItems };
     });
   };
@@ -65,19 +62,46 @@ const ExperienceSettings: React.FC<Props> = ({ data, setData }) => {
         return { ...prev, experience: newItems };
     });
   };
+  
+  const generateDescription = async (index: number) => {
+    if (!data.settings.ai.apiKey) {
+      alert('Please configure your AI API key in the AI Settings tab.');
+      return;
+    }
+    const job = data.experience[index];
+    setGenerating(`desc_${job.id}`, true);
+    const prompt = `Write a professional job description for a ${job.title} at ${job.company}. Focus on key responsibilities and achievements. Present it as a bulleted list within <ul> tags.`;
+    const result = await generateContent(data.settings.ai, prompt);
+    if (result) {
+      handleDescriptionChange(index, result);
+    }
+    setGenerating(`desc_${job.id}`, false);
+  };
 
-  const handleSkillsChange = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
-    const { value } = e.target;
-    const skills = value.split(',').map(s => s.trim()).filter(Boolean);
-    setData(prev => {
-        const newItems = [...prev.experience];
-        newItems[index] = { ...newItems[index], skillsUsed: skills };
-        return { ...prev, experience: newItems };
-    });
+  const suggestSkills = async (index: number) => {
+    if (!data.settings.ai.apiKey) {
+      alert('Please configure your AI API key in the AI Settings tab.');
+      return;
+    }
+    const job = data.experience[index];
+    setGenerating(`skills_${job.id}`, true);
+    const prompt = `Based on the following job description, list the key skills and technologies used. Return only a comma-separated list (e.g., React, TypeScript, AWS):\n\n${job.description.replace(/<[^>]+>/g, '')}`;
+    const result = await generateContent(data.settings.ai, prompt);
+     if (result) {
+        const newSkills = result.split(',').map(s => s.trim()).filter(Boolean);
+        setData(prev => {
+            const newItems = [...prev.experience];
+            const currentSkills = newItems[index].skillsUsed || [];
+            const mergedSkills = [...new Set([...currentSkills, ...newSkills])];
+            newItems[index].skillsUsed = mergedSkills;
+            return { ...prev, experience: newItems };
+        });
+    }
+    setGenerating(`skills_${job.id}`, false);
   };
 
   const addItem = () => {
-    const newItem: Experience = {id: uuidv4(), company: '', title: '', startDate: '', endDate: '', description: '', skillsUsed: []};
+    const newItem: Experience = {id: uuidv4(), title: '', company: '', startDate: '', endDate: '', description: '', skillsUsed: []};
     setData(prev => ({
       ...prev,
       experience: [...prev.experience, newItem]
@@ -99,9 +123,7 @@ const ExperienceSettings: React.FC<Props> = ({ data, setData }) => {
   };
 
   const handleDragEnter = (index: number) => {
-    if (dragItemIndex.current === null || dragItemIndex.current === index) {
-      return;
-    }
+    if (dragItemIndex.current === null || dragItemIndex.current === index) return;
     setData(prev => {
       const newItems = [...prev.experience];
       const draggedItemContent = newItems.splice(dragItemIndex.current!, 1)[0];
@@ -115,154 +137,59 @@ const ExperienceSettings: React.FC<Props> = ({ data, setData }) => {
     dragItemIndex.current = null;
     setDraggedItem(null);
   };
-
-  const generateDescription = async (index: number) => {
-    const exp = data.experience[index];
-    if (!exp.title || !exp.company) {
-        alert('Please enter a Title and Company first to generate a description.');
-        return;
-    }
-    setGeneratingIndex(index);
-    try {
-        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
-        const prompt = `Write a professional job description for a "${exp.title}" at "${exp.company}". Focus on key responsibilities and achievements. The output should be a short paragraph in HTML format, suitable for a rich text editor. For example: <p>Developed and maintained features for a large-scale e-commerce platform. Collaborated with UI/UX designers to implement pixel-perfect designs and improve user engagement by 15%.</p>`;
-        const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
-            contents: prompt,
-        });
-        const text = response.text;
-        if (!text) {
-          throw new Error("No text returned from API for description generation.");
-        }
-        const generatedDesc = text.replace(/```html|```/g, '').trim();
-        
-        setData(prev => {
-            const newItems = [...prev.experience];
-            newItems[index] = { ...newItems[index], description: generatedDesc };
-            return { ...prev, experience: newItems };
-        });
-    } catch (error) {
-        console.error("Error generating description:", error);
-        alert("Sorry, there was an error generating the description. Please try again.");
-    } finally {
-        setGeneratingIndex(null);
-    }
-  };
   
-  const suggestSkills = async (index: number) => {
-    const exp = data.experience[index];
-    if (!exp.description) {
-        alert('Please generate or write a description first to suggest skills.');
-        return;
-    }
-    setSuggestingSkillsIndex(index);
-    try {
-        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
-        const prompt = `Based on the following job description, list the key technical skills, frameworks, and libraries mentioned. Return ONLY a comma-separated list of skills (e.g., React, TypeScript, Redux, SCSS). Do not add any other text or formatting.\n\nDescription:\n${exp.description.replace(/<[^>]*>?/gm, ' ')}`; // strip HTML tags for better analysis
-        const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
-            contents: prompt,
-        });
-        const suggestedSkillsText = response.text;
-        if (!suggestedSkillsText) {
-            console.error("No text returned from API for skill suggestion.");
-            alert("Sorry, the AI couldn't suggest any skills for this description.");
-            return;
-        }
-        const suggestedSkills = suggestedSkillsText.trim().split(',').map(s => s.trim()).filter(Boolean);
-        
-        setData(prev => {
-            const newItems = [...prev.experience];
-            // Merge skills, avoiding duplicates
-            const currentSkills = new Set(newItems[index].skillsUsed);
-            suggestedSkills.forEach(skill => currentSkills.add(skill));
-            newItems[index] = { ...newItems[index], skillsUsed: Array.from(currentSkills) };
-            return { ...prev, experience: newItems };
-        });
-    } catch (error) {
-        console.error("Error suggesting skills:", error);
-        alert("Sorry, there was an error suggesting skills. Please try again.");
-    } finally {
-        setSuggestingSkillsIndex(null);
-    }
-  };
-
-
   return (
     <AdminSection title="Work Experience">
-      {data.experience.map((exp, index) => (
+      {data.experience.map((job, index) => (
         <div 
-          key={exp.id} 
+          key={job.id} 
           className={`border border-border-color p-4 rounded-md mb-4 transition-opacity ${draggedItem === index ? 'opacity-50' : ''}`}
-          draggable
-          onDragStart={(e) => handleDragStart(e, index)}
-          onDragEnter={() => handleDragEnter(index)}
-          onDragEnd={handleDragEnd}
-          onDragOver={(e) => e.preventDefault()}
+          draggable onDragStart={(e) => handleDragStart(e, index)} onDragEnter={() => handleDragEnter(index)}
+          onDragEnd={handleDragEnd} onDragOver={(e) => e.preventDefault()}
         >
           <div className="flex justify-between items-center mb-4 pb-2 border-b border-border-color/50 cursor-grab active:cursor-grabbing">
-            <h4 className="text-md font-semibold text-text-primary truncate pr-2">{exp.title || 'New Experience'}</h4>
+            <h4 className="text-md font-semibold text-text-primary truncate pr-2">{job.title || 'New Job'}</h4>
             <Bars3Icon className="w-6 h-6 text-text-secondary flex-shrink-0"/>
           </div>
-          <InputField label="Company" name="company" value={exp.company} onChange={e => handleItemChange(index, e)} onBlur={e => handleBlur(index, e)} placeholder="e.g., GlobalTech Solutions" error={errors[index]?.company}/>
-          <InputField label="Title" name="title" value={exp.title} onChange={e => handleItemChange(index, e)} onBlur={e => handleBlur(index, e)} placeholder="e.g., Senior Frontend Developer" error={errors[index]?.title}/>
-          <InputField label="Start Date" name="startDate" value={exp.startDate} onChange={e => handleItemChange(index, e)} onBlur={e => handleBlur(index, e)} placeholder="e.g., 2021" error={errors[index]?.startDate}/>
-          <InputField label="End Date" name="endDate" value={exp.endDate} onChange={e => handleItemChange(index, e)} onBlur={e => handleBlur(index, e)} placeholder="e.g., Present" error={errors[index]?.endDate}/>
+          <InputField label="Job Title" name="title" value={job.title} onChange={e => handleItemChange(index, e)} onBlur={e => handleBlur(index, e)} placeholder="e.g., Senior Software Engineer" error={errors[index]?.title}/>
+          <InputField label="Company" name="company" value={job.company} onChange={e => handleItemChange(index, e)} onBlur={e => handleBlur(index, e)} placeholder="e.g., Tech Solutions Inc." error={errors[index]?.company}/>
+          <InputField label="Start Date" name="startDate" value={job.startDate} onChange={e => handleItemChange(index, e)} placeholder="e.g., Jan 2020"/>
+          <InputField label="End Date" name="endDate" value={job.endDate} onChange={e => handleItemChange(index, e)} placeholder="e.g., Present"/>
           
-          <div className="mb-4 rich-text-editor">
-            <div className="flex justify-between items-center mb-1">
-              <label htmlFor={`description-${exp.id}`} className="block text-sm font-medium text-text-secondary">Description</label>
-              <button
-                type="button"
-                onClick={() => generateDescription(index)}
-                disabled={generatingIndex === index}
-                className="flex items-center space-x-1 text-xs text-primary hover:text-primary/80 disabled:opacity-50 disabled:cursor-wait transition-colors font-medium"
-              >
-                {generatingIndex === index ? (
-                  <SpinnerIcon className="w-4 h-4 animate-spin" />
-                ) : (
-                  <SparklesIcon className="w-4 h-4" />
-                )}
-                <span>{generatingIndex === index ? 'Generating...' : 'Generate with AI'}</span>
-              </button>
-            </div>
-            <ReactQuill
-              theme="snow"
-              value={exp.description}
-              onChange={value => handleDescriptionChange(index, value)}
-              modules={modules}
-              placeholder="Describe your responsibilities and achievements..."
-            />
+          <div className="mb-4">
+              <div className="flex justify-between items-center mb-1">
+                <label className="block text-sm font-medium text-text-secondary">Description</label>
+                <button
+                    onClick={() => generateDescription(index)}
+                    disabled={generatingStates[`desc_${job.id}`]}
+                    className="bg-secondary/80 hover:bg-secondary text-white px-3 py-1 text-xs rounded-md flex items-center disabled:opacity-50"
+                  >
+                    {generatingStates[`desc_${job.id}`] ? <SpinnerIcon className="w-4 h-4 mr-1 animate-spin" /> : <SparklesIcon className="w-4 h-4 mr-1" />}
+                    Generate
+                </button>
+              </div>
+              <RichTextEditor name={`description-${job.id}`} value={job.description} onChange={value => handleDescriptionChange(index, value)} />
           </div>
 
           <div className="mb-4">
-            <div className="flex justify-between items-center mb-1">
-                <label htmlFor={`skillsUsed-${exp.id}`} className="block text-sm font-medium text-text-secondary">Skills Used (comma-separated)</label>
-                {exp.description && (
-                    <button
-                        type="button"
-                        onClick={() => suggestSkills(index)}
-                        disabled={suggestingSkillsIndex === index}
-                        className="flex items-center space-x-1 text-xs text-primary hover:text-primary/80 disabled:opacity-50 disabled:cursor-wait transition-colors font-medium"
-                    >
-                        {suggestingSkillsIndex === index ? (
-                            <SpinnerIcon className="w-4 h-4 animate-spin" />
-                        ) : (
-                            <SparklesIcon className="w-4 h-4" />
-                        )}
-                        <span>{suggestingSkillsIndex === index ? 'Suggesting...' : 'Suggest with AI'}</span>
-                    </button>
-                )}
-            </div>
-            <input
-                id={`skillsUsed-${exp.id}`}
-                name="skillsUsed"
-                type="text"
-                value={exp.skillsUsed.join(', ')}
-                onChange={e => handleSkillsChange(index, e)}
-                placeholder="e.g., React, TypeScript, Redux"
-                className="w-full bg-background border border-border-color focus:border-primary focus:ring-primary rounded-md px-3 py-2 text-text-primary transition-colors"
-            />
+              <div className="flex justify-between items-center mb-1">
+                <label htmlFor={`skillsUsed-${job.id}`} className="block text-sm font-medium text-text-secondary">Skills Used (comma-separated)</label>
+                <button
+                    onClick={() => suggestSkills(index)}
+                    disabled={!job.description || generatingStates[`skills_${job.id}`]}
+                    className="bg-secondary/80 hover:bg-secondary text-white px-3 py-1 text-xs rounded-md flex items-center disabled:opacity-50"
+                  >
+                    {generatingStates[`skills_${job.id}`] ? <SpinnerIcon className="w-4 h-4 mr-1 animate-spin" /> : <SparklesIcon className="w-4 h-4 mr-1" />}
+                    Suggest
+                </button>
+              </div>
+              <InputField
+                  label=""
+                  name="skillsUsed"
+                  value={Array.isArray(job.skillsUsed) ? job.skillsUsed.join(', ') : ''}
+                  onChange={e => handleItemChange(index, e)}
+                  placeholder="e.g., React, Node.js, AWS"
+              />
           </div>
 
           <button onClick={() => removeItem(index)} className="text-red-500 hover:text-red-700 text-sm mt-2">Remove</button>

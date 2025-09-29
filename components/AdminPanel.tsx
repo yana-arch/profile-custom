@@ -1,180 +1,77 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { ProfileData } from '../types';
-import Profile from './Profile';
-import DisplaySettings from './admin/tabs/DisplaySettings';
 import PersonalInfoSettings from './admin/tabs/PersonalInfoSettings';
 import ExperienceSettings from './admin/tabs/ExperienceSettings';
 import EducationSettings from './admin/tabs/EducationSettings';
 import ProjectsSettings from './admin/tabs/ProjectsSettings';
-import CertificationsSettings from './admin/tabs/CertificationsSettings';
 import SkillsSettings from './admin/tabs/SkillsSettings';
+import CertificationsSettings from './admin/tabs/CertificationsSettings';
+import DisplaySettings from './admin/tabs/DisplaySettings';
 import AnimationSettings from './admin/tabs/AnimationSettings';
-import { DesktopComputerIcon, TabletIcon, DevicePhoneMobileIcon, ArrowsPointingOutIcon, ArrowsPointingInIcon } from './icons/Icons';
+import AiSettings from './admin/tabs/AiSettings';
+import { UserIcon, BriefcaseIcon, AcademicCapIcon, CodeBracketIcon, WrenchScrewdriverIcon, CertificateIcon, EyeIcon, SparklesIcon, CogIcon } from './icons/Icons';
 
-type AdminPanelProps = {
+type Props = {
   data: ProfileData;
   setData: React.Dispatch<React.SetStateAction<ProfileData>>;
-  isViewOnly?: boolean;
-  setIsViewOnly?: React.Dispatch<React.SetStateAction<boolean>>;
+  isViewOnly: boolean;
+  setIsViewOnly: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-const AdminPanel: React.FC<AdminPanelProps> = ({ data, setData, isViewOnly = false, setIsViewOnly }) => {
-  const initialTabs = [
-    { id: 'display', name: 'Display Settings' },
-    { id: 'animations', name: 'Animations & Effects' },
-    { id: 'personal', name: 'Personal Info' },
-    { id: 'experience', name: 'Experience' },
-    { id: 'education', name: 'Education' },
-    { id: 'projects', name: 'Projects' },
-    { id: 'certifications', name: 'Certifications' },
-    { id: 'skills', name: 'Skills' },
+const AdminPanel: React.FC<Props> = ({ data, setData, isViewOnly, setIsViewOnly }) => {
+  const [activeTab, setActiveTab] = useState('personal');
+
+  const tabs = [
+    { id: 'personal', label: 'Personal Info', icon: <UserIcon className="w-5 h-5 mr-2" /> },
+    { id: 'experience', label: 'Experience', icon: <BriefcaseIcon className="w-5 h-5 mr-2" /> },
+    { id: 'education', label: 'Education', icon: <AcademicCapIcon className="w-5 h-5 mr-2" /> },
+    { id: 'projects', label: 'Projects', icon: <CodeBracketIcon className="w-5 h-5 mr-2" /> },
+    { id: 'skills', label: 'Skills', icon: <WrenchScrewdriverIcon className="w-5 h-5 mr-2" /> },
+    { id: 'certifications', label: 'Certifications', icon: <CertificateIcon className="w-5 h-5 mr-2" /> },
+    { id: 'display', label: 'Display', icon: <EyeIcon className="w-5 h-5 mr-2" /> },
+    { id: 'animations', label: 'Animations', icon: <SparklesIcon className="w-5 h-5 mr-2" /> },
+    { id: 'ai', label: 'AI Settings', icon: <CogIcon className="w-5 h-5 mr-2" /> }
   ];
 
-  const [tabs, setTabs] = useState(initialTabs);
-  const [activeTab, setActiveTab] = useState('display');
-  const [previewMode, setPreviewMode] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
-  const dragItemIndex = useRef<number | null>(null);
-  const [draggedItem, setDraggedItem] = useState<number | null>(null);
-
-  const previewSizes = {
-    desktop: '100%',
-    tablet: '768px',
-    mobile: '390px',
-  };
-
-  const handleDragStart = (e: React.DragEvent<HTMLButtonElement>, index: number) => {
-    dragItemIndex.current = index;
-    setDraggedItem(index);
-    e.dataTransfer.effectAllowed = 'move';
-  };
-
-  const handleDragEnter = (index: number) => {
-    if (dragItemIndex.current === null || dragItemIndex.current === index) {
-      return;
+  const renderContent = () => {
+    switch (activeTab) {
+      case 'personal': return <PersonalInfoSettings data={data} setData={setData} />;
+      case 'experience': return <ExperienceSettings data={data} setData={setData} />;
+      case 'education': return <EducationSettings data={data} setData={setData} />;
+      case 'projects': return <ProjectsSettings data={data} setData={setData} />;
+      case 'skills': return <SkillsSettings data={data} setData={setData} />;
+      case 'certifications': return <CertificationsSettings data={data} setData={setData} />;
+      case 'display': return <DisplaySettings data={data} setData={setData} />;
+      case 'animations': return <AnimationSettings data={data} setData={setData} />;
+      case 'ai': return <AiSettings data={data} setData={setData} />;
+      default: return null;
     }
-    const newTabs = [...tabs];
-    const draggedItemContent = newTabs.splice(dragItemIndex.current, 1)[0];
-    newTabs.splice(index, 0, draggedItemContent);
-    dragItemIndex.current = index;
-    setTabs(newTabs);
   };
-  
-  const handleDragEnd = () => {
-      dragItemIndex.current = null;
-      setDraggedItem(null);
-  };
-  
-  const renderActiveTabContent = () => {
-    switch(activeTab) {
-      case 'display':
-        return <DisplaySettings data={data} setData={setData} />;
-      case 'animations':
-        return <AnimationSettings data={data} setData={setData} />;
-      case 'personal':
-        return <PersonalInfoSettings data={data} setData={setData} />;
-      case 'experience':
-        return <ExperienceSettings data={data} setData={setData} />;
-      case 'education':
-        return <EducationSettings data={data} setData={setData} />;
-      case 'projects':
-        return <ProjectsSettings data={data} setData={setData} />;
-      case 'certifications':
-        return <CertificationsSettings data={data} setData={setData} />;
-      case 'skills':
-        return <SkillsSettings data={data} setData={setData} />;
-      default:
-        return null;
-    }
-  }
 
   return (
-    <div className="flex h-screen bg-background text-text-primary">
-      {/* Settings Panel */}
-      {!isViewOnly && (
-        <aside className="w-full md:w-[450px] bg-card-background/50 flex-shrink-0 h-full flex flex-col border-r border-border-color">
-          <div className="p-4 border-b border-border-color">
-            <h2 className="text-2xl font-bold text-text-primary">Admin Panel</h2>
-          </div>
-          <nav className="p-4 flex flex-col border-b border-border-color">
-            {tabs.map((tab, index) => (
-              <button 
-                key={tab.id} 
-                onClick={() => setActiveTab(tab.id)} 
-                draggable
-                onDragStart={(e) => handleDragStart(e, index)}
-                onDragEnter={() => handleDragEnter(index)}
-                onDragEnd={handleDragEnd}
-                onDragOver={(e) => e.preventDefault()}
-                className={`text-left p-3 rounded-lg mb-2 transition-all duration-200 w-full
-                  ${activeTab === tab.id ? 'bg-primary text-white' : 'hover:bg-border-color text-text-secondary'}
-                  ${draggedItem === index ? 'opacity-50' : ''}
-                  cursor-grab active:cursor-grabbing
-                `}>
-                {tab.name}
-              </button>
-            ))}
-          </nav>
-          <div className="flex-1 p-4 md:p-6 overflow-y-auto">
-            {renderActiveTabContent()}
-          </div>
-        </aside>
-      )}
-
-
-      {/* Live Preview Panel */}
-      <main className={`flex-1 hidden md:flex flex-col items-center justify-center overflow-hidden transition-all duration-300 ${isViewOnly ? 'p-0' : 'p-8'} bg-background`}>
-        <div className={`w-full h-full bg-card-background overflow-hidden flex flex-col transition-all duration-300 ${isViewOnly ? 'rounded-none shadow-none border-none' : 'max-w-[1400px] rounded-xl shadow-2xl border border-border-color'}`}>
-          <div className="h-10 bg-border-color/50 flex-shrink-0 flex items-center justify-between px-4 space-x-2">
-            <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 rounded-full bg-red-500"></div>
-                <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-                <div className="w-3 h-3 rounded-full bg-green-500"></div>
-            </div>
-            <div className="flex items-center space-x-2">
-                {(['desktop', 'tablet', 'mobile'] as const).map((mode) => (
-                    <button 
-                      key={mode} 
-                      onClick={() => setPreviewMode(mode)} 
-                      className={`p-1 rounded ${previewMode === mode ? 'bg-primary/20 text-primary' : 'text-text-secondary hover:bg-border-color'}`}
-                      aria-label={`Preview on ${mode}`}
-                    >
-                        {mode === 'desktop' && <DesktopComputerIcon className="w-5 h-5" />}
-                        {mode === 'tablet' && <TabletIcon className="w-5 h-5" />}
-                        {mode === 'mobile' && <DevicePhoneMobileIcon className="w-5 h-5" />}
-                    </button>
-                ))}
-                <div className="border-l border-border-color h-5 mx-1"></div>
-                <button
-                    onClick={() => setIsViewOnly?.(!isViewOnly)}
-                    className={`p-1 rounded ${isViewOnly ? 'bg-primary/20 text-primary' : 'text-text-secondary hover:bg-border-color'}`}
-                    aria-label={isViewOnly ? "Exit view only mode" : "Enter view only mode"}
-                >
-                    {isViewOnly ? <ArrowsPointingInIcon className="w-5 h-5" /> : <ArrowsPointingOutIcon className="w-5 h-5" />}
-                </button>
-            </div>
-            <div className="w-12"></div> {/* Spacer to balance the controls */}
-          </div>
-          <div className={`w-full flex-1 overflow-y-auto ${isViewOnly ? '' : 'p-4'} bg-background flex justify-center`}>
-            <div 
-              className={`h-full bg-card-background transition-all duration-300 ease-in-out ${isViewOnly ? '' : 'shadow-lg'}`}
-              style={{ width: isViewOnly ? '100%' : previewSizes[previewMode] }}
+    <div className="flex flex-col md:flex-row min-h-screen">
+      <aside className="w-full md:w-64 bg-card-background border-b md:border-b-0 md:border-r border-border-color p-4 md:p-6 print-hidden">
+        <h2 className="text-2xl font-bold text-text-primary mb-6">Admin Panel</h2>
+        <nav className="flex flex-row md:flex-col gap-2 overflow-x-auto pb-2 md:pb-0">
+          {tabs.map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex items-center px-3 py-2 text-sm font-medium rounded-md w-full text-left transition-colors whitespace-nowrap ${
+                activeTab === tab.id
+                  ? 'bg-primary text-white'
+                  : 'text-text-secondary hover:bg-border-color/50'
+              }`}
             >
-              <div className="w-full h-full overflow-y-auto">
-                <Profile data={data} />
-              </div>
-            </div>
-          </div>
-        </div>
+              {tab.icon}
+              {tab.label}
+            </button>
+          ))}
+        </nav>
+      </aside>
+      <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
+        {renderContent()}
       </main>
-      
-      {!isViewOnly && (
-        <div className="flex-1 flex md:hidden items-center justify-center p-8 text-center text-text-secondary">
-          <div>
-            <h3 className="text-xl font-semibold">Live Preview</h3>
-            <p className="mt-2">The live preview is available on larger screens. Please switch to a tablet or desktop to see your changes in real-time.</p>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
