@@ -3,7 +3,7 @@ import { ProfileData } from './types';
 import { DEFAULT_PROFILE_DATA } from './constants';
 import Profile from './components/Profile';
 import AdminPanel from './components/AdminPanel';
-import { SparklesIcon, ViewSimpleIcon } from './components/icons/Icons';
+import { SparklesIcon, ViewSimpleIcon, EyeIcon, CogIcon, ArrowsPointingOutIcon, ArrowsPointingInIcon } from './components/icons/Icons';
 
 const App: React.FC = () => {
   const [profileData, setProfileData] = useState<ProfileData>(() => {
@@ -17,6 +17,7 @@ const App: React.FC = () => {
   });
 
   const [isAdminView, setIsAdminView] = useState(false);
+  const [isViewOnly, setIsViewOnly] = useState(false);
 
   useEffect(() => {
     try {
@@ -211,19 +212,42 @@ const App: React.FC = () => {
   }
 
   const memoizedProfile = useMemo(() => <Profile data={profileData} />, [profileData]);
-  const memoizedAdminPanel = useMemo(() => <AdminPanel data={profileData} setData={setProfileData} />, [profileData]);
+  const memoizedAdminPanel = useMemo(() => <AdminPanel data={profileData} setData={setProfileData} isViewOnly={isViewOnly} setIsViewOnly={setIsViewOnly} />, [profileData, isViewOnly]);
 
+  if (isViewOnly) {
+    return (
+      <div className="bg-background text-text-primary min-h-screen transition-colors duration-300 relative">
+        {memoizedProfile}
+        <button
+            onClick={() => setIsViewOnly(false)}
+            className="fixed bottom-4 right-4 bg-primary text-white p-3 rounded-full shadow-lg z-50 hover:opacity-90 transition-opacity print-hidden"
+            aria-label="Exit View Only Mode"
+        >
+            <ArrowsPointingInIcon className="h-6 w-6" />
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-background text-text-primary min-h-screen transition-colors duration-300">
       {!isAdminView && (
-        <button
-          onClick={toggleViewMode}
-          className="fixed bottom-20 right-4 bg-secondary text-white p-3 rounded-full shadow-lg z-50 hover:opacity-90 transition-opacity print-hidden"
-          aria-label={`Switch to ${settings.viewMode === 'enhanced' ? 'simple' : 'enhanced'} view`}
-        >
-          {settings.viewMode === 'enhanced' ? <SparklesIcon className="h-6 w-6" /> : <ViewSimpleIcon className="h-6 w-6" />}
-        </button>
+        <>
+            <button
+                onClick={toggleViewMode}
+                className="fixed bottom-20 right-4 bg-secondary text-white p-3 rounded-full shadow-lg z-50 hover:opacity-90 transition-opacity print-hidden"
+                aria-label={`Switch to ${settings.viewMode === 'enhanced' ? 'simple' : 'enhanced'} view`}
+            >
+                {settings.viewMode === 'enhanced' ? <SparklesIcon className="h-6 w-6" /> : <ViewSimpleIcon className="h-6 w-6" />}
+            </button>
+            <button
+                onClick={() => setIsViewOnly(true)}
+                className="fixed bottom-36 right-4 bg-secondary text-white p-3 rounded-full shadow-lg z-50 hover:opacity-90 transition-opacity print-hidden"
+                aria-label="Enter View Only Mode"
+            >
+                <ArrowsPointingOutIcon className="h-6 w-6" />
+            </button>
+        </>
       )}
 
       <button
@@ -231,11 +255,7 @@ const App: React.FC = () => {
         className="fixed bottom-4 right-4 bg-primary text-white p-3 rounded-full shadow-lg z-50 hover:opacity-90 transition-opacity print-hidden"
         aria-label="Toggle admin panel"
       >
-        {isAdminView ? (
-           <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
-        ) : (
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-        )}
+        {isAdminView ? <EyeIcon className="h-6 w-6" /> : <CogIcon className="h-6 w-6" />}
       </button>
 
       {isAdminView ? memoizedAdminPanel : memoizedProfile}

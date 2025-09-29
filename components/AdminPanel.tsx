@@ -9,14 +9,16 @@ import ProjectsSettings from './admin/tabs/ProjectsSettings';
 import CertificationsSettings from './admin/tabs/CertificationsSettings';
 import SkillsSettings from './admin/tabs/SkillsSettings';
 import AnimationSettings from './admin/tabs/AnimationSettings';
-import { DesktopComputerIcon, TabletIcon, DevicePhoneMobileIcon } from './icons/Icons';
+import { DesktopComputerIcon, TabletIcon, DevicePhoneMobileIcon, ArrowsPointingOutIcon, ArrowsPointingInIcon } from './icons/Icons';
 
 type AdminPanelProps = {
   data: ProfileData;
   setData: React.Dispatch<React.SetStateAction<ProfileData>>;
+  isViewOnly?: boolean;
+  setIsViewOnly?: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-const AdminPanel: React.FC<AdminPanelProps> = ({ data, setData }) => {
+const AdminPanel: React.FC<AdminPanelProps> = ({ data, setData, isViewOnly = false, setIsViewOnly }) => {
   const initialTabs = [
     { id: 'display', name: 'Display Settings' },
     { id: 'animations', name: 'Animations & Effects' },
@@ -88,37 +90,40 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ data, setData }) => {
   return (
     <div className="flex h-screen bg-background text-text-primary">
       {/* Settings Panel */}
-      <aside className="w-full md:w-[450px] bg-card-background/50 flex-shrink-0 h-full flex flex-col border-r border-border-color">
-        <div className="p-4 border-b border-border-color">
-          <h2 className="text-2xl font-bold text-text-primary">Admin Panel</h2>
-        </div>
-        <nav className="p-4 flex flex-col border-b border-border-color">
-          {tabs.map((tab, index) => (
-            <button 
-              key={tab.id} 
-              onClick={() => setActiveTab(tab.id)} 
-              draggable
-              onDragStart={(e) => handleDragStart(e, index)}
-              onDragEnter={() => handleDragEnter(index)}
-              onDragEnd={handleDragEnd}
-              onDragOver={(e) => e.preventDefault()}
-              className={`text-left p-3 rounded-lg mb-2 transition-all duration-200 w-full
-                ${activeTab === tab.id ? 'bg-primary text-white' : 'hover:bg-border-color text-text-secondary'}
-                ${draggedItem === index ? 'opacity-50' : ''}
-                cursor-grab active:cursor-grabbing
-              `}>
-              {tab.name}
-            </button>
-          ))}
-        </nav>
-        <div className="flex-1 p-4 md:p-6 overflow-y-auto">
-          {renderActiveTabContent()}
-        </div>
-      </aside>
+      {!isViewOnly && (
+        <aside className="w-full md:w-[450px] bg-card-background/50 flex-shrink-0 h-full flex flex-col border-r border-border-color">
+          <div className="p-4 border-b border-border-color">
+            <h2 className="text-2xl font-bold text-text-primary">Admin Panel</h2>
+          </div>
+          <nav className="p-4 flex flex-col border-b border-border-color">
+            {tabs.map((tab, index) => (
+              <button 
+                key={tab.id} 
+                onClick={() => setActiveTab(tab.id)} 
+                draggable
+                onDragStart={(e) => handleDragStart(e, index)}
+                onDragEnter={() => handleDragEnter(index)}
+                onDragEnd={handleDragEnd}
+                onDragOver={(e) => e.preventDefault()}
+                className={`text-left p-3 rounded-lg mb-2 transition-all duration-200 w-full
+                  ${activeTab === tab.id ? 'bg-primary text-white' : 'hover:bg-border-color text-text-secondary'}
+                  ${draggedItem === index ? 'opacity-50' : ''}
+                  cursor-grab active:cursor-grabbing
+                `}>
+                {tab.name}
+              </button>
+            ))}
+          </nav>
+          <div className="flex-1 p-4 md:p-6 overflow-y-auto">
+            {renderActiveTabContent()}
+          </div>
+        </aside>
+      )}
+
 
       {/* Live Preview Panel */}
-      <main className="flex-1 hidden md:flex flex-col items-center justify-center p-8 bg-background overflow-hidden">
-        <div className="w-full max-w-[1400px] h-full rounded-xl shadow-2xl bg-card-background border border-border-color overflow-hidden flex flex-col">
+      <main className={`flex-1 hidden md:flex flex-col items-center justify-center overflow-hidden transition-all duration-300 ${isViewOnly ? 'p-0' : 'p-8'} bg-background`}>
+        <div className={`w-full h-full bg-card-background overflow-hidden flex flex-col transition-all duration-300 ${isViewOnly ? 'rounded-none shadow-none border-none' : 'max-w-[1400px] rounded-xl shadow-2xl border border-border-color'}`}>
           <div className="h-10 bg-border-color/50 flex-shrink-0 flex items-center justify-between px-4 space-x-2">
             <div className="flex items-center space-x-2">
                 <div className="w-3 h-3 rounded-full bg-red-500"></div>
@@ -138,13 +143,21 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ data, setData }) => {
                         {mode === 'mobile' && <DevicePhoneMobileIcon className="w-5 h-5" />}
                     </button>
                 ))}
+                <div className="border-l border-border-color h-5 mx-1"></div>
+                <button
+                    onClick={() => setIsViewOnly?.(!isViewOnly)}
+                    className={`p-1 rounded ${isViewOnly ? 'bg-primary/20 text-primary' : 'text-text-secondary hover:bg-border-color'}`}
+                    aria-label={isViewOnly ? "Exit view only mode" : "Enter view only mode"}
+                >
+                    {isViewOnly ? <ArrowsPointingInIcon className="w-5 h-5" /> : <ArrowsPointingOutIcon className="w-5 h-5" />}
+                </button>
             </div>
             <div className="w-12"></div> {/* Spacer to balance the controls */}
           </div>
-          <div className="w-full flex-1 overflow-y-auto p-4 bg-background flex justify-center">
+          <div className={`w-full flex-1 overflow-y-auto ${isViewOnly ? '' : 'p-4'} bg-background flex justify-center`}>
             <div 
-              className="h-full bg-card-background shadow-lg transition-all duration-300 ease-in-out" 
-              style={{ width: previewSizes[previewMode] }}
+              className={`h-full bg-card-background transition-all duration-300 ease-in-out ${isViewOnly ? '' : 'shadow-lg'}`}
+              style={{ width: isViewOnly ? '100%' : previewSizes[previewMode] }}
             >
               <div className="w-full h-full overflow-y-auto">
                 <Profile data={data} />
@@ -153,12 +166,15 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ data, setData }) => {
           </div>
         </div>
       </main>
-      <div className="flex-1 flex md:hidden items-center justify-center p-8 text-center text-text-secondary">
-        <div>
-          <h3 className="text-xl font-semibold">Live Preview</h3>
-          <p className="mt-2">The live preview is available on larger screens. Please switch to a tablet or desktop to see your changes in real-time.</p>
+      
+      {!isViewOnly && (
+        <div className="flex-1 flex md:hidden items-center justify-center p-8 text-center text-text-secondary">
+          <div>
+            <h3 className="text-xl font-semibold">Live Preview</h3>
+            <p className="mt-2">The live preview is available on larger screens. Please switch to a tablet or desktop to see your changes in real-time.</p>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
