@@ -187,7 +187,7 @@ const ProjectsSettings: React.FC<Props> = ({ data, setData }) => {
             <InputField label="Project Name" name="name" value={project.name} onChange={e => handleItemChange(index, e)} onBlur={e => handleBlur(index, e)} placeholder="e.g., E-commerce Platform" error={errors[index]?.name}/>
             
             <div className="mb-4">
-                <div className="flex justify-between items-center mb-1">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-1">
                   <label className="block text-sm font-medium text-text-secondary">Description</label>
                   <button
                       onClick={() => generateDescription(index)}
@@ -202,7 +202,7 @@ const ProjectsSettings: React.FC<Props> = ({ data, setData }) => {
             </div>
 
             <div className="mb-4">
-                <div className="flex justify-between items-center mb-1">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-1">
                   <label htmlFor={`tags-${project.id}`} className="block text-sm font-medium text-text-secondary">Tags (comma-separated)</label>
                    <button
                       onClick={() => suggestTags(index)}

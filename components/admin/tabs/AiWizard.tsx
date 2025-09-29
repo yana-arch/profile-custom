@@ -101,11 +101,11 @@ const AiWizard: React.FC<Props> = ({ data, setData }) => {
         placeholder="e.g., I am a senior full-stack developer with 8 years of experience, specializing in React and Node.js. I graduated from the University of Technology with a degree in Computer Science..."
       />
       
-      <div className="flex items-center space-x-4 mt-4">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 mt-4">
         <button
           onClick={handleGenerate}
           disabled={isLoading || isGeneratingImages}
-          className="bg-primary text-white px-6 py-2 rounded-md flex items-center justify-center disabled:opacity-50"
+          className="bg-primary text-white px-6 py-2 rounded-md flex items-center justify-center disabled:opacity-50 w-full sm:w-auto"
         >
           {isLoading ? (
             <>
@@ -122,7 +122,7 @@ const AiWizard: React.FC<Props> = ({ data, setData }) => {
         <button
           onClick={handleSuggestImages}
           disabled={isLoading || isGeneratingImages || !data.personalInfo.name || !data.personalInfo.title}
-          className="bg-secondary text-white px-6 py-2 rounded-md flex items-center justify-center disabled:opacity-50 disabled:bg-secondary/50 disabled:cursor-not-allowed"
+          className="bg-secondary text-white px-6 py-2 rounded-md flex items-center justify-center disabled:opacity-50 disabled:bg-secondary/50 disabled:cursor-not-allowed w-full sm:w-auto"
           title={!data.personalInfo.name || !data.personalInfo.title ? 'Generate profile or add name/title first' : 'Suggest placeholder images'}
         >
           {isGeneratingImages ? (

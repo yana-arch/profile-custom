@@ -108,6 +108,7 @@ const App: React.FC = () => {
       .prose {
         color: var(--text-secondary-color);
         line-height: 1.6;
+        overflow-wrap: break-word;
       }
       .prose p { margin-bottom: 1em; }
       .prose a { color: var(--primary-color); text-decoration: underline; }

@@ -186,7 +186,7 @@ const ExperienceSettings: React.FC<Props> = ({ data, setData }) => {
             <InputField label="End Date" name="endDate" value={job.endDate} onChange={e => handleItemChange(index, e)} placeholder="e.g., Present"/>
             
             <div className="mb-4">
-                <div className="flex justify-between items-center mb-1">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-1">
                   <label className="block text-sm font-medium text-text-secondary">Description</label>
                   <button
                       onClick={() => generateDescription(index)}
@@ -201,7 +201,7 @@ const ExperienceSettings: React.FC<Props> = ({ data, setData }) => {
             </div>
 
             <div className="mb-4">
-                <div className="flex justify-between items-center mb-1">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-1">
                   <label htmlFor={`skillsUsed-${job.id}`} className="block text-sm font-medium text-text-secondary">Skills Used (comma-separated)</label>
                   <button
                       onClick={() => suggestSkills(index)}

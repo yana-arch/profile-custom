@@ -9,10 +9,10 @@ const ExperienceSection: React.FC<{ data: ProfileData; }> = ({ data }) => (
     scrollAnimation={data.settings.animations.scrollAnimation}
     viewMode={data.settings.viewMode}
   >
-    <div className="relative border-l-2 border-border-color pl-8 space-y-12">
+    <div className="relative border-l-2 border-border-color pl-6 sm:pl-8 space-y-12">
       {data.experience.map((job) => (
         <div key={job.id} className="relative">
-          <div className="absolute -left-[42px] top-1 h-4 w-4 rounded-full bg-primary border-4 border-card-background"></div>
+          <div className="absolute -left-[34px] sm:-left-[42px] top-1 h-4 w-4 rounded-full bg-primary border-4 border-card-background"></div>
           <p className="text-sm font-semibold text-primary">{job.startDate} - {job.endDate}</p>
           <h3 className="text-xl font-bold text-text-primary mt-1">{job.title}</h3>
           <p className="text-md text-text-secondary">{job.company}</p>
