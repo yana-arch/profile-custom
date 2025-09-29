@@ -9,6 +9,7 @@ import CertificationsSettings from './admin/tabs/CertificationsSettings';
 import DisplaySettings from './admin/tabs/DisplaySettings';
 import AnimationSettings from './admin/tabs/AnimationSettings';
 import AiSettings from './admin/tabs/AiSettings';
+import AiWizard from './admin/tabs/AiWizard';
 import { UserIcon, BriefcaseIcon, AcademicCapIcon, CodeBracketIcon, WrenchScrewdriverIcon, CertificateIcon, EyeIcon, SparklesIcon, CogIcon } from './icons/Icons';
 
 type Props = {
@@ -30,6 +31,7 @@ const AdminPanel: React.FC<Props> = ({ data, setData, isViewOnly, setIsViewOnly 
     { id: 'certifications', label: 'Certifications', icon: <CertificateIcon className="w-5 h-5 mr-2" /> },
     { id: 'display', label: 'Display', icon: <EyeIcon className="w-5 h-5 mr-2" /> },
     { id: 'animations', label: 'Animations', icon: <SparklesIcon className="w-5 h-5 mr-2" /> },
+    { id: 'ai-wizard', label: 'AI Wizard', icon: <SparklesIcon className="w-5 h-5 mr-2" /> },
     { id: 'ai', label: 'AI Settings', icon: <CogIcon className="w-5 h-5 mr-2" /> }
   ];
 
@@ -43,6 +45,7 @@ const AdminPanel: React.FC<Props> = ({ data, setData, isViewOnly, setIsViewOnly 
       case 'certifications': return <CertificationsSettings data={data} setData={setData} />;
       case 'display': return <DisplaySettings data={data} setData={setData} />;
       case 'animations': return <AnimationSettings data={data} setData={setData} />;
+      case 'ai-wizard': return <AiWizard data={data} setData={setData} />;
       case 'ai': return <AiSettings data={data} setData={setData} />;
       default: return null;
     }

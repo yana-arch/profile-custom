@@ -53,8 +53,8 @@ const PersonalInfoSettings: React.FC<Props> = ({ data, setData }) => {
     const error = validateContactField(name, value);
     setErrors(prev => ({
         ...prev,
-        // FIX: Ensure prev.contact is not undefined before spreading
-        contact: { ...(prev.contact || {}), [name]: error }
+        // FIX: Ensure prev.contact is a spreadable object, guarding against strings and null/undefined.
+        contact: { ...((prev.contact && typeof prev.contact === 'object') ? prev.contact : {}), [name]: error }
     }));
   };
 
