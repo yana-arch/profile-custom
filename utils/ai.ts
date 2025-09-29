@@ -224,3 +224,62 @@ Adhere strictly to the provided JSON schema.`;
         return null;
     }
 }
+
+export async function generatePlaceholderImages(
+  settings: AiSettings, 
+  name: string, 
+  title: string
+): Promise<{ avatar: string; heroImage: string } | null> {
+  try {
+    if (settings.provider !== 'gemini') {
+      alert('Image generation currently only supports the Google Gemini provider.');
+      return null;
+    }
+    if (!settings.apiKey) {
+      alert('Please configure your Gemini API key in the AI Settings tab.');
+      return null;
+    }
+
+    const ai = new GoogleGenAI({ apiKey: settings.apiKey });
+
+    const [avatarResponse, heroResponse] = await Promise.all([
+      // Avatar Generation
+      ai.models.generateImages({
+        model: 'imagen-4.0-generate-001',
+        prompt: `A professional, abstract avatar representing a ${title}. Modern, clean design, suitable for a circular profile picture. No faces or text.`,
+        config: {
+          numberOfImages: 1,
+          outputMimeType: 'image/jpeg',
+          aspectRatio: '1:1',
+        },
+      }),
+      // Hero Image Generation
+      ai.models.generateImages({
+        model: 'imagen-4.0-generate-001',
+        prompt: `A professional, abstract background image suitable for a portfolio website for a ${title}. Tech-themed, minimalist, high-resolution, calming color palette. Aspect ratio 16:9.`,
+        config: {
+          numberOfImages: 1,
+          outputMimeType: 'image/jpeg',
+          aspectRatio: '16:9',
+        },
+      }),
+    ]);
+
+    const avatarBase64 = avatarResponse.generatedImages[0]?.image.imageBytes;
+    const heroImageBase64 = heroResponse.generatedImages[0]?.image.imageBytes;
+
+    if (!avatarBase64 || !heroImageBase64) {
+      throw new Error('Image generation failed to return one or more images.');
+    }
+
+    return {
+      avatar: `data:image/jpeg;base64,${avatarBase64}`,
+      heroImage: `data:image/jpeg;base64,${heroImageBase64}`,
+    };
+
+  } catch (error) {
+    console.error('AI image generation error:', error);
+    alert(`An error occurred while generating images: ${error instanceof Error ? error.message : String(error)}`);
+    return null;
+  }
+}

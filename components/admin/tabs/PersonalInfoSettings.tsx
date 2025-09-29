@@ -12,8 +12,9 @@ type Props = {
   setData: React.Dispatch<React.SetStateAction<ProfileData>>;
 };
 
+// Use a more specific type to prevent latent bugs where contact could be a string.
 type PersonalInfoErrors = {
-  [K in keyof ProfileData['personalInfo']]?: string;
+  [K in keyof Omit<ProfileData['personalInfo'], 'contact'>]?: string;
 } & {
   contact?: { [K in keyof ProfileData['personalInfo']['contact']]?: string; }
 };
@@ -53,8 +54,7 @@ const PersonalInfoSettings: React.FC<Props> = ({ data, setData }) => {
     const error = validateContactField(name, value);
     setErrors(prev => ({
         ...prev,
-        // FIX: Ensure prev.contact is a spreadable object, guarding against strings and null/undefined.
-        contact: { ...((prev.contact && typeof prev.contact === 'object') ? prev.contact : {}), [name]: error }
+        contact: { ...(prev.contact || {}), [name]: error }
     }));
   };
 

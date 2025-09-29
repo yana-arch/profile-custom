@@ -21,7 +21,6 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ label, value, onChange,
 
   return (
     <div className="mb-4 rich-text-editor">
-      {/* FIX: Conditionally render the label only if it's provided */}
       {label && <label htmlFor={name} className="block text-sm font-medium text-text-secondary mb-1">{label}</label>}
       <ReactQuill
         theme="snow"
