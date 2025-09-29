@@ -6,11 +6,13 @@ import EducationSettings from './admin/tabs/EducationSettings';
 import ProjectsSettings from './admin/tabs/ProjectsSettings';
 import SkillsSettings from './admin/tabs/SkillsSettings';
 import CertificationsSettings from './admin/tabs/CertificationsSettings';
+import HobbiesSettings from './admin/tabs/HobbiesSettings';
+import AwardsSettings from './admin/tabs/AwardsSettings';
 import DisplaySettings from './admin/tabs/DisplaySettings';
 import AnimationSettings from './admin/tabs/AnimationSettings';
 import AiSettings from './admin/tabs/AiSettings';
 import AiWizard from './admin/tabs/AiWizard';
-import { UserIcon, BriefcaseIcon, AcademicCapIcon, CodeBracketIcon, WrenchScrewdriverIcon, CertificateIcon, EyeIcon, SparklesIcon, CogIcon } from './icons/Icons';
+import { UserIcon, BriefcaseIcon, AcademicCapIcon, CodeBracketIcon, WrenchScrewdriverIcon, CertificateIcon, HeartIcon, TrophyIcon, EyeIcon, SparklesIcon, CogIcon } from './icons/Icons';
 
 type Props = {
   data: ProfileData;
@@ -29,6 +31,8 @@ const AdminPanel: React.FC<Props> = ({ data, setData, isViewOnly, setIsViewOnly 
     { id: 'projects', label: 'Projects', icon: <CodeBracketIcon className="w-5 h-5 mr-2" /> },
     { id: 'skills', label: 'Skills', icon: <WrenchScrewdriverIcon className="w-5 h-5 mr-2" /> },
     { id: 'certifications', label: 'Certifications', icon: <CertificateIcon className="w-5 h-5 mr-2" /> },
+    { id: 'hobbies', label: 'Hobbies', icon: <HeartIcon className="w-5 h-5 mr-2" /> },
+    { id: 'awards', label: 'Awards', icon: <TrophyIcon className="w-5 h-5 mr-2" /> },
     { id: 'display', label: 'Display', icon: <EyeIcon className="w-5 h-5 mr-2" /> },
     { id: 'animations', label: 'Animations', icon: <SparklesIcon className="w-5 h-5 mr-2" /> },
     { id: 'ai-wizard', label: 'AI Wizard', icon: <SparklesIcon className="w-5 h-5 mr-2" /> },
@@ -43,6 +47,8 @@ const AdminPanel: React.FC<Props> = ({ data, setData, isViewOnly, setIsViewOnly 
       case 'projects': return <ProjectsSettings data={data} setData={setData} />;
       case 'skills': return <SkillsSettings data={data} setData={setData} />;
       case 'certifications': return <CertificationsSettings data={data} setData={setData} />;
+      case 'hobbies': return <HobbiesSettings data={data} setData={setData} />;
+      case 'awards': return <AwardsSettings data={data} setData={setData} />;
       case 'display': return <DisplaySettings data={data} setData={setData} />;
       case 'animations': return <AnimationSettings data={data} setData={setData} />;
       case 'ai-wizard': return <AiWizard data={data} setData={setData} />;

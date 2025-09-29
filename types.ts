@@ -65,6 +65,23 @@ export interface Certification {
   image?: string;
 }
 
+export interface Hobby {
+  id: string;
+  name: string;
+  description: string;
+  image?: string;
+  link?: string;
+}
+
+export interface Award {
+  id: string;
+  name: string;
+  issuer: string;
+  date: string;
+  description: string;
+  attachmentUrl?: string;
+}
+
 export interface AnimationSettings {
   scrollAnimation: 'none' | 'fadeIn' | 'slideUp';
   hoverEffect: 'none' | 'lift' | 'grow';
@@ -96,6 +113,8 @@ export interface Settings {
     projects: boolean;
     skills: boolean;
     certifications: boolean;
+    hobbies: boolean;
+    awards: boolean;
     contact: boolean;
   };
   animations: AnimationSettings;
@@ -109,5 +128,7 @@ export interface ProfileData {
   projects: Project[];
   skills: Skills;
   certifications: Certification[];
+  hobbies: Hobby[];
+  awards: Award[];
   settings: Settings;
 }

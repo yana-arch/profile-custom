@@ -1,9 +1,10 @@
 import React, { useState, useRef } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { ProfileData, Education } from '../../../types';
+import { ProfileData, Award } from '../../../types';
 import AdminSection from '../form/AdminSection';
 import InputField from '../form/InputField';
 import RichTextEditor from '../form/RichTextEditor';
+import { isValidUrl } from '../../../utils/validation';
 import { Bars3Icon } from '../../icons/Icons';
 
 type Props = {
@@ -11,18 +12,21 @@ type Props = {
   setData: React.Dispatch<React.SetStateAction<ProfileData>>;
 };
 
-type EducationErrors = Partial<Record<keyof Omit<Education, 'id' | 'description'>, string>>;
+type AwardErrors = Partial<Record<keyof Omit<Award, 'id' | 'description'>, string>>;
 
-const EducationSettings: React.FC<Props> = ({ data, setData }) => {
-  const [errors, setErrors] = useState<EducationErrors[]>([]);
+const AwardsSettings: React.FC<Props> = ({ data, setData }) => {
+  const [errors, setErrors] = useState<AwardErrors[]>([]);
   
   const [draggedItem, setDraggedItem] = useState<number | null>(null);
   const [dragOverItem, setDragOverItem] = useState<number | null>(null);
   const dragItemIndex = useRef<number | null>(null);
   
   const validateField = (name: string, value: string): string => {
-    if ((name === 'school' || name === 'degree') && !value.trim()) {
+    if ((name === 'name' || name === 'issuer') && !value.trim()) {
       return 'This field is required.';
+    }
+     if (name === 'attachmentUrl' && value && !isValidUrl(value)) {
+      return 'Please enter a valid URL.';
     }
     return '';
   };
@@ -33,7 +37,7 @@ const EducationSettings: React.FC<Props> = ({ data, setData }) => {
     setErrors(prev => {
         const newErrors = [...prev];
         if (!newErrors[index]) newErrors[index] = {};
-        newErrors[index][name as keyof EducationErrors] = error;
+        newErrors[index][name as keyof AwardErrors] = error;
         return newErrors;
     });
   };
@@ -41,32 +45,32 @@ const EducationSettings: React.FC<Props> = ({ data, setData }) => {
   const handleItemChange = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setData(prev => {
-      const newItems = [...prev.education];
+      const newItems = [...prev.awards];
       newItems[index] = { ...newItems[index], [name]: value };
-      return { ...prev, education: newItems };
+      return { ...prev, awards: newItems };
     });
   };
 
   const handleDescriptionChange = (index: number, value: string) => {
     setData(prev => {
-        const newItems = [...prev.education];
+        const newItems = [...prev.awards];
         newItems[index] = { ...newItems[index], description: value };
-        return { ...prev, education: newItems };
+        return { ...prev, awards: newItems };
     });
   };
 
   const addItem = () => {
-    const newItem: Education = {id: uuidv4(), school: '', degree: '', fieldOfStudy: '', startDate: '', endDate: '', description: ''};
+    const newItem: Award = {id: uuidv4(), name: '', issuer: '', date: '', description: '', attachmentUrl: ''};
     setData(prev => ({
       ...prev,
-      education: [...prev.education, newItem]
+      awards: [...prev.awards, newItem]
     }));
   };
 
   const removeItem = (index: number) => {
     setData(prev => ({
       ...prev,
-      education: prev.education.filter((_, i) => i !== index)
+      awards: prev.awards.filter((_, i) => i !== index)
     }));
     setErrors(prev => prev.filter((_, i) => i !== index));
   };
@@ -83,42 +87,43 @@ const EducationSettings: React.FC<Props> = ({ data, setData }) => {
       setDragOverItem(index);
     }
   };
-
+  
   const handleDrop = () => {
     if (dragItemIndex.current === null || dragOverItem === null || dragItemIndex.current === dragOverItem) {
-      handleDragEnd();
-      return;
+        handleDragEnd();
+        return;
     }
 
     setData(prev => {
-      const newItems = [...prev.education];
-      const draggedItemContent = newItems.splice(dragItemIndex.current!, 1)[0];
-      newItems.splice(dragOverItem, 0, draggedItemContent);
-      return { ...prev, education: newItems };
+        const newItems = [...prev.awards];
+        const draggedItemContent = newItems.splice(dragItemIndex.current!, 1)[0];
+        newItems.splice(dragOverItem, 0, draggedItemContent);
+        return { ...prev, awards: newItems };
     });
-
+    
     handleDragEnd();
   };
 
   const handleDragLeave = () => {
     setDragOverItem(null);
   };
-
+  
   const handleDragEnd = () => {
     dragItemIndex.current = null;
     setDraggedItem(null);
     setDragOverItem(null);
   };
 
+
   return (
-    <AdminSection title="Education">
-      {data.education.map((edu, index) => {
+    <AdminSection title="Awards & Achievements">
+      {data.awards.map((award, index) => {
         const isDragged = draggedItem === index;
         const isDragTarget = dragOverItem === index && !isDragged;
 
         return (
           <div 
-            key={edu.id} 
+            key={award.id} 
             className={`border p-4 rounded-md mb-4 transition-all duration-200 cursor-grab active:cursor-grabbing
               ${isDragged ? 'opacity-50 ring-2 ring-primary' : 'border-border-color'}
               ${isDragTarget ? 'bg-primary/10' : ''}`}
@@ -130,27 +135,26 @@ const EducationSettings: React.FC<Props> = ({ data, setData }) => {
             onDragEnd={handleDragEnd}
           >
             <div className="flex justify-between items-center mb-4 pb-2 border-b border-border-color/50">
-              <h4 className="text-md font-semibold text-text-primary truncate pr-2">{edu.degree || 'New Education'}</h4>
+              <h4 className="text-md font-semibold text-text-primary truncate pr-2">{award.name || 'New Award'}</h4>
               <Bars3Icon className="w-6 h-6 text-text-secondary flex-shrink-0"/>
             </div>
-            <InputField label="School / University" name="school" value={edu.school} onChange={e => handleItemChange(index, e)} onBlur={e => handleBlur(index, e)} placeholder="e.g., University of Technology" error={errors[index]?.school}/>
-            <InputField label="Degree" name="degree" value={edu.degree} onChange={e => handleItemChange(index, e)} onBlur={e => handleBlur(index, e)} placeholder="e.g., Bachelor of Science" error={errors[index]?.degree}/>
-            <InputField label="Field of Study" name="fieldOfStudy" value={edu.fieldOfStudy} onChange={e => handleItemChange(index, e)} onBlur={e => handleBlur(index, e)} placeholder="e.g., Computer Science" error={errors[index]?.fieldOfStudy}/>
-            <InputField label="Start Date" name="startDate" value={edu.startDate} onChange={e => handleItemChange(index, e)} onBlur={e => handleBlur(index, e)} placeholder="e.g., 2015" error={errors[index]?.startDate}/>
-            <InputField label="End Date" name="endDate" value={edu.endDate} onChange={e => handleItemChange(index, e)} onBlur={e => handleBlur(index, e)} placeholder="e.g., 2019" error={errors[index]?.endDate}/>
+            <InputField label="Award Name" name="name" value={award.name} onChange={e => handleItemChange(index, e)} onBlur={e => handleBlur(index, e)} placeholder="e.g., Best Project Award" error={errors[index]?.name}/>
+            <InputField label="Issued By" name="issuer" value={award.issuer} onChange={e => handleItemChange(index, e)} onBlur={e => handleBlur(index, e)} placeholder="e.g., University of Technology" error={errors[index]?.issuer}/>
+            <InputField label="Date" name="date" value={award.date} onChange={e => handleItemChange(index, e)} onBlur={e => handleBlur(index, e)} placeholder="e.g., May 2023" error={errors[index]?.date}/>
+            <InputField label="Attachment URL (optional)" name="attachmentUrl" value={award.attachmentUrl || ''} onChange={e => handleItemChange(index, e)} onBlur={e => handleBlur(index, e)} placeholder="https://example.com/award.pdf" error={errors[index]?.attachmentUrl}/>
             <RichTextEditor 
               label="Description" 
-              name={`description-${edu.id}`}
-              value={edu.description} 
+              name={`description-${award.id}`}
+              value={award.description} 
               onChange={value => handleDescriptionChange(index, value)}
             />
             <button onClick={() => removeItem(index)} className="text-red-500 hover:text-red-700 text-sm mt-2">Remove</button>
           </div>
         );
       })}
-      <button onClick={addItem} className="bg-primary text-white px-4 py-2 rounded-md">Add Education</button>
+      <button onClick={addItem} className="bg-primary text-white px-4 py-2 rounded-md">Add Award</button>
     </AdminSection>
   );
 };
 
-export default EducationSettings;
+export default AwardsSettings;

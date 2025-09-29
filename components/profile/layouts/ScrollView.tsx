@@ -9,6 +9,8 @@ import EducationSection from '../sections/EducationSection';
 import ProjectsSection from '../sections/ProjectsSection';
 import SkillsSection from '../sections/SkillsSection';
 import CertificationsSection from '../sections/CertificationsSection';
+import HobbiesSection from '../sections/HobbiesSection';
+import AwardsSection from '../sections/AwardsSection';
 import ContactSection from '../sections/ContactSection';
 
 const ScrollView: React.FC<{ data: ProfileData }> = ({ data }) => {
@@ -25,6 +27,8 @@ const ScrollView: React.FC<{ data: ProfileData }> = ({ data }) => {
         {data.settings.sections.projects && <ProjectsSection data={data} />}
         {data.settings.sections.skills && <SkillsSection data={data} />}
         {data.settings.sections.certifications && <CertificationsSection data={data} />}
+        {data.settings.sections.awards && <AwardsSection data={data} />}
+        {data.settings.sections.hobbies && <HobbiesSection data={data} />}
         {data.settings.sections.contact && <ContactSection data={data} />}
       </main>
       <Footer data={data} />

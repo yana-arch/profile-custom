@@ -1,9 +1,10 @@
 import React, { useState, useRef } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { ProfileData, Education } from '../../../types';
+import { ProfileData, Hobby } from '../../../types';
 import AdminSection from '../form/AdminSection';
 import InputField from '../form/InputField';
-import RichTextEditor from '../form/RichTextEditor';
+import TextAreaField from '../form/TextAreaField';
+import { isValidUrl } from '../../../utils/validation';
 import { Bars3Icon } from '../../icons/Icons';
 
 type Props = {
@@ -11,62 +12,57 @@ type Props = {
   setData: React.Dispatch<React.SetStateAction<ProfileData>>;
 };
 
-type EducationErrors = Partial<Record<keyof Omit<Education, 'id' | 'description'>, string>>;
+type HobbyErrors = Partial<Record<keyof Omit<Hobby, 'id'>, string>>;
 
-const EducationSettings: React.FC<Props> = ({ data, setData }) => {
-  const [errors, setErrors] = useState<EducationErrors[]>([]);
+const HobbiesSettings: React.FC<Props> = ({ data, setData }) => {
+  const [errors, setErrors] = useState<HobbyErrors[]>([]);
   
   const [draggedItem, setDraggedItem] = useState<number | null>(null);
   const [dragOverItem, setDragOverItem] = useState<number | null>(null);
   const dragItemIndex = useRef<number | null>(null);
-  
+
   const validateField = (name: string, value: string): string => {
-    if ((name === 'school' || name === 'degree') && !value.trim()) {
-      return 'This field is required.';
+    if (name === 'name' && !value.trim()) {
+      return 'Hobby name is required.';
+    }
+    if ((name === 'link' || name === 'image') && value && !isValidUrl(value)) {
+      return 'Please enter a valid URL.';
     }
     return '';
   };
-  
-  const handleBlur = (index: number, e: React.FocusEvent<HTMLInputElement>) => {
+
+  const handleBlur = (index: number, e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     const error = validateField(name, value);
     setErrors(prev => {
         const newErrors = [...prev];
         if (!newErrors[index]) newErrors[index] = {};
-        newErrors[index][name as keyof EducationErrors] = error;
+        newErrors[index][name as keyof HobbyErrors] = error;
         return newErrors;
     });
   };
 
-  const handleItemChange = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleItemChange = (index: number, e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setData(prev => {
-      const newItems = [...prev.education];
+      const newItems = [...prev.hobbies];
       newItems[index] = { ...newItems[index], [name]: value };
-      return { ...prev, education: newItems };
-    });
-  };
-
-  const handleDescriptionChange = (index: number, value: string) => {
-    setData(prev => {
-        const newItems = [...prev.education];
-        newItems[index] = { ...newItems[index], description: value };
-        return { ...prev, education: newItems };
+      return { ...prev, hobbies: newItems };
     });
   };
 
   const addItem = () => {
-    const newItem: Education = {id: uuidv4(), school: '', degree: '', fieldOfStudy: '', startDate: '', endDate: '', description: ''};
+    const newItem: Hobby = {id: uuidv4(), name: '', description: '', image: '', link: ''};
     setData(prev => ({
       ...prev,
-      education: [...prev.education, newItem]
+      hobbies: [...prev.hobbies, newItem]
     }));
   };
 
   const removeItem = (index: number) => {
     setData(prev => ({
       ...prev,
-      education: prev.education.filter((_, i) => i !== index)
+      hobbies: prev.hobbies.filter((_, i) => i !== index)
     }));
     setErrors(prev => prev.filter((_, i) => i !== index));
   };
@@ -91,10 +87,10 @@ const EducationSettings: React.FC<Props> = ({ data, setData }) => {
     }
 
     setData(prev => {
-      const newItems = [...prev.education];
+      const newItems = [...prev.hobbies];
       const draggedItemContent = newItems.splice(dragItemIndex.current!, 1)[0];
       newItems.splice(dragOverItem, 0, draggedItemContent);
-      return { ...prev, education: newItems };
+      return { ...prev, hobbies: newItems };
     });
 
     handleDragEnd();
@@ -111,14 +107,14 @@ const EducationSettings: React.FC<Props> = ({ data, setData }) => {
   };
 
   return (
-    <AdminSection title="Education">
-      {data.education.map((edu, index) => {
+    <AdminSection title="Hobbies & Interests">
+      {data.hobbies.map((hobby, index) => {
         const isDragged = draggedItem === index;
         const isDragTarget = dragOverItem === index && !isDragged;
 
         return (
           <div 
-            key={edu.id} 
+            key={hobby.id} 
             className={`border p-4 rounded-md mb-4 transition-all duration-200 cursor-grab active:cursor-grabbing
               ${isDragged ? 'opacity-50 ring-2 ring-primary' : 'border-border-color'}
               ${isDragTarget ? 'bg-primary/10' : ''}`}
@@ -130,27 +126,20 @@ const EducationSettings: React.FC<Props> = ({ data, setData }) => {
             onDragEnd={handleDragEnd}
           >
             <div className="flex justify-between items-center mb-4 pb-2 border-b border-border-color/50">
-              <h4 className="text-md font-semibold text-text-primary truncate pr-2">{edu.degree || 'New Education'}</h4>
+              <h4 className="text-md font-semibold text-text-primary truncate pr-2">{hobby.name || 'New Hobby'}</h4>
               <Bars3Icon className="w-6 h-6 text-text-secondary flex-shrink-0"/>
             </div>
-            <InputField label="School / University" name="school" value={edu.school} onChange={e => handleItemChange(index, e)} onBlur={e => handleBlur(index, e)} placeholder="e.g., University of Technology" error={errors[index]?.school}/>
-            <InputField label="Degree" name="degree" value={edu.degree} onChange={e => handleItemChange(index, e)} onBlur={e => handleBlur(index, e)} placeholder="e.g., Bachelor of Science" error={errors[index]?.degree}/>
-            <InputField label="Field of Study" name="fieldOfStudy" value={edu.fieldOfStudy} onChange={e => handleItemChange(index, e)} onBlur={e => handleBlur(index, e)} placeholder="e.g., Computer Science" error={errors[index]?.fieldOfStudy}/>
-            <InputField label="Start Date" name="startDate" value={edu.startDate} onChange={e => handleItemChange(index, e)} onBlur={e => handleBlur(index, e)} placeholder="e.g., 2015" error={errors[index]?.startDate}/>
-            <InputField label="End Date" name="endDate" value={edu.endDate} onChange={e => handleItemChange(index, e)} onBlur={e => handleBlur(index, e)} placeholder="e.g., 2019" error={errors[index]?.endDate}/>
-            <RichTextEditor 
-              label="Description" 
-              name={`description-${edu.id}`}
-              value={edu.description} 
-              onChange={value => handleDescriptionChange(index, value)}
-            />
+            <InputField label="Hobby Name" name="name" value={hobby.name} onChange={e => handleItemChange(index, e)} onBlur={e => handleBlur(index, e)} placeholder="e.g., Hiking" error={errors[index]?.name} />
+            <TextAreaField label="Description" name="description" value={hobby.description} onChange={e => handleItemChange(index, e)} onBlur={e => handleBlur(index, e)} placeholder="e.g., Exploring national parks and mountain trails." error={errors[index]?.description} rows={2}/>
+            <InputField label="Image URL" name="image" value={hobby.image || ''} onChange={e => handleItemChange(index, e)} onBlur={e => handleBlur(index, e)} placeholder="https://example.com/hobby.png" error={errors[index]?.image} />
+            <InputField label="Link URL (optional)" name="link" value={hobby.link || ''} onChange={e => handleItemChange(index, e)} onBlur={e => handleBlur(index, e)} placeholder="https://example.com/blog-post" error={errors[index]?.link} />
             <button onClick={() => removeItem(index)} className="text-red-500 hover:text-red-700 text-sm mt-2">Remove</button>
           </div>
         );
       })}
-      <button onClick={addItem} className="bg-primary text-white px-4 py-2 rounded-md">Add Education</button>
+      <button onClick={addItem} className="bg-primary text-white px-4 py-2 rounded-md">Add Hobby</button>
     </AdminSection>
   );
 };
 
-export default EducationSettings;
+export default HobbiesSettings;

@@ -180,3 +180,18 @@ export const SpinnerIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
   </svg>
 );
+
+export const HeartIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
+    </svg>
+);
+
+export const TrophyIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 18.75h-9a9.75 9.75 0 0 1 9 0Z" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12.75 12.75V18.75m0 0H15.75m-3 0H9.75M12 15.75a3 3 0 0 1-3-3V4.5a3 3 0 0 1 3-3h.008c1.657 0 3.002 1.343 3.002 3V12.75a3 3 0 0 1-3 3Z" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 6.75h-.625a3.375 3.375 0 0 0-3.375 3.375v.625A3.375 3.375 0 0 0 7.625 14.25h.625" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6.75h.625a3.375 3.375 0 0 1 3.375 3.375v.625a3.375 3.375 0 0 1-3.375 3.375h-.625" />
+    </svg>
+);

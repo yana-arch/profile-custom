@@ -15,9 +15,10 @@ type CertificationErrors = Partial<Record<keyof Omit<Certification, 'id'>, strin
 
 const CertificationsSettings: React.FC<Props> = ({ data, setData }) => {
   const [errors, setErrors] = useState<CertificationErrors[]>([]);
+  
   const [draggedItem, setDraggedItem] = useState<number | null>(null);
+  const [dragOverItem, setDragOverItem] = useState<number | null>(null);
   const dragItemIndex = useRef<number | null>(null);
-
 
   const validateField = (name: string, value: string): string => {
     if (name === 'name' && !value.trim()) {
@@ -71,48 +72,71 @@ const CertificationsSettings: React.FC<Props> = ({ data, setData }) => {
     e.dataTransfer.effectAllowed = 'move';
   };
 
-  const handleDragEnter = (index: number) => {
-    if (dragItemIndex.current === null || dragItemIndex.current === index) {
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>, index: number) => {
+    e.preventDefault();
+    if (dragOverItem !== index) {
+      setDragOverItem(index);
+    }
+  };
+
+  const handleDrop = () => {
+    if (dragItemIndex.current === null || dragOverItem === null || dragItemIndex.current === dragOverItem) {
+      handleDragEnd();
       return;
     }
+
     setData(prev => {
       const newItems = [...prev.certifications];
       const draggedItemContent = newItems.splice(dragItemIndex.current!, 1)[0];
-      newItems.splice(index, 0, draggedItemContent);
-      dragItemIndex.current = index;
+      newItems.splice(dragOverItem, 0, draggedItemContent);
       return { ...prev, certifications: newItems };
     });
+
+    handleDragEnd();
+  };
+
+  const handleDragLeave = () => {
+    setDragOverItem(null);
   };
 
   const handleDragEnd = () => {
     dragItemIndex.current = null;
     setDraggedItem(null);
+    setDragOverItem(null);
   };
 
   return (
     <AdminSection title="Certifications & Awards">
-      {data.certifications.map((cert, index) => (
-        <div 
-          key={cert.id} 
-          className={`border border-border-color p-4 rounded-md mb-4 transition-opacity ${draggedItem === index ? 'opacity-50' : ''}`}
-          draggable
-          onDragStart={(e) => handleDragStart(e, index)}
-          onDragEnter={() => handleDragEnter(index)}
-          onDragEnd={handleDragEnd}
-          onDragOver={(e) => e.preventDefault()}
-        >
-          <div className="flex justify-between items-center mb-4 pb-2 border-b border-border-color/50 cursor-grab active:cursor-grabbing">
-            <h4 className="text-md font-semibold text-text-primary truncate pr-2">{cert.name || 'New Certification'}</h4>
-            <Bars3Icon className="w-6 h-6 text-text-secondary flex-shrink-0"/>
+      {data.certifications.map((cert, index) => {
+        const isDragged = draggedItem === index;
+        const isDragTarget = dragOverItem === index && !isDragged;
+
+        return (
+          <div 
+            key={cert.id} 
+            className={`border p-4 rounded-md mb-4 transition-all duration-200 cursor-grab active:cursor-grabbing
+              ${isDragged ? 'opacity-50 ring-2 ring-primary' : 'border-border-color'}
+              ${isDragTarget ? 'bg-primary/10' : ''}`}
+            draggable
+            onDragStart={(e) => handleDragStart(e, index)}
+            onDragOver={(e) => handleDragOver(e, index)}
+            onDrop={handleDrop}
+            onDragLeave={handleDragLeave}
+            onDragEnd={handleDragEnd}
+          >
+            <div className="flex justify-between items-center mb-4 pb-2 border-b border-border-color/50">
+              <h4 className="text-md font-semibold text-text-primary truncate pr-2">{cert.name || 'New Certification'}</h4>
+              <Bars3Icon className="w-6 h-6 text-text-secondary flex-shrink-0"/>
+            </div>
+            <InputField label="Certificate Name" name="name" value={cert.name} onChange={e => handleItemChange(index, e)} onBlur={e => handleBlur(index, e)} placeholder="e.g., AWS Certified Cloud Practitioner" error={errors[index]?.name} />
+            <InputField label="Issuing Organization" name="issuingOrganization" value={cert.issuingOrganization} onChange={e => handleItemChange(index, e)} onBlur={e => handleBlur(index, e)} placeholder="e.g., Amazon Web Services" error={errors[index]?.issuingOrganization} />
+            <InputField label="Date Issued" name="date" value={cert.date} onChange={e => handleItemChange(index, e)} onBlur={e => handleBlur(index, e)} placeholder="e.g., 2022" error={errors[index]?.date} />
+            <InputField label="Credential URL" name="credentialUrl" value={cert.credentialUrl} onChange={e => handleItemChange(index, e)} onBlur={e => handleBlur(index, e)} placeholder="https://www.credly.com/your-badge" error={errors[index]?.credentialUrl} />
+            <InputField label="Image URL" name="image" value={cert.image || ''} onChange={e => handleItemChange(index, e)} onBlur={e => handleBlur(index, e)} placeholder="https://example.com/certificate.png" error={errors[index]?.image} />
+            <button onClick={() => removeItem(index)} className="text-red-500 hover:text-red-700 text-sm mt-2">Remove</button>
           </div>
-          <InputField label="Certificate Name" name="name" value={cert.name} onChange={e => handleItemChange(index, e)} onBlur={e => handleBlur(index, e)} placeholder="e.g., AWS Certified Cloud Practitioner" error={errors[index]?.name} />
-          <InputField label="Issuing Organization" name="issuingOrganization" value={cert.issuingOrganization} onChange={e => handleItemChange(index, e)} onBlur={e => handleBlur(index, e)} placeholder="e.g., Amazon Web Services" error={errors[index]?.issuingOrganization} />
-          <InputField label="Date Issued" name="date" value={cert.date} onChange={e => handleItemChange(index, e)} onBlur={e => handleBlur(index, e)} placeholder="e.g., 2022" error={errors[index]?.date} />
-          <InputField label="Credential URL" name="credentialUrl" value={cert.credentialUrl} onChange={e => handleItemChange(index, e)} onBlur={e => handleBlur(index, e)} placeholder="https://www.credly.com/your-badge" error={errors[index]?.credentialUrl} />
-          <InputField label="Image URL" name="image" value={cert.image || ''} onChange={e => handleItemChange(index, e)} onBlur={e => handleBlur(index, e)} placeholder="https://example.com/certificate.png" error={errors[index]?.image} />
-          <button onClick={() => removeItem(index)} className="text-red-500 hover:text-red-700 text-sm mt-2">Remove</button>
-        </div>
-      ))}
+        );
+      })}
       <button onClick={addItem} className="bg-primary text-white px-4 py-2 rounded-md">Add Certification</button>
     </AdminSection>
   );

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ProfileData } from '../../../types';
 import {
   UserIcon, BriefcaseIcon, CodeBracketIcon, WrenchScrewdriverIcon, AcademicCapIcon, PaperAirplaneIcon,
-  CertificateIcon, DocumentArrowDownIcon
+  CertificateIcon, DocumentArrowDownIcon, HeartIcon, TrophyIcon
 } from '../../icons/Icons';
 import Footer from '../Footer';
 import AboutSection from '../sections/AboutSection';
@@ -11,6 +11,8 @@ import EducationSection from '../sections/EducationSection';
 import ProjectsSection from '../sections/ProjectsSection';
 import SkillsSection from '../sections/SkillsSection';
 import CertificationsSection from '../sections/CertificationsSection';
+import HobbiesSection from '../sections/HobbiesSection';
+import AwardsSection from '../sections/AwardsSection';
 import ContactSection from '../sections/ContactSection';
 
 
@@ -22,6 +24,8 @@ const TabView: React.FC<{ data: ProfileData }> = ({ data }) => {
       { id: 'projects', name: 'Projects', icon: <CodeBracketIcon className="w-5 h-5 mr-2" /> },
       { id: 'skills', name: 'Skills', icon: <WrenchScrewdriverIcon className="w-5 h-5 mr-2" /> },
       { id: 'certifications', name: 'Certifications', icon: <CertificateIcon className="w-5 h-5 mr-2" /> },
+      { id: 'awards', name: 'Awards', icon: <TrophyIcon className="w-5 h-5 mr-2" /> },
+      { id: 'hobbies', name: 'Hobbies', icon: <HeartIcon className="w-5 h-5 mr-2" /> },
       { id: 'contact', name: 'Contact', icon: <PaperAirplaneIcon className="w-5 h-5 mr-2" /> },
     ];
     
@@ -64,6 +68,8 @@ const TabView: React.FC<{ data: ProfileData }> = ({ data }) => {
               {activeTab === 'projects' && data.settings.sections.projects && <ProjectsSection data={data} />}
               {activeTab === 'skills' && data.settings.sections.skills && <SkillsSection data={data} />}
               {activeTab === 'certifications' && data.settings.sections.certifications && <CertificationsSection data={data} />}
+              {activeTab === 'awards' && data.settings.sections.awards && <AwardsSection data={data} />}
+              {activeTab === 'hobbies' && data.settings.sections.hobbies && <HobbiesSection data={data} />}
               {activeTab === 'contact' && data.settings.sections.contact && <ContactSection data={data} />}
             </main>
             <Footer data={data} />

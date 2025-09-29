@@ -92,6 +92,8 @@ export const DEFAULT_PROFILE_DATA: ProfileData = {
       image: "https://picsum.photos/seed/cert1/400/300"
     }
   ],
+  hobbies: [],
+  awards: [],
   settings: {
     layout: 'scroll',
     theme: 'dark',
@@ -110,6 +112,8 @@ export const DEFAULT_PROFILE_DATA: ProfileData = {
       projects: true,
       skills: true,
       certifications: true,
+      hobbies: true,
+      awards: true,
       contact: true
     },
     animations: {

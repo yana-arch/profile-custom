@@ -8,6 +8,8 @@ import EducationSection from '../sections/EducationSection';
 import ProjectsSection from '../sections/ProjectsSection';
 import SkillsSection from '../sections/SkillsSection';
 import CertificationsSection from '../sections/CertificationsSection';
+import HobbiesSection from '../sections/HobbiesSection';
+import AwardsSection from '../sections/AwardsSection';
 import ContactSection from '../sections/ContactSection';
 
 const SlideView: React.FC<{ data: ProfileData }> = ({ data }) => {
@@ -22,6 +24,8 @@ const SlideView: React.FC<{ data: ProfileData }> = ({ data }) => {
         { id: 'projects', component: <ProjectsSection data={data} />, visible: data.settings.sections.projects },
         { id: 'skills', component: <SkillsSection data={data} />, visible: data.settings.sections.skills },
         { id: 'certifications', component: <CertificationsSection data={data} />, visible: data.settings.sections.certifications },
+        { id: 'awards', component: <AwardsSection data={data} />, visible: data.settings.sections.awards },
+        { id: 'hobbies', component: <HobbiesSection data={data} />, visible: data.settings.sections.hobbies },
         { id: 'contact', component: <ContactSection data={data} />, visible: data.settings.sections.contact },
     ].filter(slide => slide.visible);
 
