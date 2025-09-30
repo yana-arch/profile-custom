@@ -3,6 +3,7 @@ import { ProfileData } from './types';
 import { DEFAULT_PROFILE_DATA, getNewProfileData } from './constants';
 import Profile from './components/Profile';
 import Onboarding from './components/Onboarding';
+import { UserMenu } from './src/components/auth/UserMenu';
 import { SparklesIcon, ViewSimpleIcon, EyeIcon, CogIcon, ArrowsPointingOutIcon, ArrowsPointingInIcon } from './components/icons/Icons';
 import { initPerformanceMonitoring, getBundleSize, getMemoryUsage } from './utils/performance';
 import SEO from './components/common/SEO';
@@ -151,6 +152,20 @@ const App: React.FC = () => {
     <div className="bg-background text-text-primary min-h-screen transition-colors duration-300">
       {/* SEO and Performance Monitoring */}
       {!isNewUser && <SEO data={profileData} />}
+
+      {/* User Menu - Top Right */}
+      <div className="fixed top-4 right-4 z-50">
+        <UserMenu
+          onProfileCreate={() => {
+            // Handle profile creation - could open a modal or navigate to profile creation
+            console.log('Create new profile')
+          }}
+          onProfileManage={() => {
+            // Handle profile management - could open admin panel or profile list
+            setIsAdminView(true)
+          }}
+        />
+      </div>
 
       {!isAdminView && (
         <>
