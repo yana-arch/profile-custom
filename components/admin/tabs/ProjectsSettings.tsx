@@ -5,8 +5,9 @@ import AdminSection from '../form/AdminSection';
 import InputField from '../form/InputField';
 import RichTextEditor from '../form/RichTextEditor';
 import { isValidUrl } from '../../../utils/validation';
-import { Bars3Icon, SparklesIcon, SpinnerIcon } from '../../icons/Icons';
+import { Bars3Icon, SparklesIcon, SpinnerIcon, TrashIcon } from '../../icons/Icons';
 import { generateContent } from '../../../utils/ai';
+import ConfirmationModal from '../../common/ConfirmationModal';
 
 type Props = {
   data: ProfileData;
@@ -18,6 +19,7 @@ type ProjectErrors = Partial<Record<keyof Omit<Project, 'id' | 'description' | '
 const ProjectsSettings: React.FC<Props> = ({ data, setData }) => {
   const [errors, setErrors] = useState<ProjectErrors[]>([]);
   const [generatingStates, setGeneratingStates] = useState<Record<string, boolean>>({});
+  const [itemToDelete, setItemToDelete] = useState<number | null>(null);
   
   const [draggedItem, setDraggedItem] = useState<number | null>(null);
   const [dragOverItem, setDragOverItem] = useState<number | null>(null);
@@ -70,7 +72,6 @@ const ProjectsSettings: React.FC<Props> = ({ data, setData }) => {
   };
   
   const generateDescription = async (index: number) => {
-    // FIX: Removed API key check, as it's handled in generateContent now.
     const project = data.projects[index];
     setGenerating(`desc_${project.id}`, true);
     const prompt = `Write a compelling project description for a project named "${project.name}". Describe its purpose, key features, and the technology stack used. Present it as a paragraph inside <p> tags.`;
@@ -82,7 +83,6 @@ const ProjectsSettings: React.FC<Props> = ({ data, setData }) => {
   };
   
   const suggestTags = async (index: number) => {
-    // FIX: Removed API key check, as it's handled in generateContent now.
     const project = data.projects[index];
     setGenerating(`tags_${project.id}`, true);
     const prompt = `Based on the following project description, list the key technologies or concepts as tags. Return only a comma-separated list (e.g., E-commerce, React, Stripe):\n\n${project.description.replace(/<[^>]+>/g, '')}`;
@@ -107,13 +107,19 @@ const ProjectsSettings: React.FC<Props> = ({ data, setData }) => {
       projects: [...prev.projects, newItem]
     }));
   };
-
-  const removeItem = (index: number) => {
+  
+  const handleRemoveClick = (index: number) => {
+    setItemToDelete(index);
+  };
+  
+  const handleConfirmRemove = () => {
+    if (itemToDelete === null) return;
     setData(prev => ({
       ...prev,
-      projects: prev.projects.filter((_, i) => i !== index)
+      projects: prev.projects.filter((_, i) => i !== itemToDelete)
     }));
-    setErrors(prev => prev.filter((_, i) => i !== index));
+    setErrors(prev => prev.filter((_, i) => i !== itemToDelete));
+    setItemToDelete(null);
   };
 
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>, index: number) => {
@@ -156,75 +162,89 @@ const ProjectsSettings: React.FC<Props> = ({ data, setData }) => {
   };
 
   return (
-    <AdminSection title="Projects">
-      {data.projects.map((project, index) => {
-        const isDragged = draggedItem === index;
-        const isDragTarget = dragOverItem === index && !isDragged;
+    <>
+      <AdminSection title="Projects">
+        {data.projects.map((project, index) => {
+          const isDragged = draggedItem === index;
+          const isDragTarget = dragOverItem === index && !isDragged;
 
-        return (
-          <div 
-            key={project.id} 
-            className={`border p-4 rounded-md mb-4 transition-all duration-200 cursor-grab active:cursor-grabbing
-              ${isDragged ? 'opacity-50 ring-2 ring-primary' : 'border-border-color'}
-              ${isDragTarget ? 'bg-primary/10' : ''}`}
-            draggable 
-            onDragStart={(e) => handleDragStart(e, index)}
-            onDragOver={(e) => handleDragOver(e, index)}
-            onDrop={handleDrop}
-            onDragLeave={handleDragLeave}
-            onDragEnd={handleDragEnd}
-          >
-            <div className="flex justify-between items-center mb-4 pb-2 border-b border-border-color/50">
-              <h4 className="text-md font-semibold text-text-primary truncate pr-2">{project.name || 'New Project'}</h4>
-              <Bars3Icon className="w-6 h-6 text-text-secondary flex-shrink-0"/>
-            </div>
-            <InputField label="Project Name" name="name" value={project.name} onChange={e => handleItemChange(index, e)} onBlur={e => handleBlur(index, e)} placeholder="e.g., E-commerce Platform" error={errors[index]?.name}/>
-            
-            <div className="mb-4">
-                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-1">
-                  <label className="block text-sm font-medium text-text-secondary">Description</label>
-                  <button
-                      onClick={() => generateDescription(index)}
-                      disabled={generatingStates[`desc_${project.id}`]}
-                      className="bg-secondary/80 hover:bg-secondary text-white px-3 py-1 text-xs rounded-md flex items-center disabled:opacity-50"
-                    >
-                      {generatingStates[`desc_${project.id}`] ? <SpinnerIcon className="w-4 h-4 mr-1 animate-spin" /> : <SparklesIcon className="w-4 h-4 mr-1" />}
-                      Generate
-                  </button>
-                </div>
-                <RichTextEditor name={`description-${project.id}`} value={project.description} onChange={value => handleDescriptionChange(index, value)} />
-            </div>
+          return (
+            <div 
+              key={project.id} 
+              className={`border p-4 rounded-md mb-4 transition-all duration-200 
+                ${isDragged ? 'opacity-50 ring-2 ring-primary' : 'border-border-color'}
+                ${isDragTarget ? 'bg-primary/10' : ''}`}
+            >
+              <div 
+                className="flex justify-between items-center mb-4 pb-2 border-b border-border-color/50 cursor-grab active:cursor-grabbing"
+                draggable 
+                onDragStart={(e) => handleDragStart(e, index)}
+                onDragOver={(e) => handleDragOver(e, index)}
+                onDrop={handleDrop}
+                onDragLeave={handleDragLeave}
+                onDragEnd={handleDragEnd}
+              >
+                <h4 className="text-md font-semibold text-text-primary truncate pr-2">{project.name || 'New Project'}</h4>
+                <Bars3Icon className="w-6 h-6 text-text-secondary flex-shrink-0"/>
+              </div>
+              <InputField label="Project Name" name="name" value={project.name} onChange={e => handleItemChange(index, e)} onBlur={e => handleBlur(index, e)} placeholder="e.g., E-commerce Platform" error={errors[index]?.name}/>
+              
+              <div className="mb-4">
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-1">
+                    <label className="block text-sm font-medium text-text-secondary">Description</label>
+                    <button
+                        onClick={() => generateDescription(index)}
+                        disabled={generatingStates[`desc_${project.id}`]}
+                        className="bg-secondary/80 hover:bg-secondary text-white px-3 py-1 text-xs rounded-md flex items-center disabled:opacity-50"
+                      >
+                        {generatingStates[`desc_${project.id}`] ? <SpinnerIcon className="w-4 h-4 mr-1 animate-spin" /> : <SparklesIcon className="w-4 h-4 mr-1" />}
+                        Generate
+                    </button>
+                  </div>
+                  <RichTextEditor name={`description-${project.id}`} value={project.description} onChange={value => handleDescriptionChange(index, value)} />
+              </div>
 
-            <div className="mb-4">
-                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-1">
-                  <label htmlFor={`tags-${project.id}`} className="block text-sm font-medium text-text-secondary">Tags (comma-separated)</label>
-                   <button
-                      onClick={() => suggestTags(index)}
-                      disabled={!project.description || generatingStates[`tags_${project.id}`]}
-                      className="bg-secondary/80 hover:bg-secondary text-white px-3 py-1 text-xs rounded-md flex items-center disabled:opacity-50"
-                    >
-                      {generatingStates[`tags_${project.id}`] ? <SpinnerIcon className="w-4 h-4 mr-1 animate-spin" /> : <SparklesIcon className="w-4 h-4 mr-1" />}
-                      Suggest
-                  </button>
-                </div>
-                <InputField
-                    label=""
-                    name="tags"
-                    value={Array.isArray(project.tags) ? project.tags.join(', ') : ''}
-                    onChange={e => handleItemChange(index, e)}
-                    placeholder="e.g., React, Node.js, Stripe"
-                />
-            </div>
+              <div className="mb-4">
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-1">
+                    <label htmlFor={`tags-${project.id}`} className="block text-sm font-medium text-text-secondary">Tags (comma-separated)</label>
+                     <button
+                        onClick={() => suggestTags(index)}
+                        disabled={!project.description || generatingStates[`tags_${project.id}`]}
+                        className="bg-secondary/80 hover:bg-secondary text-white px-3 py-1 text-xs rounded-md flex items-center disabled:opacity-50"
+                      >
+                        {generatingStates[`tags_${project.id}`] ? <SpinnerIcon className="w-4 h-4 mr-1 animate-spin" /> : <SparklesIcon className="w-4 h-4 mr-1" />}
+                        Suggest
+                    </button>
+                  </div>
+                  <InputField
+                      label=""
+                      name="tags"
+                      value={Array.isArray(project.tags) ? project.tags.join(', ') : ''}
+                      onChange={e => handleItemChange(index, e)}
+                      placeholder="e.g., React, Node.js, Stripe"
+                  />
+              </div>
 
-            <InputField label="Image URL" name="image" value={project.image} onChange={e => handleItemChange(index, e)} onBlur={e => handleBlur(index, e)} placeholder="https://example.com/project.png" error={errors[index]?.image}/>
-            <InputField label="Repository URL" name="repoLink" value={project.repoLink} onChange={e => handleItemChange(index, e)} onBlur={e => handleBlur(index, e)} placeholder="https://github.com/user/repo" error={errors[index]?.repoLink}/>
-            <InputField label="Demo URL" name="demoLink" value={project.demoLink} onChange={e => handleItemChange(index, e)} onBlur={e => handleBlur(index, e)} placeholder="https://project-demo.com" error={errors[index]?.demoLink}/>
-            <button onClick={() => removeItem(index)} className="text-red-500 hover:text-red-700 text-sm mt-2">Remove</button>
-          </div>
-        );
-      })}
-      <button onClick={addItem} className="bg-primary text-white px-4 py-2 rounded-md">Add Project</button>
-    </AdminSection>
+              <InputField label="Image URL" name="image" value={project.image} onChange={e => handleItemChange(index, e)} onBlur={e => handleBlur(index, e)} placeholder="https://example.com/project.png" error={errors[index]?.image}/>
+              <InputField label="Repository URL" name="repoLink" value={project.repoLink} onChange={e => handleItemChange(index, e)} onBlur={e => handleBlur(index, e)} placeholder="https://github.com/user/repo" error={errors[index]?.repoLink}/>
+              <InputField label="Demo URL" name="demoLink" value={project.demoLink} onChange={e => handleItemChange(index, e)} onBlur={e => handleBlur(index, e)} placeholder="https://project-demo.com" error={errors[index]?.demoLink}/>
+              <button onClick={() => handleRemoveClick(index)} className="text-red-500 hover:text-red-700 text-sm mt-2 flex items-center gap-1">
+                <TrashIcon className="w-4 h-4" />
+                Remove
+              </button>
+            </div>
+          );
+        })}
+        <button onClick={addItem} className="bg-primary text-white px-4 py-2 rounded-md">Add Project</button>
+      </AdminSection>
+      <ConfirmationModal
+        isOpen={itemToDelete !== null}
+        onClose={() => setItemToDelete(null)}
+        onConfirm={handleConfirmRemove}
+        title="Delete Project"
+        message="Are you sure you want to delete this project? This action cannot be undone."
+      />
+    </>
   );
 };
 

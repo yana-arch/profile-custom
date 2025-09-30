@@ -5,7 +5,8 @@ import AdminSection from '../form/AdminSection';
 import InputField from '../form/InputField';
 import RichTextEditor from '../form/RichTextEditor';
 import { isValidUrl } from '../../../utils/validation';
-import { Bars3Icon } from '../../icons/Icons';
+import { Bars3Icon, TrashIcon } from '../../icons/Icons';
+import ConfirmationModal from '../../common/ConfirmationModal';
 
 type Props = {
   data: ProfileData;
@@ -16,6 +17,7 @@ type AwardErrors = Partial<Record<keyof Omit<Award, 'id' | 'description'>, strin
 
 const AwardsSettings: React.FC<Props> = ({ data, setData }) => {
   const [errors, setErrors] = useState<AwardErrors[]>([]);
+  const [itemToDelete, setItemToDelete] = useState<number | null>(null);
   
   const [draggedItem, setDraggedItem] = useState<number | null>(null);
   const [dragOverItem, setDragOverItem] = useState<number | null>(null);
@@ -67,12 +69,18 @@ const AwardsSettings: React.FC<Props> = ({ data, setData }) => {
     }));
   };
 
-  const removeItem = (index: number) => {
+  const handleRemoveClick = (index: number) => {
+    setItemToDelete(index);
+  };
+  
+  const handleConfirmRemove = () => {
+    if (itemToDelete === null) return;
     setData(prev => ({
       ...prev,
-      awards: prev.awards.filter((_, i) => i !== index)
+      awards: prev.awards.filter((_, i) => i !== itemToDelete)
     }));
-    setErrors(prev => prev.filter((_, i) => i !== index));
+    setErrors(prev => prev.filter((_, i) => i !== itemToDelete));
+    setItemToDelete(null);
   };
 
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>, index: number) => {
@@ -116,44 +124,58 @@ const AwardsSettings: React.FC<Props> = ({ data, setData }) => {
 
 
   return (
-    <AdminSection title="Awards & Achievements">
-      {data.awards.map((award, index) => {
-        const isDragged = draggedItem === index;
-        const isDragTarget = dragOverItem === index && !isDragged;
+    <>
+      <AdminSection title="Awards & Achievements">
+        {data.awards.map((award, index) => {
+          const isDragged = draggedItem === index;
+          const isDragTarget = dragOverItem === index && !isDragged;
 
-        return (
-          <div 
-            key={award.id} 
-            className={`border p-4 rounded-md mb-4 transition-all duration-200 cursor-grab active:cursor-grabbing
-              ${isDragged ? 'opacity-50 ring-2 ring-primary' : 'border-border-color'}
-              ${isDragTarget ? 'bg-primary/10' : ''}`}
-            draggable
-            onDragStart={(e) => handleDragStart(e, index)}
-            onDragOver={(e) => handleDragOver(e, index)}
-            onDrop={handleDrop}
-            onDragLeave={handleDragLeave}
-            onDragEnd={handleDragEnd}
-          >
-            <div className="flex justify-between items-center mb-4 pb-2 border-b border-border-color/50">
-              <h4 className="text-md font-semibold text-text-primary truncate pr-2">{award.name || 'New Award'}</h4>
-              <Bars3Icon className="w-6 h-6 text-text-secondary flex-shrink-0"/>
+          return (
+            <div 
+              key={award.id} 
+              className={`border p-4 rounded-md mb-4 transition-all duration-200 
+                ${isDragged ? 'opacity-50 ring-2 ring-primary' : 'border-border-color'}
+                ${isDragTarget ? 'bg-primary/10' : ''}`}
+            >
+              <div 
+                className="flex justify-between items-center mb-4 pb-2 border-b border-border-color/50 cursor-grab active:cursor-grabbing"
+                draggable
+                onDragStart={(e) => handleDragStart(e, index)}
+                onDragOver={(e) => handleDragOver(e, index)}
+                onDrop={handleDrop}
+                onDragLeave={handleDragLeave}
+                onDragEnd={handleDragEnd}
+              >
+                <h4 className="text-md font-semibold text-text-primary truncate pr-2">{award.name || 'New Award'}</h4>
+                <Bars3Icon className="w-6 h-6 text-text-secondary flex-shrink-0"/>
+              </div>
+              <InputField label="Award Name" name="name" value={award.name} onChange={e => handleItemChange(index, e)} onBlur={e => handleBlur(index, e)} placeholder="e.g., Best Project Award" error={errors[index]?.name}/>
+              <InputField label="Issued By" name="issuer" value={award.issuer} onChange={e => handleItemChange(index, e)} onBlur={e => handleBlur(index, e)} placeholder="e.g., University of Technology" error={errors[index]?.issuer}/>
+              <InputField label="Date" name="date" value={award.date} onChange={e => handleItemChange(index, e)} onBlur={e => handleBlur(index, e)} placeholder="e.g., May 2023" error={errors[index]?.date}/>
+              <InputField label="Attachment URL (optional)" name="attachmentUrl" value={award.attachmentUrl || ''} onChange={e => handleItemChange(index, e)} onBlur={e => handleBlur(index, e)} placeholder="https://example.com/award.pdf" error={errors[index]?.attachmentUrl}/>
+              <RichTextEditor 
+                label="Description" 
+                name={`description-${award.id}`}
+                value={award.description} 
+                onChange={value => handleDescriptionChange(index, value)}
+              />
+              <button onClick={() => handleRemoveClick(index)} className="text-red-500 hover:text-red-700 text-sm mt-2 flex items-center gap-1">
+                <TrashIcon className="w-4 h-4" />
+                Remove
+              </button>
             </div>
-            <InputField label="Award Name" name="name" value={award.name} onChange={e => handleItemChange(index, e)} onBlur={e => handleBlur(index, e)} placeholder="e.g., Best Project Award" error={errors[index]?.name}/>
-            <InputField label="Issued By" name="issuer" value={award.issuer} onChange={e => handleItemChange(index, e)} onBlur={e => handleBlur(index, e)} placeholder="e.g., University of Technology" error={errors[index]?.issuer}/>
-            <InputField label="Date" name="date" value={award.date} onChange={e => handleItemChange(index, e)} onBlur={e => handleBlur(index, e)} placeholder="e.g., May 2023" error={errors[index]?.date}/>
-            <InputField label="Attachment URL (optional)" name="attachmentUrl" value={award.attachmentUrl || ''} onChange={e => handleItemChange(index, e)} onBlur={e => handleBlur(index, e)} placeholder="https://example.com/award.pdf" error={errors[index]?.attachmentUrl}/>
-            <RichTextEditor 
-              label="Description" 
-              name={`description-${award.id}`}
-              value={award.description} 
-              onChange={value => handleDescriptionChange(index, value)}
-            />
-            <button onClick={() => removeItem(index)} className="text-red-500 hover:text-red-700 text-sm mt-2">Remove</button>
-          </div>
-        );
-      })}
-      <button onClick={addItem} className="bg-primary text-white px-4 py-2 rounded-md">Add Award</button>
-    </AdminSection>
+          );
+        })}
+        <button onClick={addItem} className="bg-primary text-white px-4 py-2 rounded-md">Add Award</button>
+      </AdminSection>
+      <ConfirmationModal
+        isOpen={itemToDelete !== null}
+        onClose={() => setItemToDelete(null)}
+        onConfirm={handleConfirmRemove}
+        title="Delete Award"
+        message="Are you sure you want to delete this award? This action cannot be undone."
+      />
+    </>
   );
 };
 

@@ -4,8 +4,9 @@ import { ProfileData, Experience } from '../../../types';
 import AdminSection from '../form/AdminSection';
 import InputField from '../form/InputField';
 import RichTextEditor from '../form/RichTextEditor';
-import { Bars3Icon, SparklesIcon, SpinnerIcon } from '../../icons/Icons';
+import { Bars3Icon, SparklesIcon, SpinnerIcon, TrashIcon } from '../../icons/Icons';
 import { generateContent } from '../../../utils/ai';
+import ConfirmationModal from '../../common/ConfirmationModal';
 
 type Props = {
   data: ProfileData;
@@ -17,6 +18,7 @@ type ExperienceErrors = Partial<Record<keyof Omit<Experience, 'id' | 'descriptio
 const ExperienceSettings: React.FC<Props> = ({ data, setData }) => {
   const [errors, setErrors] = useState<ExperienceErrors[]>([]);
   const [generatingStates, setGeneratingStates] = useState<Record<string, boolean>>({});
+  const [itemToDelete, setItemToDelete] = useState<number | null>(null);
   
   const [draggedItem, setDraggedItem] = useState<number | null>(null);
   const [dragOverItem, setDragOverItem] = useState<number | null>(null);
@@ -66,7 +68,6 @@ const ExperienceSettings: React.FC<Props> = ({ data, setData }) => {
   };
   
   const generateDescription = async (index: number) => {
-    // FIX: Removed API key check, as it's handled in generateContent now.
     const job = data.experience[index];
     setGenerating(`desc_${job.id}`, true);
     const prompt = `Write a professional job description for a ${job.title} at ${job.company}. Focus on key responsibilities and achievements. Present it as a bulleted list within <ul> tags.`;
@@ -78,7 +79,6 @@ const ExperienceSettings: React.FC<Props> = ({ data, setData }) => {
   };
 
   const suggestSkills = async (index: number) => {
-    // FIX: Removed API key check, as it's handled in generateContent now.
     const job = data.experience[index];
     setGenerating(`skills_${job.id}`, true);
     const prompt = `Based on the following job description, list the key skills and technologies used. Return only a comma-separated list (e.g., React, TypeScript, AWS):\n\n${job.description.replace(/<[^>]+>/g, '')}`;
@@ -104,12 +104,18 @@ const ExperienceSettings: React.FC<Props> = ({ data, setData }) => {
     }));
   };
 
-  const removeItem = (index: number) => {
+  const handleRemoveClick = (index: number) => {
+    setItemToDelete(index);
+  };
+
+  const handleConfirmRemove = () => {
+    if (itemToDelete === null) return;
     setData(prev => ({
       ...prev,
-      experience: prev.experience.filter((_, i) => i !== index)
+      experience: prev.experience.filter((_, i) => i !== itemToDelete)
     }));
-    setErrors(prev => prev.filter((_, i) => i !== index));
+    setErrors(prev => prev.filter((_, i) => i !== itemToDelete));
+    setItemToDelete(null);
   };
 
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>, index: number) => {
@@ -152,75 +158,89 @@ const ExperienceSettings: React.FC<Props> = ({ data, setData }) => {
   };
   
   return (
-    <AdminSection title="Work Experience">
-      {data.experience.map((job, index) => {
-        const isDragged = draggedItem === index;
-        const isDragTarget = dragOverItem === index && !isDragged;
-        
-        return (
-          <div 
-            key={job.id} 
-            className={`border p-4 rounded-md mb-4 transition-all duration-200 cursor-grab active:cursor-grabbing
-              ${isDragged ? 'opacity-50 ring-2 ring-primary' : 'border-border-color'}
-              ${isDragTarget ? 'bg-primary/10' : ''}`}
-            draggable 
-            onDragStart={(e) => handleDragStart(e, index)} 
-            onDragOver={(e) => handleDragOver(e, index)}
-            onDrop={handleDrop}
-            onDragLeave={handleDragLeave}
-            onDragEnd={handleDragEnd}
-          >
-            <div className="flex justify-between items-center mb-4 pb-2 border-b border-border-color/50">
-              <h4 className="text-md font-semibold text-text-primary truncate pr-2">{job.title || 'New Job'}</h4>
-              <Bars3Icon className="w-6 h-6 text-text-secondary flex-shrink-0"/>
-            </div>
-            <InputField label="Job Title" name="title" value={job.title} onChange={e => handleItemChange(index, e)} onBlur={e => handleBlur(index, e)} placeholder="e.g., Senior Software Engineer" error={errors[index]?.title}/>
-            <InputField label="Company" name="company" value={job.company} onChange={e => handleItemChange(index, e)} onBlur={e => handleBlur(index, e)} placeholder="e.g., Tech Solutions Inc." error={errors[index]?.company}/>
-            <InputField label="Start Date" name="startDate" value={job.startDate} onChange={e => handleItemChange(index, e)} placeholder="e.g., Jan 2020"/>
-            <InputField label="End Date" name="endDate" value={job.endDate} onChange={e => handleItemChange(index, e)} placeholder="e.g., Present"/>
-            
-            <div className="mb-4">
-                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-1">
-                  <label className="block text-sm font-medium text-text-secondary">Description</label>
-                  <button
-                      onClick={() => generateDescription(index)}
-                      disabled={generatingStates[`desc_${job.id}`]}
-                      className="bg-secondary/80 hover:bg-secondary text-white px-3 py-1 text-xs rounded-md flex items-center disabled:opacity-50"
-                    >
-                      {generatingStates[`desc_${job.id}`] ? <SpinnerIcon className="w-4 h-4 mr-1 animate-spin" /> : <SparklesIcon className="w-4 h-4 mr-1" />}
-                      Generate
-                  </button>
-                </div>
-                <RichTextEditor name={`description-${job.id}`} value={job.description} onChange={value => handleDescriptionChange(index, value)} />
-            </div>
+    <>
+      <AdminSection title="Work Experience">
+        {data.experience.map((job, index) => {
+          const isDragged = draggedItem === index;
+          const isDragTarget = dragOverItem === index && !isDragged;
+          
+          return (
+            <div 
+              key={job.id} 
+              className={`border p-4 rounded-md mb-4 transition-all duration-200 
+                ${isDragged ? 'opacity-50 ring-2 ring-primary' : 'border-border-color'}
+                ${isDragTarget ? 'bg-primary/10' : ''}`}
+            >
+              <div 
+                className="flex justify-between items-center mb-4 pb-2 border-b border-border-color/50 cursor-grab active:cursor-grabbing"
+                draggable 
+                onDragStart={(e) => handleDragStart(e, index)} 
+                onDragOver={(e) => handleDragOver(e, index)}
+                onDrop={handleDrop}
+                onDragLeave={handleDragLeave}
+                onDragEnd={handleDragEnd}
+              >
+                <h4 className="text-md font-semibold text-text-primary truncate pr-2">{job.title || 'New Job'}</h4>
+                <Bars3Icon className="w-6 h-6 text-text-secondary flex-shrink-0"/>
+              </div>
+              <InputField label="Job Title" name="title" value={job.title} onChange={e => handleItemChange(index, e)} onBlur={e => handleBlur(index, e)} placeholder="e.g., Senior Software Engineer" error={errors[index]?.title}/>
+              <InputField label="Company" name="company" value={job.company} onChange={e => handleItemChange(index, e)} onBlur={e => handleBlur(index, e)} placeholder="e.g., Tech Solutions Inc." error={errors[index]?.company}/>
+              <InputField label="Start Date" name="startDate" value={job.startDate} onChange={e => handleItemChange(index, e)} placeholder="e.g., Jan 2020"/>
+              <InputField label="End Date" name="endDate" value={job.endDate} onChange={e => handleItemChange(index, e)} placeholder="e.g., Present"/>
+              
+              <div className="mb-4">
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-1">
+                    <label className="block text-sm font-medium text-text-secondary">Description</label>
+                    <button
+                        onClick={() => generateDescription(index)}
+                        disabled={generatingStates[`desc_${job.id}`]}
+                        className="bg-secondary/80 hover:bg-secondary text-white px-3 py-1 text-xs rounded-md flex items-center disabled:opacity-50"
+                      >
+                        {generatingStates[`desc_${job.id}`] ? <SpinnerIcon className="w-4 h-4 mr-1 animate-spin" /> : <SparklesIcon className="w-4 h-4 mr-1" />}
+                        Generate
+                    </button>
+                  </div>
+                  <RichTextEditor name={`description-${job.id}`} value={job.description} onChange={value => handleDescriptionChange(index, value)} />
+              </div>
 
-            <div className="mb-4">
-                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-1">
-                  <label htmlFor={`skillsUsed-${job.id}`} className="block text-sm font-medium text-text-secondary">Skills Used (comma-separated)</label>
-                  <button
-                      onClick={() => suggestSkills(index)}
-                      disabled={!job.description || generatingStates[`skills_${job.id}`]}
-                      className="bg-secondary/80 hover:bg-secondary text-white px-3 py-1 text-xs rounded-md flex items-center disabled:opacity-50"
-                    >
-                      {generatingStates[`skills_${job.id}`] ? <SpinnerIcon className="w-4 h-4 mr-1 animate-spin" /> : <SparklesIcon className="w-4 h-4 mr-1" />}
-                      Suggest
-                  </button>
-                </div>
-                <InputField
-                    label=""
-                    name="skillsUsed"
-                    value={Array.isArray(job.skillsUsed) ? job.skillsUsed.join(', ') : ''}
-                    onChange={e => handleItemChange(index, e)}
-                    placeholder="e.g., React, Node.js, AWS"
-                />
-            </div>
+              <div className="mb-4">
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-1">
+                    <label htmlFor={`skillsUsed-${job.id}`} className="block text-sm font-medium text-text-secondary">Skills Used (comma-separated)</label>
+                    <button
+                        onClick={() => suggestSkills(index)}
+                        disabled={!job.description || generatingStates[`skills_${job.id}`]}
+                        className="bg-secondary/80 hover:bg-secondary text-white px-3 py-1 text-xs rounded-md flex items-center disabled:opacity-50"
+                      >
+                        {generatingStates[`skills_${job.id}`] ? <SpinnerIcon className="w-4 h-4 mr-1 animate-spin" /> : <SparklesIcon className="w-4 h-4 mr-1" />}
+                        Suggest
+                    </button>
+                  </div>
+                  <InputField
+                      label=""
+                      name="skillsUsed"
+                      value={Array.isArray(job.skillsUsed) ? job.skillsUsed.join(', ') : ''}
+                      onChange={e => handleItemChange(index, e)}
+                      placeholder="e.g., React, Node.js, AWS"
+                  />
+              </div>
 
-            <button onClick={() => removeItem(index)} className="text-red-500 hover:text-red-700 text-sm mt-2">Remove</button>
-          </div>
-        );
-      })}
-      <button onClick={addItem} className="bg-primary text-white px-4 py-2 rounded-md">Add Experience</button>
-    </AdminSection>
+              <button onClick={() => handleRemoveClick(index)} className="text-red-500 hover:text-red-700 text-sm mt-2 flex items-center gap-1">
+                <TrashIcon className="w-4 h-4" />
+                Remove
+              </button>
+            </div>
+          );
+        })}
+        <button onClick={addItem} className="bg-primary text-white px-4 py-2 rounded-md">Add Experience</button>
+      </AdminSection>
+      <ConfirmationModal
+        isOpen={itemToDelete !== null}
+        onClose={() => setItemToDelete(null)}
+        onConfirm={handleConfirmRemove}
+        title="Delete Experience"
+        message="Are you sure you want to delete this work experience? This action cannot be undone."
+      />
+    </>
   );
 };
 
