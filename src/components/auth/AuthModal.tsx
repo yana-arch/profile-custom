@@ -68,7 +68,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       await authService.signInWithProvider(provider)
       // Social auth will redirect, so we don't need to handle success here
     } catch (err: any) {
-      setError(err.message || 'Có lỗi xảy ra')
+      console.error('Social auth error:', err)
+      setError(`Lỗi đăng nhập với ${provider}: ${err.message || 'Provider chưa được cấu hình'}`)
       setLoading(false)
     }
   }
