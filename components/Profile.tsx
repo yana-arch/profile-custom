@@ -8,7 +8,7 @@ interface ProfileProps {
   data: ProfileData;
 }
 
-const Profile: React.FC<ProfileProps> = ({ data }) => {
+const Profile: React.FC<ProfileProps> = React.memo(({ data }) => {
   switch (data.settings.layout) {
     case 'tab':
       return <TabView data={data} />;
@@ -18,6 +18,8 @@ const Profile: React.FC<ProfileProps> = ({ data }) => {
     default:
       return <ScrollView data={data} />;
   }
-};
+});
+
+Profile.displayName = 'Profile';
 
 export default Profile;

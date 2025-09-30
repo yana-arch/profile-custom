@@ -1,10 +1,12 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, Suspense, lazy } from 'react';
 import { ProfileData } from './types';
 import { DEFAULT_PROFILE_DATA, getNewProfileData } from './constants';
 import Profile from './components/Profile';
-import AdminPanel from './components/AdminPanel';
 import Onboarding from './components/Onboarding';
 import { SparklesIcon, ViewSimpleIcon, EyeIcon, CogIcon, ArrowsPointingOutIcon, ArrowsPointingInIcon } from './components/icons/Icons';
+
+// Lazy load heavy components for better performance
+const AdminPanel = lazy(() => import('./components/AdminPanel'));
 
 const App: React.FC = () => {
   const [profileData, setProfileData] = useState<ProfileData>(() => {
@@ -208,7 +210,7 @@ const App: React.FC = () => {
     };
   }, [settings.fontFamily]);
 
-  const handleOnboardingComplete = (name: string, title: string, useAi: boolean) => {
+  const handleOnboardingComplete = useCallback((name: string, title: string, useAi: boolean) => {
     setProfileData(getNewProfileData(name, title));
     setIsNewUser(false);
 
@@ -216,10 +218,9 @@ const App: React.FC = () => {
       setInitialAdminTab('ai-wizard');
       setIsAdminView(true);
     }
-  };
+  }, []);
 
-
-  const toggleViewMode = () => {
+  const toggleViewMode = useCallback(() => {
     setProfileData(prev => ({
       ...prev,
       settings: {
@@ -227,7 +228,7 @@ const App: React.FC = () => {
         viewMode: prev.settings.viewMode === 'enhanced' ? 'simple' : 'enhanced'
       }
     }));
-  }
+  }, []);
 
   const memoizedProfile = useMemo(() => <Profile data={profileData} />, [profileData]);
   const memoizedAdminPanel = useMemo(() => <AdminPanel data={profileData} setData={setProfileData} isViewOnly={isViewOnly} setIsViewOnly={setIsViewOnly} initialTab={initialAdminTab} />, [profileData, isViewOnly, initialAdminTab]);
@@ -280,7 +281,15 @@ const App: React.FC = () => {
         {isAdminView ? <EyeIcon className="h-6 w-6" /> : <CogIcon className="h-6 w-6" />}
       </button>
 
-      {isAdminView ? memoizedAdminPanel : memoizedProfile}
+      {isAdminView ? (
+        <Suspense fallback={
+          <div className="flex items-center justify-center min-h-screen">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          </div>
+        }>
+          {memoizedAdminPanel}
+        </Suspense>
+      ) : memoizedProfile}
     </div>
   );
 };
