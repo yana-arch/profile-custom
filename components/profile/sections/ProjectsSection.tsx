@@ -1,6 +1,8 @@
 import React from 'react';
 import { ProfileData } from '../../../types';
 import AnimatedProfileSection from '../AnimatedProfileSection';
+import VirtualizedList from '../../common/VirtualizedList';
+import { useVirtualization } from '../../../hooks/useVirtualization';
 import { GitHubIcon, GlobeAltIcon } from '../../icons/Icons';
 
 const getHoverClasses = (effect: 'none' | 'lift' | 'grow') => {
@@ -35,45 +37,87 @@ const generateImageSrcSet = (imageUrl: string, sizes: number[] = [400, 600, 800]
 };
 
 
-const ProjectsSection: React.FC<{ data: ProfileData; }> = ({ data }) => {
-  const { animations, viewMode } = data.settings;
-  const hoverEffect = viewMode === 'simple' ? 'none' : animations.hoverEffect;
-
+// Project card component for reuse
+const ProjectCard: React.FC<{
+  project: any;
+  hoverEffect: 'none' | 'lift' | 'grow';
+  viewMode: 'enhanced' | 'simple';
+}> = ({ project, hoverEffect, viewMode }) => {
   const cardClasses = `project-card bg-card-background overflow-hidden group dynamic-card ${getHoverClasses(hoverEffect)}`;
   const imageClasses = `w-full h-48 object-cover ${hoverEffect !== 'none' ? 'group-hover:scale-105 transition-transform duration-300' : ''}`;
 
   return (
-    <AnimatedProfileSection 
-        title="Projects" 
-        id="projects" 
+    <div key={project.id} className={cardClasses}>
+      <img
+          src={project.image}
+          srcSet={generateImageSrcSet(project.image)}
+          sizes="(min-width: 1024px) 30vw, (min-width: 768px) 45vw, 90vw"
+          alt={project.name}
+          className={imageClasses}
+          loading="lazy"
+      />
+      <div className="p-6">
+        <h3 className="text-xl font-bold text-text-primary mb-2">{project.name}</h3>
+        <div
+          className="text-text-secondary mb-4 prose"
+          dangerouslySetInnerHTML={{ __html: project.description }}
+        />
+        <div className="flex justify-end space-x-4">
+          <a href={project.repoLink} target="_blank" rel="noopener noreferrer" className="text-text-secondary hover:text-primary transition-colors"><GitHubIcon className="w-6 h-6"/></a>
+          <a href={project.demoLink} target="_blank" rel="noopener noreferrer" className="text-text-secondary hover:text-primary transition-colors"><GlobeAltIcon className="w-6 h-6"/></a>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const ProjectsSection: React.FC<{ data: ProfileData; }> = ({ data }) => {
+  const { animations, viewMode } = data.settings;
+  const hoverEffect = viewMode === 'simple' ? 'none' : animations.hoverEffect;
+
+  // Configure virtualization for projects
+  const virtualizationConfig = useVirtualization(data.projects, {
+    enabled: false, // Disable for grid layout initially
+    itemHeight: 400, // Approximate height of each project card
+    containerHeight: 800,
+    threshold: 20, // Enable virtualization when > 20 projects
+  });
+
+  return (
+    <AnimatedProfileSection
+        title="Projects"
+        id="projects"
         scrollAnimation={animations.scrollAnimation}
         viewMode={viewMode}
     >
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {data.projects.map(project => (
-          <div key={project.id} className={cardClasses}>
-            <img 
-                src={project.image} 
-                srcSet={generateImageSrcSet(project.image)}
-                sizes="(min-width: 1024px) 30vw, (min-width: 768px) 45vw, 90vw"
-                alt={project.name} 
-                className={imageClasses} 
-                loading="lazy"
+      {virtualizationConfig.enabled ? (
+        // Virtualized view for many projects
+        <VirtualizedList
+          items={data.projects}
+          itemHeight={virtualizationConfig.itemHeight}
+          containerHeight={virtualizationConfig.containerHeight}
+          className="max-w-full"
+          renderItem={(project) => (
+            <ProjectCard
+              project={project}
+              hoverEffect={hoverEffect}
+              viewMode={viewMode}
             />
-            <div className="p-6">
-              <h3 className="text-xl font-bold text-text-primary mb-2">{project.name}</h3>
-              <div 
-                className="text-text-secondary mb-4 prose"
-                dangerouslySetInnerHTML={{ __html: project.description }}
-              />
-              <div className="flex justify-end space-x-4">
-                <a href={project.repoLink} target="_blank" rel="noopener noreferrer" className="text-text-secondary hover:text-primary transition-colors"><GitHubIcon className="w-6 h-6"/></a>
-                <a href={project.demoLink} target="_blank" rel="noopener noreferrer" className="text-text-secondary hover:text-primary transition-colors"><GlobeAltIcon className="w-6 h-6"/></a>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
+          )}
+        />
+      ) : (
+        // Regular grid view for fewer projects
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {data.projects.map(project => (
+            <ProjectCard
+              key={project.id}
+              project={project}
+              hoverEffect={hoverEffect}
+              viewMode={viewMode}
+            />
+          ))}
+        </div>
+      )}
     </AnimatedProfileSection>
   );
 };

@@ -5,6 +5,7 @@ import Profile from './components/Profile';
 import Onboarding from './components/Onboarding';
 import { SparklesIcon, ViewSimpleIcon, EyeIcon, CogIcon, ArrowsPointingOutIcon, ArrowsPointingInIcon } from './components/icons/Icons';
 import { initPerformanceMonitoring, getBundleSize, getMemoryUsage } from './utils/performance';
+import SEO from './components/common/SEO';
 
 // Lazy load heavy components for better performance
 const AdminPanel = lazy(() => import('./components/AdminPanel'));
@@ -148,6 +149,9 @@ const App: React.FC = () => {
 
   return (
     <div className="bg-background text-text-primary min-h-screen transition-colors duration-300">
+      {/* SEO and Performance Monitoring */}
+      {!isNewUser && <SEO data={profileData} />}
+
       {!isAdminView && (
         <>
             <button
