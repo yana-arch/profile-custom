@@ -29,15 +29,31 @@ const TabView: React.FC<{ data: ProfileData }> = ({ data }) => {
       { id: 'contact', name: 'Contact', icon: <PaperAirplaneIcon className="w-5 h-5 mr-2" /> },
     ];
     
-    const visibleTabs = allTabs.filter(tab => data.settings.sections[tab.id as keyof typeof data.settings.sections]);
+    const contentAvailable = {
+        about: true,
+        experience: data.experience.length > 0,
+        education: data.education.length > 0,
+        projects: data.projects.length > 0,
+        skills: data.skills.frontend.length > 0 || data.skills.backend.length > 0 || data.skills.tools.length > 0,
+        certifications: data.certifications.length > 0,
+        awards: data.awards.length > 0,
+        hobbies: data.hobbies.length > 0,
+        contact: true,
+    };
+
+    const visibleTabs = allTabs.filter(tab => 
+        data.settings.sections[tab.id as keyof typeof data.settings.sections] && 
+        contentAvailable[tab.id as keyof typeof contentAvailable]
+    );
+
     const [activeTab, setActiveTab] = useState(visibleTabs[0]?.id || '');
 
-    // Reset active tab if it's been disabled
+    // Reset active tab if it's been disabled or has no content
     useEffect(() => {
         if (!visibleTabs.some(tab => tab.id === activeTab)) {
             setActiveTab(visibleTabs[0]?.id || '');
         }
-    }, [data.settings.sections, activeTab, visibleTabs]);
+    }, [data, activeTab, visibleTabs]);
 
     return (
         <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
@@ -62,15 +78,15 @@ const TabView: React.FC<{ data: ProfileData }> = ({ data }) => {
                 ))}
             </nav>
             <main>
-              {activeTab === 'about' && data.settings.sections.about && <AboutSection data={data} />}
-              {activeTab === 'experience' && data.settings.sections.experience && <ExperienceSection data={data} />}
-              {activeTab === 'education' && data.settings.sections.education && <EducationSection data={data} />}
-              {activeTab === 'projects' && data.settings.sections.projects && <ProjectsSection data={data} />}
-              {activeTab === 'skills' && data.settings.sections.skills && <SkillsSection data={data} />}
-              {activeTab === 'certifications' && data.settings.sections.certifications && <CertificationsSection data={data} />}
-              {activeTab === 'awards' && data.settings.sections.awards && <AwardsSection data={data} />}
-              {activeTab === 'hobbies' && data.settings.sections.hobbies && <HobbiesSection data={data} />}
-              {activeTab === 'contact' && data.settings.sections.contact && <ContactSection data={data} />}
+              {activeTab === 'about' && <AboutSection data={data} />}
+              {activeTab === 'experience' && <ExperienceSection data={data} />}
+              {activeTab === 'education' && <EducationSection data={data} />}
+              {activeTab === 'projects' && <ProjectsSection data={data} />}
+              {activeTab === 'skills' && <SkillsSection data={data} />}
+              {activeTab === 'certifications' && <CertificationsSection data={data} />}
+              {activeTab === 'awards' && <AwardsSection data={data} />}
+              {activeTab === 'hobbies' && <HobbiesSection data={data} />}
+              {activeTab === 'contact' && <ContactSection data={data} />}
             </main>
             <Footer data={data} />
         </div>

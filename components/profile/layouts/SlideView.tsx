@@ -16,6 +16,19 @@ const SlideView: React.FC<{ data: ProfileData }> = ({ data }) => {
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const [currentSlide, setCurrentSlide] = useState(0);
 
+    const contentAvailable = {
+        hero: true,
+        about: true,
+        experience: data.experience.length > 0,
+        education: data.education.length > 0,
+        projects: data.projects.length > 0,
+        skills: data.skills.frontend.length > 0 || data.skills.backend.length > 0 || data.skills.tools.length > 0,
+        certifications: data.certifications.length > 0,
+        awards: data.awards.length > 0,
+        hobbies: data.hobbies.length > 0,
+        contact: true,
+    };
+
     const slides = [
         { id: 'hero', component: <HeroSection data={data} />, visible: true },
         { id: 'about', component: <AboutSection data={data} />, visible: data.settings.sections.about },
@@ -27,7 +40,7 @@ const SlideView: React.FC<{ data: ProfileData }> = ({ data }) => {
         { id: 'awards', component: <AwardsSection data={data} />, visible: data.settings.sections.awards },
         { id: 'hobbies', component: <HobbiesSection data={data} />, visible: data.settings.sections.hobbies },
         { id: 'contact', component: <ContactSection data={data} />, visible: data.settings.sections.contact },
-    ].filter(slide => slide.visible);
+    ].filter(slide => slide.visible && contentAvailable[slide.id as keyof typeof contentAvailable]);
 
     const scrollToSlide = (index: number) => {
         if (scrollContainerRef.current) {
@@ -57,19 +70,24 @@ const SlideView: React.FC<{ data: ProfileData }> = ({ data }) => {
             </div>
 
             {/* Navigation Buttons */}
-            <button onClick={handlePrev} disabled={currentSlide === 0} className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/20 p-2 rounded-full text-white hover:bg-white/40 disabled:opacity-50 disabled:cursor-not-allowed transition-all z-10">
-                <ChevronLeftIcon className="h-6 w-6" />
-            </button>
-            <button onClick={handleNext} disabled={currentSlide === slides.length - 1} className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 p-2 rounded-full text-white hover:bg-white/40 disabled:opacity-50 disabled:cursor-not-allowed transition-all z-10">
-                <ChevronRightIcon className="h-6 w-6" />
-            </button>
+            {slides.length > 1 && <>
+              <button onClick={handlePrev} disabled={currentSlide === 0} className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/20 p-2 rounded-full text-white hover:bg-white/40 disabled:opacity-50 disabled:cursor-not-allowed transition-all z-10">
+                  <ChevronLeftIcon className="h-6 w-6" />
+              </button>
+              <button onClick={handleNext} disabled={currentSlide === slides.length - 1} className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 p-2 rounded-full text-white hover:bg-white/40 disabled:opacity-50 disabled:cursor-not-allowed transition-all z-10">
+                  <ChevronRightIcon className="h-6 w-6" />
+              </button>
+            </>}
+
 
             {/* Pagination Dots */}
-            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex space-x-2 z-10">
-                {slides.map((_, index) => (
-                    <button key={index} onClick={() => scrollToSlide(index)} className={`w-3 h-3 rounded-full transition-all ${currentSlide === index ? 'bg-white scale-125' : 'bg-white/40 hover:bg-white/70'}`}></button>
-                ))}
-            </div>
+            {slides.length > 1 && 
+              <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex space-x-2 z-10">
+                  {slides.map((_, index) => (
+                      <button key={index} onClick={() => scrollToSlide(index)} className={`w-3 h-3 rounded-full transition-all ${currentSlide === index ? 'bg-white scale-125' : 'bg-white/40 hover:bg-white/70'}`}></button>
+                  ))}
+              </div>
+            }
         </div>
     );
 };

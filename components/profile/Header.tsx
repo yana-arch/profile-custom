@@ -4,6 +4,21 @@ import { DocumentArrowDownIcon, Bars3Icon, XMarkIcon } from '../icons/Icons';
 
 const Header: React.FC<{ data: ProfileData }> = ({ data }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  
+  const contentAvailable = {
+    about: true,
+    experience: data.experience.length > 0,
+    education: data.education.length > 0,
+    projects: data.projects.length > 0,
+    skills: data.skills.frontend.length > 0 || data.skills.backend.length > 0 || data.skills.tools.length > 0,
+    certifications: data.certifications.length > 0,
+    awards: data.awards.length > 0,
+    hobbies: data.hobbies.length > 0,
+    contact: true,
+  };
+
+  const visibleSections = Object.entries(data.settings.sections)
+    .filter(([key, visible]) => visible && contentAvailable[key as keyof typeof contentAvailable]);
 
   return (
     <header className="sticky top-0 bg-background/80 backdrop-blur-sm z-40 shadow-sm">
@@ -14,7 +29,7 @@ const Header: React.FC<{ data: ProfileData }> = ({ data }) => {
              <span className="text-xl font-bold text-text-primary">{data.personalInfo.name}</span>
           </div>
           <nav className="hidden md:flex items-center space-x-4">
-            {Object.entries(data.settings.sections).filter(([, visible]) => visible).map(([key]) => (
+            {visibleSections.map(([key]) => (
               <a key={key} href={`#${key}`} className="text-text-secondary hover:text-primary transition-colors font-medium capitalize">{key}</a>
             ))}
           </nav>
@@ -39,7 +54,7 @@ const Header: React.FC<{ data: ProfileData }> = ({ data }) => {
       {isMobileMenuOpen && (
         <div className="md:hidden bg-background/95 backdrop-blur-sm absolute w-full shadow-lg">
           <nav className="flex flex-col items-center space-y-4 p-4">
-            {Object.entries(data.settings.sections).filter(([, visible]) => visible).map(([key]) => (
+            {visibleSections.map(([key]) => (
               <a key={key} href={`#${key}`} onClick={() => setIsMobileMenuOpen(false)} className="text-text-secondary hover:text-primary transition-colors font-medium capitalize">{key}</a>
             ))}
           </nav>

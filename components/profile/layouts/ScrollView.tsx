@@ -14,6 +14,8 @@ import AwardsSection from '../sections/AwardsSection';
 import ContactSection from '../sections/ContactSection';
 
 const ScrollView: React.FC<{ data: ProfileData }> = ({ data }) => {
+  const hasSkills = data.skills.frontend.length > 0 || data.skills.backend.length > 0 || data.skills.tools.length > 0;
+  
   return (
     <>
       <Header data={data} />
@@ -22,13 +24,13 @@ const ScrollView: React.FC<{ data: ProfileData }> = ({ data }) => {
       </section>
       <main>
         {data.settings.sections.about && <AboutSection data={data} />}
-        {data.settings.sections.experience && <ExperienceSection data={data} />}
-        {data.settings.sections.education && <EducationSection data={data} />}
-        {data.settings.sections.projects && <ProjectsSection data={data} />}
-        {data.settings.sections.skills && <SkillsSection data={data} />}
-        {data.settings.sections.certifications && <CertificationsSection data={data} />}
-        {data.settings.sections.awards && <AwardsSection data={data} />}
-        {data.settings.sections.hobbies && <HobbiesSection data={data} />}
+        {data.settings.sections.experience && data.experience.length > 0 && <ExperienceSection data={data} />}
+        {data.settings.sections.education && data.education.length > 0 && <EducationSection data={data} />}
+        {data.settings.sections.projects && data.projects.length > 0 && <ProjectsSection data={data} />}
+        {data.settings.sections.skills && hasSkills && <SkillsSection data={data} />}
+        {data.settings.sections.certifications && data.certifications.length > 0 && <CertificationsSection data={data} />}
+        {data.settings.sections.awards && data.awards.length > 0 && <AwardsSection data={data} />}
+        {data.settings.sections.hobbies && data.hobbies.length > 0 && <HobbiesSection data={data} />}
         {data.settings.sections.contact && <ContactSection data={data} />}
       </main>
       <Footer data={data} />
