@@ -129,3 +129,33 @@ export const DEFAULT_PROFILE_DATA: ProfileData = {
     }
   }
 };
+
+export const getNewProfileData = (name: string, title: string): ProfileData => ({
+  ...DEFAULT_PROFILE_DATA,
+  personalInfo: {
+    ...DEFAULT_PROFILE_DATA.personalInfo,
+    name: name || "Your Name",
+    title: title || "Your Title",
+    avatar: "",
+    heroImage: "",
+    bio: `Welcome to my new profile! I'm a ${title || 'professional'} looking for new opportunities.`,
+    contact: {
+      email: "",
+      linkedin: "",
+      github: "",
+      portfolio: ""
+    },
+    cvFileUrl: ""
+  },
+  experience: [],
+  education: [],
+  projects: [],
+  skills: {
+    frontend: [],
+    backend: [],
+    tools: []
+  },
+  certifications: [],
+  hobbies: [],
+  awards: [],
+});

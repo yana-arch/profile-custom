@@ -19,10 +19,11 @@ type Props = {
   setData: React.Dispatch<React.SetStateAction<ProfileData>>;
   isViewOnly: boolean;
   setIsViewOnly: React.Dispatch<React.SetStateAction<boolean>>;
+  initialTab?: string;
 };
 
-const AdminPanel: React.FC<Props> = ({ data, setData, isViewOnly, setIsViewOnly }) => {
-  const [activeTab, setActiveTab] = useState('personal');
+const AdminPanel: React.FC<Props> = ({ data, setData, isViewOnly, setIsViewOnly, initialTab }) => {
+  const [activeTab, setActiveTab] = useState(initialTab || 'personal');
 
   const tabs = [
     { id: 'personal', label: 'Personal Info', icon: <UserIcon className="w-5 h-5 mr-2" /> },

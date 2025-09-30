@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { ProfileData } from './types';
-import { DEFAULT_PROFILE_DATA } from './constants';
+import { DEFAULT_PROFILE_DATA, getNewProfileData } from './constants';
 import Profile from './components/Profile';
 import AdminPanel from './components/AdminPanel';
+import Onboarding from './components/Onboarding';
 import { SparklesIcon, ViewSimpleIcon, EyeIcon, CogIcon, ArrowsPointingOutIcon, ArrowsPointingInIcon } from './components/icons/Icons';
 
 const App: React.FC = () => {
@@ -18,14 +19,19 @@ const App: React.FC = () => {
 
   const [isAdminView, setIsAdminView] = useState(false);
   const [isViewOnly, setIsViewOnly] = useState(false);
+  const [isNewUser, setIsNewUser] = useState(() => !localStorage.getItem('myDynamicProfileData'));
+  const [initialAdminTab, setInitialAdminTab] = useState('personal');
+
 
   useEffect(() => {
+    // Don't save default data for a new user until they complete onboarding
+    if (isNewUser) return;
     try {
       localStorage.setItem('myDynamicProfileData', JSON.stringify(profileData));
     } catch (error) {
       console.error('Error saving data to localStorage:', error);
     }
-  }, [profileData]);
+  }, [profileData, isNewUser]);
 
   const { settings } = profileData;
 
@@ -202,6 +208,17 @@ const App: React.FC = () => {
     };
   }, [settings.fontFamily]);
 
+  const handleOnboardingComplete = (name: string, title: string, useAi: boolean) => {
+    setProfileData(getNewProfileData(name, title));
+    setIsNewUser(false);
+
+    if (useAi) {
+      setInitialAdminTab('ai-wizard');
+      setIsAdminView(true);
+    }
+  };
+
+
   const toggleViewMode = () => {
     setProfileData(prev => ({
       ...prev,
@@ -213,7 +230,11 @@ const App: React.FC = () => {
   }
 
   const memoizedProfile = useMemo(() => <Profile data={profileData} />, [profileData]);
-  const memoizedAdminPanel = useMemo(() => <AdminPanel data={profileData} setData={setProfileData} isViewOnly={isViewOnly} setIsViewOnly={setIsViewOnly} />, [profileData, isViewOnly]);
+  const memoizedAdminPanel = useMemo(() => <AdminPanel data={profileData} setData={setProfileData} isViewOnly={isViewOnly} setIsViewOnly={setIsViewOnly} initialTab={initialAdminTab} />, [profileData, isViewOnly, initialAdminTab]);
+
+  if (isNewUser) {
+    return <Onboarding onComplete={handleOnboardingComplete} />;
+  }
 
   if (isViewOnly) {
     return (
