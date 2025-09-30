@@ -6,7 +6,12 @@ export async function generateContent(settings: AiSettings, prompt: string): Pro
   try {
     switch (settings.provider) {
       case 'gemini':
-        const ai = new GoogleGenAI({ apiKey: settings.apiKey });
+        // FIX: Per @google/genai guidelines, API key must come from process.env.API_KEY
+        const geminiApiKey = process.env.API_KEY;
+        if (!geminiApiKey) {
+          throw new Error('The Gemini API key is not configured. Please set the API_KEY environment variable.');
+        }
+        const ai = new GoogleGenAI({ apiKey: geminiApiKey });
         const response = await ai.models.generateContent({
           model: 'gemini-2.5-flash',
           contents: prompt,
@@ -194,7 +199,12 @@ Adhere strictly to the provided JSON schema.`;
             return null;
         }
 
-        const ai = new GoogleGenAI({ apiKey: settings.apiKey });
+        // FIX: Per @google/genai guidelines, API key must come from process.env.API_KEY
+        const geminiApiKey = process.env.API_KEY;
+        if (!geminiApiKey) {
+          throw new Error('The Gemini API key is not configured. Please set the API_KEY environment variable.');
+        }
+        const ai = new GoogleGenAI({ apiKey: geminiApiKey });
         const response = await ai.models.generateContent({
             model: 'gemini-2.5-flash',
             contents: prompt,
@@ -235,12 +245,14 @@ export async function generatePlaceholderImages(
       alert('Image generation currently only supports the Google Gemini provider.');
       return null;
     }
-    if (!settings.apiKey) {
-      alert('Please configure your Gemini API key in the AI Settings tab.');
-      return null;
+    
+    // FIX: Per @google/genai guidelines, API key must come from process.env.API_KEY
+    const geminiApiKey = process.env.API_KEY;
+    if (!geminiApiKey) {
+      throw new Error('The Gemini API key is not configured. Please set the API_KEY environment variable.');
     }
 
-    const ai = new GoogleGenAI({ apiKey: settings.apiKey });
+    const ai = new GoogleGenAI({ apiKey: geminiApiKey });
 
     const [avatarResponse, heroResponse] = await Promise.all([
       // Avatar Generation

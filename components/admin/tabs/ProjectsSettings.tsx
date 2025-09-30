@@ -70,10 +70,7 @@ const ProjectsSettings: React.FC<Props> = ({ data, setData }) => {
   };
   
   const generateDescription = async (index: number) => {
-    if (!data.settings.ai.apiKey) {
-      alert('Please configure your AI API key in the AI Settings tab.');
-      return;
-    }
+    // FIX: Removed API key check, as it's handled in generateContent now.
     const project = data.projects[index];
     setGenerating(`desc_${project.id}`, true);
     const prompt = `Write a compelling project description for a project named "${project.name}". Describe its purpose, key features, and the technology stack used. Present it as a paragraph inside <p> tags.`;
@@ -85,10 +82,7 @@ const ProjectsSettings: React.FC<Props> = ({ data, setData }) => {
   };
   
   const suggestTags = async (index: number) => {
-    if (!data.settings.ai.apiKey) {
-      alert('Please configure your AI API key in the AI Settings tab.');
-      return;
-    }
+    // FIX: Removed API key check, as it's handled in generateContent now.
     const project = data.projects[index];
     setGenerating(`tags_${project.id}`, true);
     const prompt = `Based on the following project description, list the key technologies or concepts as tags. Return only a comma-separated list (e.g., E-commerce, React, Stripe):\n\n${project.description.replace(/<[^>]+>/g, '')}`;

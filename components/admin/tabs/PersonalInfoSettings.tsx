@@ -78,10 +78,7 @@ const PersonalInfoSettings: React.FC<Props> = ({ data, setData }) => {
   };
   
   const generateBio = async () => {
-    if (!data.settings.ai.apiKey) {
-      alert('Please configure your AI API key in the AI Settings tab.');
-      return;
-    }
+    // FIX: Removed API key check, as it's handled in generateContent now.
     setIsGenerating(true);
     const prompt = `Write a professional bio for a ${data.personalInfo.title}. Keep it concise, engaging, and in the first person. Highlight key skills and passion for the field.`;
     const result = await generateContent(data.settings.ai, prompt);

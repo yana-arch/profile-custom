@@ -36,14 +36,24 @@ const AiSettings: React.FC<Props> = ({ data, setData }) => {
         <option value="custom">Custom (OpenAI-compatible)</option>
       </SelectField>
 
-      <InputField
-        label="API Key"
-        name="apiKey"
-        type="password"
-        value={data.settings.ai.apiKey}
-        onChange={handleAiChange}
-        placeholder="Enter your API key"
-      />
+      {/* FIX: Per @google/genai guidelines, do not show API key input for Gemini. */}
+      {data.settings.ai.provider === 'gemini' && (
+        <div className="bg-blue-100 dark:bg-blue-900/30 border-l-4 border-blue-500 text-blue-800 dark:text-blue-200 p-4 rounded-md text-sm mb-6">
+          <p>The Google Gemini provider uses the <strong>API_KEY</strong> environment variable. No API key is needed here.</p>
+        </div>
+      )}
+
+      {data.settings.ai.provider !== 'gemini' && (
+        <InputField
+          label="API Key"
+          name="apiKey"
+          type="password"
+          value={data.settings.ai.apiKey}
+          onChange={handleAiChange}
+          placeholder="Enter your API key"
+        />
+      )}
+
 
       {data.settings.ai.provider === 'openrouter' && (
         <InputField

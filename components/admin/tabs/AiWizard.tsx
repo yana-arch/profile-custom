@@ -16,10 +16,7 @@ const AiWizard: React.FC<Props> = ({ data, setData }) => {
   const [isGeneratingImages, setIsGeneratingImages] = useState(false);
 
   const handleGenerate = async () => {
-    if (!data.settings.ai.apiKey) {
-      alert('Please configure your AI API key in the AI Settings tab.');
-      return;
-    }
+    // FIX: Removed API key check. The utility functions now handle API key validation.
     if (!description.trim()) {
         alert('Please provide a description of yourself.');
         return;
@@ -56,10 +53,7 @@ const AiWizard: React.FC<Props> = ({ data, setData }) => {
   };
 
   const handleSuggestImages = async () => {
-    if (!data.settings.ai.apiKey) {
-      alert('Please configure your AI API key in the AI Settings tab.');
-      return;
-    }
+    // FIX: Removed API key check. The utility functions now handle API key validation.
     if (!data.personalInfo.name || !data.personalInfo.title) {
         alert('Please generate the profile or fill in your name and title first.');
         return;

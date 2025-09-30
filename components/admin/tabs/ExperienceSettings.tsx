@@ -66,10 +66,7 @@ const ExperienceSettings: React.FC<Props> = ({ data, setData }) => {
   };
   
   const generateDescription = async (index: number) => {
-    if (!data.settings.ai.apiKey) {
-      alert('Please configure your AI API key in the AI Settings tab.');
-      return;
-    }
+    // FIX: Removed API key check, as it's handled in generateContent now.
     const job = data.experience[index];
     setGenerating(`desc_${job.id}`, true);
     const prompt = `Write a professional job description for a ${job.title} at ${job.company}. Focus on key responsibilities and achievements. Present it as a bulleted list within <ul> tags.`;
@@ -81,10 +78,7 @@ const ExperienceSettings: React.FC<Props> = ({ data, setData }) => {
   };
 
   const suggestSkills = async (index: number) => {
-    if (!data.settings.ai.apiKey) {
-      alert('Please configure your AI API key in the AI Settings tab.');
-      return;
-    }
+    // FIX: Removed API key check, as it's handled in generateContent now.
     const job = data.experience[index];
     setGenerating(`skills_${job.id}`, true);
     const prompt = `Based on the following job description, list the key skills and technologies used. Return only a comma-separated list (e.g., React, TypeScript, AWS):\n\n${job.description.replace(/<[^>]+>/g, '')}`;
