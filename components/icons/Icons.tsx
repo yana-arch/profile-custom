@@ -1,25 +1,42 @@
 import React from 'react';
+import {
+  SparklesIcon as HeroSparklesIcon,
+  EyeIcon as HeroEyeIcon,
+  CogIcon as HeroCogIcon,
+  Bars3Icon as HeroBars3Icon,
+  XMarkIcon as HeroXMarkIcon,
+  ChevronLeftIcon as HeroChevronLeftIcon,
+  ChevronRightIcon as HeroChevronRightIcon,
+  UserIcon as HeroUserIcon,
+  BriefcaseIcon as HeroBriefcaseIcon,
+  CodeBracketIcon as HeroCodeBracketIcon,
+  WrenchScrewdriverIcon as HeroWrenchScrewdriverIcon,
+  AcademicCapIcon as HeroAcademicCapIcon,
+  PaperAirplaneIcon as HeroPaperAirplaneIcon,
+  HeartIcon as HeroHeartIcon,
+  TrophyIcon as HeroTrophyIcon,
+  GlobeAltIcon as HeroGlobeAltIcon,
+  PaintBrushIcon as HeroPaintBrushIcon,
+  TrashIcon as HeroTrashIcon,
+  ChevronDownIcon as HeroChevronDownIcon,
+  EyeSlashIcon as HeroEyeSlashIcon,
+  ArrowsPointingOutIcon as HeroArrowsPointingOutIcon,
+  ArrowsPointingInIcon as HeroArrowsPointingInIcon,
+  DocumentArrowDownIcon as HeroDocumentArrowDownIcon,
+  ViewfinderCircleIcon as HeroViewSimpleIcon,
+  ArrowPathIcon as HeroSpinnerIcon,
+  // Brand Icons
+  LinkIcon as HeroLinkedInIcon,
+  // Note: React, Vue, Node.js, Python, TypeScript, Docker, AWS icons would need custom implementations
+  // or different icon names from Heroicons
+} from '@heroicons/react/24/outline';
 
 type IconProps = React.SVGProps<SVGSVGElement>;
 
-export const SparklesIcon: React.FC<IconProps> = (props) => (
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.898 20.624l.21-1.423a2.25 2.25 0 00-1.883-2.435l-1.423-.21a2.25 2.25 0 00-2.435 1.883l-.21 1.423a2.25 2.25 0 001.883 2.435l1.423.21a2.25 2.25 0 002.435-1.883z" />
-  </svg>
-);
-
-export const ViewSimpleIcon: React.FC<IconProps> = (props) => (
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-  </svg>
-);
-
-export const EyeIcon: React.FC<IconProps> = (props) => (
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.432 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
-    <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-  </svg>
-);
+// Re-export Heroicons with our naming convention
+export const SparklesIcon: React.FC<IconProps> = (props) => <HeroSparklesIcon {...props} />;
+export const ViewSimpleIcon: React.FC<IconProps> = (props) => <HeroViewSimpleIcon {...props} />;
+export const EyeIcon: React.FC<IconProps> = (props) => <HeroEyeIcon {...props} />;
 
 export const EyeSlashIcon: React.FC<IconProps> = (props) => (
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
