@@ -7,6 +7,11 @@ interface LazyImageProps {
   placeholder?: string;
   onLoad?: () => void;
   onError?: () => void;
+  priority?: boolean; // For above-the-fold images
+  sizes?: string; // Responsive sizes
+  srcSet?: string; // Responsive srcSet
+  webpSrc?: string; // WebP version
+  avifSrc?: string; // AVIF version (better compression)
 }
 
 const LazyImage: React.FC<LazyImageProps> = ({
@@ -15,7 +20,11 @@ const LazyImage: React.FC<LazyImageProps> = ({
   className = '',
   placeholder = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0xMiAyaEM2LjQ4IDEwIDMgMTMuNDggMyAxOEMzIDIwLjc0IDQuMjYgMjIgNiAyMkMxMC41MiAyMiAxNCAxOC41MiAxNCAxNEMxNCA5LjQ4IDE2LjUyIDYgMjEgNkg5LjVWMjJIMTJDMTMuMTYgMjIgMTQgMjAuMTYgMTQgMTlDMTQgMTcuMjYgMTIuMjYgMTYgMTEgMTZINUMzLjc0IDE2IDIgMTQuMjYgMiAxM0MxNiAxMyAxMiAxMC40OCAxMiAyWiIgZmlsbD0iIzlDQTNBRiIvPgo8L3N2Zz4K',
   onLoad,
-  onError
+  onError,
+  priority = false,
+  sizes,
+  webpSrc,
+  avifSrc
 }) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [isInView, setIsInView] = useState(false);
@@ -67,19 +76,34 @@ const LazyImage: React.FC<LazyImageProps> = ({
         />
       )}
 
-      {/* Actual image */}
+      {/* Actual image with modern format support */}
       {isInView && (
-        <img
-          ref={imgRef}
-          src={src}
-          alt={alt}
-          className={`w-full h-full object-cover transition-opacity duration-300 ${
-            isLoaded ? 'opacity-100' : 'opacity-0'
-          }`}
-          onLoad={handleLoad}
-          onError={handleError}
-          loading="lazy"
-        />
+        <picture>
+          {/* AVIF format for modern browsers (best compression) */}
+          {avifSrc && (
+            <source srcSet={avifSrc} type="image/avif" />
+          )}
+
+          {/* WebP format for modern browsers */}
+          {webpSrc && (
+            <source srcSet={webpSrc} type="image/webp" />
+          )}
+
+          {/* Fallback to original format */}
+          <img
+            ref={imgRef}
+            src={src}
+            alt={alt}
+            className={`w-full h-full object-cover transition-opacity duration-300 ${
+              isLoaded ? 'opacity-100' : 'opacity-0'
+            }`}
+            onLoad={handleLoad}
+            onError={handleError}
+            loading={priority ? "eager" : "lazy"}
+            decoding="async"
+            sizes={sizes || "(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"}
+          />
+        </picture>
       )}
 
       {/* Error state */}
