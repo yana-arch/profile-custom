@@ -1,5 +1,6 @@
 import React from 'react';
 import { ProfileData } from '../../../types';
+import { generateProfilePDF } from '../../../utils/pdfExport';
 import Header from '../Header';
 import Footer from '../Footer';
 import HeroSection from '../sections/HeroSection';
@@ -12,9 +13,19 @@ import CertificationsSection from '../sections/CertificationsSection';
 import HobbiesSection from '../sections/HobbiesSection';
 import AwardsSection from '../sections/AwardsSection';
 import ContactSection from '../sections/ContactSection';
+import { DocumentArrowDownIcon } from '../../../components/icons/Icons';
 
 const ScrollView: React.FC<{ data: ProfileData }> = ({ data }) => {
   const hasSkills = data.skills.frontend.length > 0 || data.skills.backend.length > 0 || data.skills.tools.length > 0;
+
+  const handleDownloadPDF = async () => {
+    try {
+      await generateProfilePDF(data);
+    } catch (error) {
+      console.error('PDF generation failed:', error);
+      alert('Failed to generate PDF. Please try again.');
+    }
+  };
 
   return (
     <>
@@ -22,6 +33,16 @@ const ScrollView: React.FC<{ data: ProfileData }> = ({ data }) => {
       <section id="hero-container" className="h-[70vh] min-h-[500px]">
         <HeroSection data={data} />
       </section>
+
+      {/* PDF Download Button - Fixed Position */}
+      <button
+        onClick={handleDownloadPDF}
+        className="fixed bottom-52 right-4 bg-green-600 text-white p-3 rounded-full shadow-lg z-50 hover:bg-green-700 transition-colors print-hidden"
+        title="Download CV as PDF"
+      >
+        <DocumentArrowDownIcon className="h-6 w-6" />
+      </button>
+
       <main>
         {data.settings.sections.about && <AboutSection data={data} />}
         {data.settings.sections.experience && data.experience.length > 0 && <ExperienceSection data={data} />}

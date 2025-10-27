@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ProfileData } from '../../../types';
+import { generateProfilePDF } from '../../../utils/pdfExport';
 import {
   UserIcon,
   BriefcaseIcon,
@@ -63,6 +64,15 @@ const TabView: React.FC<{ data: ProfileData }> = ({ data }) => {
     }
   }, [data, activeTab, visibleTabs]);
 
+  const handleDownloadPDF = async () => {
+    try {
+      await generateProfilePDF(data);
+    } catch (error) {
+      console.error('PDF generation failed:', error);
+      alert('Failed to generate PDF. Please try again.');
+    }
+  };
+
   return (
     <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
       <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between py-6 gap-4">
@@ -70,17 +80,27 @@ const TabView: React.FC<{ data: ProfileData }> = ({ data }) => {
           <img src={data.personalInfo.avatar} alt="avatar" className="w-12 h-12 rounded-full mr-4" loading="lazy" />
           <h1 className="text-2xl font-bold text-text-primary">{data.personalInfo.name}</h1>
         </div>
-        {data.personalInfo.cvFileUrl && (
-          <a
-            href={data.personalInfo.cvFileUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="dynamic-button bg-primary hover:opacity-90 text-white font-bold py-2 px-4 flex items-center"
+        <div className="flex gap-2">
+          <button
+            onClick={handleDownloadPDF}
+            className="dynamic-button bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 flex items-center transition-colors"
+            title="Download PDF CV"
           >
             <DocumentArrowDownIcon className="w-5 h-5 mr-2" />
-            CV
-          </a>
-        )}
+            Download PDF
+          </button>
+          {data.personalInfo.cvFileUrl && (
+            <a
+              href={data.personalInfo.cvFileUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="dynamic-button bg-primary hover:opacity-90 text-white font-bold py-2 px-4 flex items-center"
+            >
+              <DocumentArrowDownIcon className="w-5 h-5 mr-2" />
+              CV
+            </a>
+          )}
+        </div>
       </header>
       <nav className="flex flex-wrap gap-2 bg-card-background p-2 rounded-lg shadow-sm mb-8">
         {visibleTabs.map((tab) => (
