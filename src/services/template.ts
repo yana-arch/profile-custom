@@ -1,23 +1,8 @@
 import { supabase } from '../lib/supabase'
+import type { Database } from '../types/database'
 import type { ProfileData } from '../../types'
 
-// Simplified types for template management
-interface Template {
-  id: string
-  name: string
-  description?: string | null
-  preview_image?: string | null
-  data: any
-  author_id?: string | null
-  category_id?: string | null
-  is_premium: boolean
-  is_featured: boolean
-  downloads: number
-  rating: number
-  total_ratings: number
-  created_at: string
-  updated_at: string
-}
+type Template = Database['public']['Tables']['templates']['Row']
 
 interface TemplateCategory {
   id: string
@@ -327,11 +312,15 @@ export class TemplateService {
       throw error
     }
 
+    if (!data) {
+      throw new Error('Template not found')
+    }
+
     return {
-      downloads: data.downloads || 0,
-      rating: data.rating || 0,
-      totalRatings: data.total_ratings || 0,
-      createdAt: data.created_at
+      downloads: (data as any).downloads || 0,
+      rating: (data as any).rating || 0,
+      totalRatings: (data as any).total_ratings || 0,
+      createdAt: (data as any).created_at
     }
   }
 }

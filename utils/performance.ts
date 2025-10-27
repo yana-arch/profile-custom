@@ -7,25 +7,27 @@ export const reportWebVitals = (metric: Metric) => {
     console.log('Web Vitals:', metric);
   }
 
-  // Send to analytics service (example)
-  const body = JSON.stringify({
-    name: metric.name,
-    value: metric.value,
-    rating: metric.rating,
-    timestamp: Date.now(),
-    url: window.location.href,
-  });
-
-  // Use sendBeacon for better performance
-  if (navigator.sendBeacon) {
-    navigator.sendBeacon('/api/analytics', body);
-  } else {
-    // Fallback to fetch
-    fetch('/api/analytics', {
-      body,
-      method: 'POST',
-      keepalive: true,
+  // Send to analytics service (only in production)
+  if (process.env.NODE_ENV === 'production') {
+    const body = JSON.stringify({
+      name: metric.name,
+      value: metric.value,
+      rating: metric.rating,
+      timestamp: Date.now(),
+      url: window.location.href,
     });
+
+    // Use sendBeacon for better performance
+    if (navigator.sendBeacon) {
+      navigator.sendBeacon('/api/analytics', body);
+    } else {
+      // Fallback to fetch
+      fetch('/api/analytics', {
+        body,
+        method: 'POST',
+        keepalive: true,
+      });
+    }
   }
 };
 

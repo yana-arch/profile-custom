@@ -40,10 +40,7 @@ export class AuthService {
 
       if (session?.user) {
         // Update last login
-        await supabase
-          .from('users')
-          .update({ last_login: new Date().toISOString() })
-          .eq('id', session.user.id)
+        await (supabase as any).from('users').update({ last_login: new Date().toISOString() }).eq('id', session.user.id)
 
         this.updateState({ user: session.user, loading: false })
       } else {
@@ -54,10 +51,7 @@ export class AuthService {
       supabase.auth.onAuthStateChange(async (event, session) => {
         if (event === 'SIGNED_IN' && session?.user) {
           // Update last login
-          await supabase
-            .from('users')
-            .update({ last_login: new Date().toISOString() })
-            .eq('id', session.user.id)
+          await (supabase as any).from('users').update({ last_login: new Date().toISOString() }).eq('id', session.user.id)
 
           this.updateState({ user: session.user, loading: false, error: null })
         } else if (event === 'SIGNED_OUT') {
@@ -150,26 +144,56 @@ export class AuthService {
     }
   }
 
-  // Sign in with OAuth provider
-  async signInWithProvider(provider: 'google' | 'github' | 'discord') {
+  // Ensure user record exists in custom users table (fallback for trigger)
+  private async ensureUserRecord(user: User) {
+    try {
+      // Check if user record exists
+      const { data, error } = await (supabase as any)
+        .from('users')
+        .select('id')
+        .eq('id', user.id)
+        .single()
+
+      if (error && error.code === 'PGRST116') { // Not found
+        // Create user record if it doesn't exist
+        const { error: insertError } = await (supabase as any)
+          .from('users')
+          .insert({
+            id: user.id,
+            email: user.email,
+            full_name: user.user_metadata?.full_name || '',
+            created_at: user.created_at,
+            updated_at: user.updated_at
+          })
+
+        if (insertError) {
+          console.error('Error creating user record:', insertError)
+        }
+      }
+    } catch (error) {
+      console.error('Error ensuring user record:', error)
+    }
+  }
+
+  // Verify email OTP (for signup confirmation)
+  async verifyOtp(email: string, token: string) {
     this.updateState({ loading: true, error: null })
 
     try {
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider,
-        options: {
-          redirectTo: `${window.location.origin}/`,
-          queryParams: {
-            access_type: 'offline',
-            prompt: 'consent',
-          }
-        }
+      const { data, error } = await supabase.auth.verifyOtp({
+        email,
+        token,
+        type: 'email'
       })
 
       if (error) {
-        console.error('OAuth error:', error)
         this.updateState({ error, loading: false })
         throw error
+      }
+
+      // After successful OTP verification, ensure user record exists in custom users table
+      if (data.user) {
+        await this.ensureUserRecord(data.user)
       }
 
       return data
@@ -220,11 +244,18 @@ export class AuthService {
 
   // Update user profile
   async updateProfile(updates: { full_name?: string; avatar_url?: string }) {
+    if (!this.authState.user?.id) {
+      throw new Error('User not authenticated')
+    }
+
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('users')
-        .update(updates)
-        .eq('id', this.authState.user?.id)
+        .update({
+          full_name: updates.full_name,
+          avatar_url: updates.avatar_url
+        })
+        .eq('id', this.authState.user.id)
 
       if (error) throw error
     } catch (error) {

@@ -1,29 +1,12 @@
 import { supabase } from '../lib/supabase'
+import type { Database } from '../types/database'
 import type { ProfileData } from '../../types'
 
-// Simplified types for now - avoiding complex database types
-interface Profile {
-  id: string
-  user_id: string
-  name: string
-  slug?: string | null
-  data: any
-  custom_css?: string | null
-  custom_css_hash?: string | null
-  template_id?: string | null
-  is_public: boolean
-  is_default: boolean
-  view_count: number
-  created_at: string
-  updated_at: string
+type Profile = Database['public']['Tables']['profiles']['Row']
+
+export interface ProfileWithTemplate extends Profile {
   templates?: any
 }
-
-export interface ProfileWithTemplate extends Profile {}
-
-// Type-safe database operations
-type ProfileInsert = Omit<Profile, 'id' | 'created_at' | 'updated_at' | 'view_count'>
-type ProfileUpdate = Partial<Omit<Profile, 'id' | 'created_at'>>
 
 export class ProfileService {
   private static instance: ProfileService
@@ -197,8 +180,9 @@ export class ProfileService {
       template_id?: string
       is_public?: boolean
       is_default?: boolean
+      slug?: string | null
     }
-  ): Promise<ProfileRow> {
+  ): Promise<Profile> {
     // If this is set as default, unset other default profiles
     if (updates.is_default) {
       const { data: { user }, error: authError } = await supabase.auth.getUser()
@@ -221,7 +205,7 @@ export class ProfileService {
 
     const { data, error } = await supabase
       .from('profiles')
-      .update(updates as ProfileUpdate)
+      .update(updates as any)
       .eq('id', id)
       .select()
       .single()
@@ -248,7 +232,7 @@ export class ProfileService {
   }
 
   // Duplicate profile
-  async duplicateProfile(id: string, newName?: string): Promise<ProfileRow> {
+  async duplicateProfile(id: string, newName?: string): Promise<Profile> {
     const profile = await this.getProfileById(id)
 
     if (!profile) {
@@ -340,6 +324,10 @@ export class ProfileService {
       throw error
     }
 
+    if (!data) {
+      throw new Error('Profile not found')
+    }
+
     // Get share count
     const { count: shareCount, error: shareError } = await supabase
       .from('profile_shares')
@@ -403,6 +391,10 @@ export class ProfileService {
         return null // Share not found
       }
       throw shareError
+    }
+
+    if (!share) {
+      return null
     }
 
     // Check if share has expired
