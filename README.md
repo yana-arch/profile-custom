@@ -4,7 +4,7 @@
 
 # 🚀 Dynamic Profile - AI-Powered Portfolio Generator
 
-A modern, responsive portfolio application built with React, TypeScript, and Vite. Features dynamic profile generation, AI-powered content suggestions, and extensive customization options.
+A modern, responsive portfolio application built with React, TypeScript, and Vite. Features dynamic profile generation, AI-powered content suggestions, extensive customization options, and multi-user support with Supabase.
 
 ## ✨ Features
 
@@ -14,20 +14,26 @@ A modern, responsive portfolio application built with React, TypeScript, and Vit
 - **🤖 AI Integration**: Google Gemini AI for content generation and suggestions
 - **📱 Responsive Design**: Works seamlessly across all devices
 - **🔧 Rich Text Editor**: Quill.js integration for formatted content
-- **💾 Local Storage**: Persistent data storage in browser
+- **🔐 Multi-User Authentication**: Supabase Auth with social login support
+- **👥 Multi-Profile Management**: Create and manage multiple profiles per user
+- **📊 Template Marketplace**: Community-driven template sharing system
 - **🖼️ Image Optimization**: Lazy loading with intersection observer
 - **⚠️ Error Boundaries**: Graceful error handling and recovery
 - **⏳ Loading States**: Skeleton loading for better UX
+- **🌐 Public Profile Sharing**: Shareable links for public profiles
 
 ## 🏗️ Architecture
 
 ### Tech Stack
 
 - **Frontend**: React 18.2 + TypeScript + Vite
+- **Backend**: Supabase (PostgreSQL + Authentication + Real-time)
 - **Styling**: Tailwind CSS with CSS variables
-- **State Management**: React hooks + localStorage
+- **State Management**: React hooks + Supabase real-time subscriptions
 - **Rich Text**: React Quill
 - **AI Integration**: Google Generative AI
+- **Authentication**: Supabase Auth with social providers
+- **Database**: PostgreSQL with Row Level Security
 - **Icons**: Heroicons
 - **Build Tool**: Vite with optimized bundling
 
@@ -65,20 +71,36 @@ A modern, responsive portfolio application built with React, TypeScript, and Vit
    npm install
    ```
 
-2. **Environment Setup:**
+2. **Supabase Setup:**
 
    ```bash
-   # Create .env.local file
-   echo "GEMINI_API_KEY=your_gemini_api_key_here" > .env.local
+   # Create Supabase project at https://supabase.com
+   # Copy the project URL and anon key to .env.local
+   echo "VITE_SUPABASE_URL=your_supabase_project_url" >> .env.local
+   echo "VITE_SUPABASE_ANON_KEY=your_supabase_anon_key" >> .env.local
    ```
 
-3. **Run Development Server:**
+3. **AI Integration Setup:**
+
+   ```bash
+   # Add Gemini API key for AI features
+   echo "GEMINI_API_KEY=your_gemini_api_key_here" >> .env.local
+   ```
+
+4. **Database Migration:**
+
+   ```bash
+   # Run the SQL migration in Supabase Dashboard
+   # Go to SQL Editor and run: database/migrations/001_initial_schema.sql
+   ```
+
+5. **Run Development Server:**
 
    ```bash
    npm run dev
    ```
 
-4. **Open your browser:**
+6. **Open your browser:**
    Navigate to `http://localhost:3000`
 
 ## 🛠️ Development
@@ -142,12 +164,47 @@ The app supports extensive theme customization through the admin panel:
 - **Component Memoization**: Optimized re-rendering
 - **Tree Shaking**: Unused code elimination
 
+## 🔐 Authentication & Database
+
+### Supabase Integration
+
+The application now uses **Supabase** for backend services:
+
+- **Authentication**: Multi-provider auth (Email/Password, Google, GitHub)
+- **Database**: PostgreSQL with Row Level Security (RLS)
+- **Real-time**: Live data synchronization
+- **Storage**: File storage for images and assets
+
+### User Management
+
+- **Multi-user support**: Each user can create multiple profiles
+- **Profile sharing**: Public/private profiles with shareable links
+- **Template system**: Community-driven template marketplace
+- **Social login**: Google and GitHub OAuth integration
+
+### Database Schema
+
+The application uses a comprehensive database schema:
+
+```sql
+-- 7 main tables:
+- users (authentication & user data)
+- profiles (portfolio data storage)
+- templates (community templates)
+- template_categories (template organization)
+- profile_shares (public profile sharing)
+- user_sessions (session management)
+- css_validations (custom CSS validation)
+```
+
 ## 🔒 Security
 
-- Input validation and sanitization
-- XSS protection through React's escaping
-- Secure localStorage usage
-- Dependency vulnerability scanning
+- **Row Level Security**: Database-level access control
+- **Input validation**: Comprehensive data sanitization
+- **XSS protection**: React's built-in escaping
+- **Secure authentication**: JWT-based auth with Supabase
+- **CORS protection**: Configured for cross-origin requests
+- **Dependency scanning**: Automated vulnerability detection
 
 ## 🚢 Deployment
 
