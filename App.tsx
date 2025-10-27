@@ -13,6 +13,10 @@ import {
   ArrowsPointingInIcon,
 } from './components/icons/Icons';
 import { initPerformanceMonitoring, getBundleSize, getMemoryUsage } from './utils/performance';
+import { authService, AuthState } from './src/services/auth';
+import { profileService } from './src/services/profile';
+import { templateService } from './src/services/template';
+import { supabase } from './src/lib/supabase';
 import SEO from './components/common/SEO';
 
 // Lazy load heavy components for better performance
@@ -29,6 +33,13 @@ const App: React.FC = () => {
     }
   });
 
+  const [authState, setAuthState] = useState<AuthState>({
+    user: null,
+    loading: true,
+    error: null,
+  });
+  const [isLoadingProfile, setIsLoadingProfile] = useState(false);
+
   const [isAdminView, setIsAdminView] = useState(false);
   const [isViewOnly, setIsViewOnly] = useState(false);
   const [isNewUser, setIsNewUser] = useState(() => !localStorage.getItem('myDynamicProfileData'));
@@ -44,6 +55,81 @@ const App: React.FC = () => {
       getMemoryUsage();
     }
   }, []);
+
+  // Subscribe to auth state
+  useEffect(() => {
+    const unsubscribe = authService.onAuthStateChange((newAuthState) => {
+      setAuthState(newAuthState);
+    });
+
+    return unsubscribe;
+  }, []);
+
+  // Load profile based on auth state
+  useEffect(() => {
+    const loadProfile = async () => {
+      if (authState.loading) return;
+
+      setIsLoadingProfile(true);
+      try {
+        if (authState.user) {
+          try {
+            // Try to load from database first
+            const profile = await profileService.getDefaultProfile();
+            if (profile && profile.data) {
+              setProfileData(profile.data);
+              setIsNewUser(false);
+              return; // Success, exit
+            }
+          } catch (dbError) {
+            console.warn('Database load failed, falling back to localStorage:', dbError);
+          }
+
+          // If DB load failed or no profile, try creating from localStorage
+          try {
+            const localData = localStorage.getItem('myDynamicProfileData');
+            if (localData) {
+              const parsedData = JSON.parse(localData);
+              // Try DB creation, but don't fail if it doesn't work
+              try {
+                await profileService.createProfile(
+                  parsedData.personalInfo?.name || 'My Profile',
+                  parsedData,
+                  undefined,
+                  false,
+                  true // Set as default
+                );
+                console.log('Successfully migrated profile to database');
+              } catch (migrationError) {
+                console.warn('Failed to migrate to database, continuing with localStorage:', migrationError);
+              }
+              // Always set data from localStorage
+              setProfileData(parsedData);
+              setIsNewUser(false);
+            }
+          } catch (localError) {
+            console.error('Error loading from localStorage:', localError);
+          }
+        } else {
+          // Not authenticated: load from localStorage only
+          try {
+            const localData = localStorage.getItem('myDynamicProfileData');
+            if (localData) {
+              setProfileData(JSON.parse(localData));
+            }
+          } catch (error) {
+            console.error('Error loading local profile:', error);
+          }
+        }
+      } catch (error) {
+        console.error('Error in profile loading:', error);
+      } finally {
+        setIsLoadingProfile(false);
+      }
+    };
+
+    loadProfile();
+  }, [authState]);
 
   useEffect(() => {
     // Don't save default data for a new user until they complete onboarding
@@ -154,6 +240,17 @@ const App: React.FC = () => {
     ),
     [profileData, isViewOnly, initialAdminTab]
   );
+
+  if (authState.loading || isLoadingProfile) {
+    return (
+      <div className="bg-background flex items-center justify-center min-h-screen">
+        <div className="flex flex-col items-center space-y-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+          <p className="text-text-secondary">Đang tải...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (isNewUser) {
     return <Onboarding onComplete={handleOnboardingComplete} />;

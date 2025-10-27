@@ -13,6 +13,7 @@ import DisplaySettings from './admin/tabs/DisplaySettings';
 import AnimationSettings from './admin/tabs/AnimationSettings';
 import AiSettings from './admin/tabs/AiSettings';
 import AiWizard from './admin/tabs/AiWizard';
+import TemplatesSettings from './admin/tabs/TemplatesSettings';
 import {
   UserIcon,
   BriefcaseIcon,
@@ -38,7 +39,7 @@ interface AdminPanelProps {
   initialTab: string;
 }
 
-type SectionName = 'content' | 'appearance' | 'ai';
+type SectionName = 'content' | 'appearance' | 'ai' | 'templates';
 
 const AdminPanel: React.FC<AdminPanelProps> = ({ data, setData, initialTab }) => {
   const [activeTab, setActiveTab] = useState(initialTab);
@@ -106,6 +107,15 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ data, setData, initialTab }) =>
     { id: 'ai-settings', name: 'AI Settings', icon: CogIcon, component: <AiSettings data={data} setData={setData} /> },
   ];
 
+  const templatesTabs = [
+    {
+      id: 'templates',
+      name: 'Template Management',
+      icon: CodeBracketIcon,
+      component: <TemplatesSettings data={data} setData={setData} />,
+    },
+  ];
+
   useEffect(() => {
     if (contentTabs.some((t) => t.id === initialTab)) {
       setOpenSection('content');
@@ -113,6 +123,8 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ data, setData, initialTab }) =>
       setOpenSection('appearance');
     } else if (aiTabs.some((t) => t.id === initialTab)) {
       setOpenSection('ai');
+    } else if (templatesTabs.some((t) => t.id === initialTab)) {
+      setOpenSection('templates');
     } else {
       setOpenSection('content'); // Default to content
     }
@@ -131,7 +143,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ data, setData, initialTab }) =>
   };
 
   const renderTabContent = () => {
-    const allTabs = [...contentTabs, ...appearanceTabs, ...aiTabs];
+    const allTabs = [...contentTabs, ...appearanceTabs, ...aiTabs, ...templatesTabs];
     const tab = allTabs.find((t) => t.id === activeTab);
     return tab ? tab.component : null;
   };
@@ -201,6 +213,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ data, setData, initialTab }) =>
               <AccordionSection title="Content" sectionName="content" tabs={contentTabs} />
               <AccordionSection title="Appearance" sectionName="appearance" tabs={appearanceTabs} />
               <AccordionSection title="AI Tools" sectionName="ai" tabs={aiTabs} />
+              <AccordionSection title="Templates" sectionName="templates" tabs={templatesTabs} />
             </nav>
           </aside>
           <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto relative">
