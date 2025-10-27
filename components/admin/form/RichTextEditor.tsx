@@ -11,17 +11,21 @@ interface RichTextEditorProps {
 const RichTextEditor: React.FC<RichTextEditorProps> = ({ label, value, onChange, name }) => {
   const modules = {
     toolbar: [
-      [{ 'header': [1, 2, 3, false] }],
+      [{ header: [1, 2, 3, false] }],
       ['bold', 'italic', 'underline', 'strike', 'blockquote'],
-      [{'list': 'ordered'}, {'list': 'bullet'}, {'indent': '-1'}, {'indent': '+1'}],
+      [{ list: 'ordered' }, { list: 'bullet' }, { indent: '-1' }, { indent: '+1' }],
       ['link', 'image', 'video'],
-      ['clean']
+      ['clean'],
     ],
   };
 
   return (
     <div className="mb-4 rich-text-editor">
-      {label && <label htmlFor={name} className="block text-sm font-medium text-text-secondary mb-1">{label}</label>}
+      {label && (
+        <label htmlFor={name} className="block text-sm font-medium text-text-secondary mb-1">
+          {label}
+        </label>
+      )}
       <ReactQuill
         theme="snow"
         value={value}

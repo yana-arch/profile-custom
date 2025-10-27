@@ -16,7 +16,7 @@ type Props = {
 type PersonalInfoErrors = {
   [K in keyof Omit<ProfileData['personalInfo'], 'contact'>]?: string;
 } & {
-  contact?: { [K in keyof ProfileData['personalInfo']['contact']]?: string; }
+  contact?: { [K in keyof ProfileData['personalInfo']['contact']]?: string };
 };
 
 const PersonalInfoSettings: React.FC<Props> = ({ data, setData }) => {
@@ -32,13 +32,13 @@ const PersonalInfoSettings: React.FC<Props> = ({ data, setData }) => {
     }
     return '';
   };
-  
+
   const validateContactField = (name: string, value: string): string => {
-    if(name === 'email' && value && !isValidEmail(value)) {
-        return 'Please enter a valid email address.';
+    if (name === 'email' && value && !isValidEmail(value)) {
+      return 'Please enter a valid email address.';
     }
     if (name !== 'email' && value && !isValidUrl(value)) {
-        return 'Please enter a valid URL.';
+      return 'Please enter a valid URL.';
     }
     return '';
   };
@@ -46,46 +46,46 @@ const PersonalInfoSettings: React.FC<Props> = ({ data, setData }) => {
   const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     const error = validateField(name, value);
-    setErrors(prev => ({ ...prev, [name]: error }));
+    setErrors((prev) => ({ ...prev, [name]: error }));
   };
 
   const handleContactBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     const error = validateContactField(name, value);
-    setErrors(prev => ({
-        ...prev,
-        contact: { ...(prev.contact || {}), [name]: error }
+    setErrors((prev) => ({
+      ...prev,
+      contact: { ...(prev.contact || {}), [name]: error },
     }));
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setData(prev => ({
+    setData((prev) => ({
       ...prev,
-      personalInfo: { ...prev.personalInfo, [name]: value }
+      personalInfo: { ...prev.personalInfo, [name]: value },
     }));
   };
 
   const handleContactChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setData(prev => ({
-        ...prev,
-        personalInfo: {
-            ...prev.personalInfo,
-            contact: { ...prev.personalInfo.contact, [name]: value }
-        }
+    setData((prev) => ({
+      ...prev,
+      personalInfo: {
+        ...prev.personalInfo,
+        contact: { ...prev.personalInfo.contact, [name]: value },
+      },
     }));
   };
-  
+
   const generateBio = async () => {
     // FIX: Removed API key check, as it's handled in generateContent now.
     setIsGenerating(true);
     const prompt = `Write a professional bio for a ${data.personalInfo.title}. Keep it concise, engaging, and in the first person. Highlight key skills and passion for the field.`;
     const result = await generateContent(data.settings.ai, prompt);
     if (result) {
-      setData(prev => ({
+      setData((prev) => ({
         ...prev,
-        personalInfo: { ...prev.personalInfo, bio: result.trim() }
+        personalInfo: { ...prev.personalInfo, bio: result.trim() },
       }));
     }
     setIsGenerating(false);
@@ -93,12 +93,42 @@ const PersonalInfoSettings: React.FC<Props> = ({ data, setData }) => {
 
   return (
     <AdminSection title="Personal Information">
-      <InputField label="Full Name" name="name" value={data.personalInfo.name} onChange={handleChange} onBlur={handleBlur} error={errors.name} />
-      <InputField label="Job Title" name="title" value={data.personalInfo.title} onChange={handleChange} onBlur={handleBlur} error={errors.title} />
-      <InputField label="Avatar URL" name="avatar" value={data.personalInfo.avatar} onChange={handleChange} onBlur={handleBlur} error={errors.avatar} />
-      <InputField label="Hero Background Image URL" name="heroImage" value={data.personalInfo.heroImage} onChange={handleChange} onBlur={handleBlur} error={errors.heroImage} />
+      <InputField
+        label="Full Name"
+        name="name"
+        value={data.personalInfo.name}
+        onChange={handleChange}
+        onBlur={handleBlur}
+        error={errors.name}
+      />
+      <InputField
+        label="Job Title"
+        name="title"
+        value={data.personalInfo.title}
+        onChange={handleChange}
+        onBlur={handleBlur}
+        error={errors.title}
+      />
+      <InputField
+        label="Avatar URL"
+        name="avatar"
+        value={data.personalInfo.avatar}
+        onChange={handleChange}
+        onBlur={handleBlur}
+        error={errors.avatar}
+      />
+      <InputField
+        label="Hero Background Image URL"
+        name="heroImage"
+        value={data.personalInfo.heroImage}
+        onChange={handleChange}
+        onBlur={handleBlur}
+        error={errors.heroImage}
+      />
       <div className="mb-4">
-        <label htmlFor="bio" className="block text-sm font-medium text-text-secondary mb-1">Bio</label>
+        <label htmlFor="bio" className="block text-sm font-medium text-text-secondary mb-1">
+          Bio
+        </label>
         <div className="relative">
           <textarea
             id="bio"
@@ -114,18 +144,58 @@ const PersonalInfoSettings: React.FC<Props> = ({ data, setData }) => {
             disabled={isGenerating}
             className="absolute top-2 right-2 bg-secondary/80 hover:bg-secondary text-white px-3 py-1 text-sm rounded-md flex items-center disabled:opacity-50"
           >
-            {isGenerating ? <SpinnerIcon className="w-4 h-4 mr-2 animate-spin" /> : <SparklesIcon className="w-4 h-4 mr-2" />}
+            {isGenerating ? (
+              <SpinnerIcon className="w-4 h-4 mr-2 animate-spin" />
+            ) : (
+              <SparklesIcon className="w-4 h-4 mr-2" />
+            )}
             Generate
           </button>
         </div>
         {errors.bio && <p className="text-red-500 text-xs mt-1">{errors.bio}</p>}
       </div>
       <h4 className="text-lg font-bold text-text-primary mt-6 mb-2">Contact & Links</h4>
-      <InputField label="Email" name="email" type="email" value={data.personalInfo.contact.email} onChange={handleContactChange} onBlur={handleContactBlur} error={errors.contact?.email} />
-      <InputField label="LinkedIn URL" name="linkedin" value={data.personalInfo.contact.linkedin} onChange={handleContactChange} onBlur={handleContactBlur} error={errors.contact?.linkedin} />
-      <InputField label="GitHub URL" name="github" value={data.personalInfo.contact.github} onChange={handleContactChange} onBlur={handleContactBlur} error={errors.contact?.github} />
-      <InputField label="Portfolio/Website URL" name="portfolio" value={data.personalInfo.contact.portfolio} onChange={handleContactChange} onBlur={handleContactBlur} error={errors.contact?.portfolio} />
-      <InputField label="CV/Resume File URL" name="cvFileUrl" value={data.personalInfo.cvFileUrl} onChange={handleChange} onBlur={handleBlur} error={errors.cvFileUrl} />
+      <InputField
+        label="Email"
+        name="email"
+        type="email"
+        value={data.personalInfo.contact.email}
+        onChange={handleContactChange}
+        onBlur={handleContactBlur}
+        error={errors.contact?.email}
+      />
+      <InputField
+        label="LinkedIn URL"
+        name="linkedin"
+        value={data.personalInfo.contact.linkedin}
+        onChange={handleContactChange}
+        onBlur={handleContactBlur}
+        error={errors.contact?.linkedin}
+      />
+      <InputField
+        label="GitHub URL"
+        name="github"
+        value={data.personalInfo.contact.github}
+        onChange={handleContactChange}
+        onBlur={handleContactBlur}
+        error={errors.contact?.github}
+      />
+      <InputField
+        label="Portfolio/Website URL"
+        name="portfolio"
+        value={data.personalInfo.contact.portfolio}
+        onChange={handleContactChange}
+        onBlur={handleContactBlur}
+        error={errors.contact?.portfolio}
+      />
+      <InputField
+        label="CV/Resume File URL"
+        name="cvFileUrl"
+        value={data.personalInfo.cvFileUrl}
+        onChange={handleChange}
+        onBlur={handleBlur}
+        error={errors.cvFileUrl}
+      />
     </AdminSection>
   );
 };

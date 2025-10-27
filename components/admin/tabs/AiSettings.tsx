@@ -12,7 +12,7 @@ type Props = {
 const AiSettings: React.FC<Props> = ({ data, setData }) => {
   const handleAiChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setData(prev => ({
+    setData((prev) => ({
       ...prev,
       settings: {
         ...prev.settings,
@@ -27,9 +27,10 @@ const AiSettings: React.FC<Props> = ({ data, setData }) => {
   return (
     <AdminSection title="AI Settings">
       <p className="text-text-secondary text-sm mb-6">
-        Configure your preferred AI provider to power the content generation features. Your API key is stored locally in your browser and is never sent to our servers.
+        Configure your preferred AI provider to power the content generation features. Your API key is stored locally in
+        your browser and is never sent to our servers.
       </p>
-      
+
       <SelectField label="AI Provider" name="provider" value={data.settings.ai.provider} onChange={handleAiChange}>
         <option value="gemini">Google Gemini</option>
         <option value="openrouter">OpenRouter</option>
@@ -39,7 +40,10 @@ const AiSettings: React.FC<Props> = ({ data, setData }) => {
       {/* FIX: Per @google/genai guidelines, do not show API key input for Gemini. */}
       {data.settings.ai.provider === 'gemini' && (
         <div className="bg-blue-100 dark:bg-blue-900/30 border-l-4 border-blue-500 text-blue-800 dark:text-blue-200 p-4 rounded-md text-sm mb-6">
-          <p>The Google Gemini provider uses the <strong>API_KEY</strong> environment variable. No API key is needed here.</p>
+          <p>
+            The Google Gemini provider uses the <strong>API_KEY</strong> environment variable. No API key is needed
+            here.
+          </p>
         </div>
       )}
 
@@ -53,7 +57,6 @@ const AiSettings: React.FC<Props> = ({ data, setData }) => {
           placeholder="Enter your API key"
         />
       )}
-
 
       {data.settings.ai.provider === 'openrouter' && (
         <InputField

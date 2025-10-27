@@ -1,76 +1,70 @@
-import React, { useState } from 'react'
-import { authService } from '../../services/auth'
-import { XMarkIcon } from '../../../components/icons/Icons'
+import React, { useState } from 'react';
+import { authService } from '../../services/auth';
+import { XMarkIcon } from '../../../components/icons/Icons';
 
-type ModalMode = 'signin' | 'signup' | 'confirm'
+type ModalMode = 'signin' | 'signup' | 'confirm';
 
 interface AuthModalProps {
-  isOpen: boolean
-  onClose: () => void
-  onSuccess?: () => void
+  isOpen: boolean;
+  onClose: () => void;
+  onSuccess?: () => void;
 }
 
-export const AuthModal: React.FC<AuthModalProps> = ({
-  isOpen,
-  onClose,
-  onSuccess
-}) => {
-  const [mode, setMode] = useState<ModalMode>('signin')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string>('')
+export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess }) => {
+  const [mode, setMode] = useState<ModalMode>('signin');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string>('');
 
   // Form state
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [fullName, setFullName] = useState('')
-  const [confirmCode, setConfirmCode] = useState('')
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [fullName, setFullName] = useState('');
+  const [confirmCode, setConfirmCode] = useState('');
 
   const resetForm = () => {
-    setEmail('')
-    setPassword('')
-    setFullName('')
-    setConfirmCode('')
-    setError('')
-  }
+    setEmail('');
+    setPassword('');
+    setFullName('');
+    setConfirmCode('');
+    setError('');
+  };
 
   const handleClose = () => {
-    resetForm()
-    onClose()
-  }
+    resetForm();
+    onClose();
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    setError('')
+    e.preventDefault();
+    setLoading(true);
+    setError('');
 
     try {
       if (mode === 'confirm') {
-        await authService.verifyOtp(email, confirmCode.trim())
-        resetForm()
-        setError('Xác nhận thành công! Bạn có thể đăng nhập bằng mật khẩu.')
-        setMode('signin')
+        await authService.verifyOtp(email, confirmCode.trim());
+        resetForm();
+        setError('Xác nhận thành công! Bạn có thể đăng nhập bằng mật khẩu.');
+        setMode('signin');
       } else if (mode === 'signup') {
-        await authService.signUp(email, password, fullName)
+        await authService.signUp(email, password, fullName);
         // Switch to confirm mode
-        setMode('confirm')
-        setError('Đã gửi mã xác nhận tới email. Vui lòng kiểm tra hộp thư và nhập mã bên dưới.')
-        setConfirmCode('')
+        setMode('confirm');
+        setError('Đã gửi mã xác nhận tới email. Vui lòng kiểm tra hộp thư và nhập mã bên dưới.');
+        setConfirmCode('');
       } else {
-        await authService.signIn(email, password)
-        resetForm()
-        onSuccess?.()
-        handleClose()
+        await authService.signIn(email, password);
+        resetForm();
+        onSuccess?.();
+        handleClose();
       }
     } catch (err: any) {
-      setError(err.message || 'Có lỗi xảy ra')
+      setError(err.message || 'Có lỗi xảy ra');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
-
-
-  if (!isOpen) return null
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -80,10 +74,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
             {mode === 'signin' ? 'Đăng nhập' : mode === 'confirm' ? 'Xác nhận Email' : 'Đăng ký'}
           </h2>
-          <button
-            onClick={handleClose}
-            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-          >
+          <button onClick={handleClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
             <XMarkIcon className="h-6 w-6" />
           </button>
         </div>
@@ -91,13 +82,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         {/* Content */}
         <div className="p-6">
           {/* Error message */}
-          {error && (
-            <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-              {error}
-            </div>
-          )}
-
-
+          {error && <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">{error}</div>}
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -173,7 +158,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               disabled={loading}
               className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? 'Đang xử lý...' : (mode === 'signin' ? 'Đăng nhập' : mode === 'confirm' ? 'Xác nhận' : 'Đăng ký')}
+              {loading
+                ? 'Đang xử lý...'
+                : mode === 'signin'
+                  ? 'Đăng nhập'
+                  : mode === 'confirm'
+                    ? 'Xác nhận'
+                    : 'Đăng ký'}
             </button>
           </form>
 
@@ -183,20 +174,17 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               <button
                 type="button"
                 onClick={() => {
-                  setMode(mode === 'signin' ? 'signup' : 'signin')
-                  setError('')
+                  setMode(mode === 'signin' ? 'signup' : 'signin');
+                  setError('');
                 }}
                 className="text-sm text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300"
               >
-                {mode === 'signin'
-                  ? 'Chưa có tài khoản? Đăng ký ngay'
-                  : 'Đã có tài khoản? Đăng nhập'
-                }
+                {mode === 'signin' ? 'Chưa có tài khoản? Đăng ký ngay' : 'Đã có tài khoản? Đăng nhập'}
               </button>
             </div>
           )}
         </div>
       </div>
     </div>
-  )
-}
+  );
+};

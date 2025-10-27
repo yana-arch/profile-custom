@@ -16,7 +16,7 @@ function VirtualizedList<T>({
   containerHeight,
   renderItem,
   className = '',
-  overscan = 5
+  overscan = 5,
 }: VirtualizedListProps<T>) {
   const parentRef = useRef<HTMLDivElement>(null);
 
@@ -28,19 +28,11 @@ function VirtualizedList<T>({
   });
 
   if (items.length === 0) {
-    return (
-      <div className={`text-center py-8 text-text-secondary ${className}`}>
-        No items to display
-      </div>
-    );
+    return <div className={`text-center py-8 text-text-secondary ${className}`}>No items to display</div>;
   }
 
   return (
-    <div
-      ref={parentRef}
-      className={`overflow-auto ${className}`}
-      style={{ height: containerHeight }}
-    >
+    <div ref={parentRef} className={`overflow-auto ${className}`} style={{ height: containerHeight }}>
       <div
         style={{
           height: `${virtualizer.getTotalSize()}px`,

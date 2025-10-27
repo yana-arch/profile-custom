@@ -4,7 +4,14 @@ import { DEFAULT_PROFILE_DATA, getNewProfileData } from './constants';
 import Profile from './components/Profile';
 import Onboarding from './components/Onboarding';
 import { UserMenu } from './src/components/auth/UserMenu';
-import { SparklesIcon, ViewSimpleIcon, EyeIcon, CogIcon, ArrowsPointingOutIcon, ArrowsPointingInIcon } from './components/icons/Icons';
+import {
+  SparklesIcon,
+  ViewSimpleIcon,
+  EyeIcon,
+  CogIcon,
+  ArrowsPointingOutIcon,
+  ArrowsPointingInIcon,
+} from './components/icons/Icons';
 import { initPerformanceMonitoring, getBundleSize, getMemoryUsage } from './utils/performance';
 import SEO from './components/common/SEO';
 
@@ -60,11 +67,11 @@ const App: React.FC = () => {
 
     // Update CSS custom properties directly on root element for better performance
     const shadowMap = {
-      'none': 'none',
-      'sm': '0 1px 2px 0 rgb(0 0 0 / 0.05)',
-      'md': '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
-      'lg': '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
-      'xl': '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
+      none: 'none',
+      sm: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
+      md: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+      lg: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
+      xl: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
     };
 
     const boxShadow = shadowMap[settings.boxShadowStrength] || shadowMap.md;
@@ -73,9 +80,18 @@ const App: React.FC = () => {
     document.documentElement.style.setProperty('--primary-color', settings.primaryColor);
     document.documentElement.style.setProperty('--secondary-color', settings.secondaryColor);
     document.documentElement.style.setProperty('--background-color', settings.theme === 'dark' ? '#111827' : '#f9fafb');
-    document.documentElement.style.setProperty('--text-primary-color', settings.theme === 'dark' ? '#f9fafb' : '#111827');
-    document.documentElement.style.setProperty('--text-secondary-color', settings.theme === 'dark' ? '#9ca3af' : '#4b5563');
-    document.documentElement.style.setProperty('--card-background-color', settings.theme === 'dark' ? '#1f2937' : '#ffffff');
+    document.documentElement.style.setProperty(
+      '--text-primary-color',
+      settings.theme === 'dark' ? '#f9fafb' : '#111827'
+    );
+    document.documentElement.style.setProperty(
+      '--text-secondary-color',
+      settings.theme === 'dark' ? '#9ca3af' : '#4b5563'
+    );
+    document.documentElement.style.setProperty(
+      '--card-background-color',
+      settings.theme === 'dark' ? '#1f2937' : '#ffffff'
+    );
     document.documentElement.style.setProperty('--border-color', settings.theme === 'dark' ? '#374151' : '#e5e7eb');
     document.documentElement.style.setProperty('--border-radius-base', `${settings.borderRadius}px`);
     document.documentElement.style.setProperty('--border-radius-sm', `${Math.max(2, settings.borderRadius * 0.75)}px`);
@@ -91,7 +107,6 @@ const App: React.FC = () => {
       document.head.appendChild(customCssStyle);
     }
     customCssStyle.textContent = settings.customCss;
-
   }, [settings]);
 
   // Add Google Font link to head
@@ -117,17 +132,28 @@ const App: React.FC = () => {
   }, []);
 
   const toggleViewMode = useCallback(() => {
-    setProfileData(prev => ({
+    setProfileData((prev) => ({
       ...prev,
       settings: {
         ...prev.settings,
-        viewMode: prev.settings.viewMode === 'enhanced' ? 'simple' : 'enhanced'
-      }
+        viewMode: prev.settings.viewMode === 'enhanced' ? 'simple' : 'enhanced',
+      },
     }));
   }, []);
 
   const memoizedProfile = useMemo(() => <Profile data={profileData} />, [profileData]);
-  const memoizedAdminPanel = useMemo(() => <AdminPanel data={profileData} setData={setProfileData} isViewOnly={isViewOnly} setIsViewOnly={setIsViewOnly} initialTab={initialAdminTab} />, [profileData, isViewOnly, initialAdminTab]);
+  const memoizedAdminPanel = useMemo(
+    () => (
+      <AdminPanel
+        data={profileData}
+        setData={setProfileData}
+        isViewOnly={isViewOnly}
+        setIsViewOnly={setIsViewOnly}
+        initialTab={initialAdminTab}
+      />
+    ),
+    [profileData, isViewOnly, initialAdminTab]
+  );
 
   if (isNewUser) {
     return <Onboarding onComplete={handleOnboardingComplete} />;
@@ -138,11 +164,11 @@ const App: React.FC = () => {
       <div className="bg-background text-text-primary min-h-screen transition-colors duration-300 relative">
         {memoizedProfile}
         <button
-            onClick={() => setIsViewOnly(false)}
-            className="fixed bottom-4 right-4 bg-primary text-white p-3 rounded-full shadow-lg z-50 hover:opacity-90 transition-opacity print-hidden"
-            aria-label="Exit View Only Mode"
+          onClick={() => setIsViewOnly(false)}
+          className="fixed bottom-4 right-4 bg-primary text-white p-3 rounded-full shadow-lg z-50 hover:opacity-90 transition-opacity print-hidden"
+          aria-label="Exit View Only Mode"
         >
-            <ArrowsPointingInIcon className="h-6 w-6" />
+          <ArrowsPointingInIcon className="h-6 w-6" />
         </button>
       </div>
     );
@@ -158,31 +184,35 @@ const App: React.FC = () => {
         <UserMenu
           onProfileCreate={() => {
             // Handle profile creation - could open a modal or navigate to profile creation
-            console.log('Create new profile')
+            console.log('Create new profile');
           }}
           onProfileManage={() => {
             // Handle profile management - could open admin panel or profile list
-            setIsAdminView(true)
+            setIsAdminView(true);
           }}
         />
       </div>
 
       {!isAdminView && (
         <>
-            <button
-                onClick={toggleViewMode}
-                className="fixed bottom-20 right-4 bg-secondary text-white p-3 rounded-full shadow-lg z-50 hover:opacity-90 transition-opacity print-hidden"
-                aria-label={`Switch to ${settings.viewMode === 'enhanced' ? 'simple' : 'enhanced'} view`}
-            >
-                {settings.viewMode === 'enhanced' ? <SparklesIcon className="h-6 w-6" /> : <ViewSimpleIcon className="h-6 w-6" />}
-            </button>
-            <button
-                onClick={() => setIsViewOnly(true)}
-                className="fixed bottom-36 right-4 bg-secondary text-white p-3 rounded-full shadow-lg z-50 hover:opacity-90 transition-opacity print-hidden"
-                aria-label="Enter View Only Mode"
-            >
-                <ArrowsPointingOutIcon className="h-6 w-6" />
-            </button>
+          <button
+            onClick={toggleViewMode}
+            className="fixed bottom-20 right-4 bg-secondary text-white p-3 rounded-full shadow-lg z-50 hover:opacity-90 transition-opacity print-hidden"
+            aria-label={`Switch to ${settings.viewMode === 'enhanced' ? 'simple' : 'enhanced'} view`}
+          >
+            {settings.viewMode === 'enhanced' ? (
+              <SparklesIcon className="h-6 w-6" />
+            ) : (
+              <ViewSimpleIcon className="h-6 w-6" />
+            )}
+          </button>
+          <button
+            onClick={() => setIsViewOnly(true)}
+            className="fixed bottom-36 right-4 bg-secondary text-white p-3 rounded-full shadow-lg z-50 hover:opacity-90 transition-opacity print-hidden"
+            aria-label="Enter View Only Mode"
+          >
+            <ArrowsPointingOutIcon className="h-6 w-6" />
+          </button>
         </>
       )}
 
@@ -195,14 +225,18 @@ const App: React.FC = () => {
       </button>
 
       {isAdminView ? (
-        <Suspense fallback={
-          <div className="flex items-center justify-center min-h-screen">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-          </div>
-        }>
+        <Suspense
+          fallback={
+            <div className="flex items-center justify-center min-h-screen">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            </div>
+          }
+        >
           {memoizedAdminPanel}
         </Suspense>
-      ) : memoizedProfile}
+      ) : (
+        memoizedProfile
+      )}
     </div>
   );
 };

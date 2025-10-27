@@ -18,35 +18,35 @@ type AwardErrors = Partial<Record<keyof Omit<Award, 'id' | 'description'>, strin
 const AwardsSettings: React.FC<Props> = ({ data, setData }) => {
   const [errors, setErrors] = useState<AwardErrors[]>([]);
   const [itemToDelete, setItemToDelete] = useState<number | null>(null);
-  
+
   const [draggedItem, setDraggedItem] = useState<number | null>(null);
   const [dragOverItem, setDragOverItem] = useState<number | null>(null);
   const dragItemIndex = useRef<number | null>(null);
-  
+
   const validateField = (name: string, value: string): string => {
     if ((name === 'name' || name === 'issuer') && !value.trim()) {
       return 'This field is required.';
     }
-     if (name === 'attachmentUrl' && value && !isValidUrl(value)) {
+    if (name === 'attachmentUrl' && value && !isValidUrl(value)) {
       return 'Please enter a valid URL.';
     }
     return '';
   };
-  
+
   const handleBlur = (index: number, e: React.FocusEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     const error = validateField(name, value);
-    setErrors(prev => {
-        const newErrors = [...prev];
-        if (!newErrors[index]) newErrors[index] = {};
-        newErrors[index][name as keyof AwardErrors] = error;
-        return newErrors;
+    setErrors((prev) => {
+      const newErrors = [...prev];
+      if (!newErrors[index]) newErrors[index] = {};
+      newErrors[index][name as keyof AwardErrors] = error;
+      return newErrors;
     });
   };
 
   const handleItemChange = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setData(prev => {
+    setData((prev) => {
       const newItems = [...prev.awards];
       newItems[index] = { ...newItems[index], [name]: value };
       return { ...prev, awards: newItems };
@@ -54,32 +54,32 @@ const AwardsSettings: React.FC<Props> = ({ data, setData }) => {
   };
 
   const handleDescriptionChange = (index: number, value: string) => {
-    setData(prev => {
-        const newItems = [...prev.awards];
-        newItems[index] = { ...newItems[index], description: value };
-        return { ...prev, awards: newItems };
+    setData((prev) => {
+      const newItems = [...prev.awards];
+      newItems[index] = { ...newItems[index], description: value };
+      return { ...prev, awards: newItems };
     });
   };
 
   const addItem = () => {
-    const newItem: Award = {id: uuidv4(), name: '', issuer: '', date: '', description: '', attachmentUrl: ''};
-    setData(prev => ({
+    const newItem: Award = { id: uuidv4(), name: '', issuer: '', date: '', description: '', attachmentUrl: '' };
+    setData((prev) => ({
       ...prev,
-      awards: [...prev.awards, newItem]
+      awards: [...prev.awards, newItem],
     }));
   };
 
   const handleRemoveClick = (index: number) => {
     setItemToDelete(index);
   };
-  
+
   const handleConfirmRemove = () => {
     if (itemToDelete === null) return;
-    setData(prev => ({
+    setData((prev) => ({
       ...prev,
-      awards: prev.awards.filter((_, i) => i !== itemToDelete)
+      awards: prev.awards.filter((_, i) => i !== itemToDelete),
     }));
-    setErrors(prev => prev.filter((_, i) => i !== itemToDelete));
+    setErrors((prev) => prev.filter((_, i) => i !== itemToDelete));
     setItemToDelete(null);
   };
 
@@ -95,33 +95,32 @@ const AwardsSettings: React.FC<Props> = ({ data, setData }) => {
       setDragOverItem(index);
     }
   };
-  
+
   const handleDrop = () => {
     if (dragItemIndex.current === null || dragOverItem === null || dragItemIndex.current === dragOverItem) {
-        handleDragEnd();
-        return;
+      handleDragEnd();
+      return;
     }
 
-    setData(prev => {
-        const newItems = [...prev.awards];
-        const draggedItemContent = newItems.splice(dragItemIndex.current!, 1)[0];
-        newItems.splice(dragOverItem, 0, draggedItemContent);
-        return { ...prev, awards: newItems };
+    setData((prev) => {
+      const newItems = [...prev.awards];
+      const draggedItemContent = newItems.splice(dragItemIndex.current!, 1)[0];
+      newItems.splice(dragOverItem, 0, draggedItemContent);
+      return { ...prev, awards: newItems };
     });
-    
+
     handleDragEnd();
   };
 
   const handleDragLeave = () => {
     setDragOverItem(null);
   };
-  
+
   const handleDragEnd = () => {
     dragItemIndex.current = null;
     setDraggedItem(null);
     setDragOverItem(null);
   };
-
 
   return (
     <>
@@ -131,13 +130,13 @@ const AwardsSettings: React.FC<Props> = ({ data, setData }) => {
           const isDragTarget = dragOverItem === index && !isDragged;
 
           return (
-            <div 
-              key={award.id} 
+            <div
+              key={award.id}
               className={`border p-4 rounded-md mb-4 transition-all duration-200 
                 ${isDragged ? 'opacity-50 ring-2 ring-primary' : 'border-border-color'}
                 ${isDragTarget ? 'bg-primary/10' : ''}`}
             >
-              <div 
+              <div
                 className="flex justify-between items-center mb-4 pb-2 border-b border-border-color/50 cursor-grab active:cursor-grabbing"
                 draggable
                 onDragStart={(e) => handleDragStart(e, index)}
@@ -147,26 +146,63 @@ const AwardsSettings: React.FC<Props> = ({ data, setData }) => {
                 onDragEnd={handleDragEnd}
               >
                 <h4 className="text-md font-semibold text-text-primary truncate pr-2">{award.name || 'New Award'}</h4>
-                <Bars3Icon className="w-6 h-6 text-text-secondary flex-shrink-0"/>
+                <Bars3Icon className="w-6 h-6 text-text-secondary flex-shrink-0" />
               </div>
-              <InputField label="Award Name" name="name" value={award.name} onChange={e => handleItemChange(index, e)} onBlur={e => handleBlur(index, e)} placeholder="e.g., Best Project Award" error={errors[index]?.name}/>
-              <InputField label="Issued By" name="issuer" value={award.issuer} onChange={e => handleItemChange(index, e)} onBlur={e => handleBlur(index, e)} placeholder="e.g., University of Technology" error={errors[index]?.issuer}/>
-              <InputField label="Date" name="date" value={award.date} onChange={e => handleItemChange(index, e)} onBlur={e => handleBlur(index, e)} placeholder="e.g., May 2023" error={errors[index]?.date}/>
-              <InputField label="Attachment URL (optional)" name="attachmentUrl" value={award.attachmentUrl || ''} onChange={e => handleItemChange(index, e)} onBlur={e => handleBlur(index, e)} placeholder="https://example.com/award.pdf" error={errors[index]?.attachmentUrl}/>
-              <RichTextEditor 
-                label="Description" 
-                name={`description-${award.id}`}
-                value={award.description} 
-                onChange={value => handleDescriptionChange(index, value)}
+              <InputField
+                label="Award Name"
+                name="name"
+                value={award.name}
+                onChange={(e) => handleItemChange(index, e)}
+                onBlur={(e) => handleBlur(index, e)}
+                placeholder="e.g., Best Project Award"
+                error={errors[index]?.name}
               />
-              <button onClick={() => handleRemoveClick(index)} className="text-red-500 hover:text-red-700 text-sm mt-2 flex items-center gap-1">
+              <InputField
+                label="Issued By"
+                name="issuer"
+                value={award.issuer}
+                onChange={(e) => handleItemChange(index, e)}
+                onBlur={(e) => handleBlur(index, e)}
+                placeholder="e.g., University of Technology"
+                error={errors[index]?.issuer}
+              />
+              <InputField
+                label="Date"
+                name="date"
+                value={award.date}
+                onChange={(e) => handleItemChange(index, e)}
+                onBlur={(e) => handleBlur(index, e)}
+                placeholder="e.g., May 2023"
+                error={errors[index]?.date}
+              />
+              <InputField
+                label="Attachment URL (optional)"
+                name="attachmentUrl"
+                value={award.attachmentUrl || ''}
+                onChange={(e) => handleItemChange(index, e)}
+                onBlur={(e) => handleBlur(index, e)}
+                placeholder="https://example.com/award.pdf"
+                error={errors[index]?.attachmentUrl}
+              />
+              <RichTextEditor
+                label="Description"
+                name={`description-${award.id}`}
+                value={award.description}
+                onChange={(value) => handleDescriptionChange(index, value)}
+              />
+              <button
+                onClick={() => handleRemoveClick(index)}
+                className="text-red-500 hover:text-red-700 text-sm mt-2 flex items-center gap-1"
+              >
                 <TrashIcon className="w-4 h-4" />
                 Remove
               </button>
             </div>
           );
         })}
-        <button onClick={addItem} className="bg-primary text-white px-4 py-2 rounded-md">Add Award</button>
+        <button onClick={addItem} className="bg-primary text-white px-4 py-2 rounded-md">
+          Add Award
+        </button>
       </AdminSection>
       <ConfirmationModal
         isOpen={itemToDelete !== null}

@@ -7,10 +7,7 @@ interface VirtualizationConfig {
   threshold?: number;
 }
 
-export const useVirtualization = <T>(
-  items: T[],
-  config: VirtualizationConfig
-): VirtualizationConfig => {
+export const useVirtualization = <T>(items: T[], config: VirtualizationConfig): VirtualizationConfig => {
   return useMemo(() => {
     const { threshold = 10 } = config;
 

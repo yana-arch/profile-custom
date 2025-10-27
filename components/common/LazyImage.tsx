@@ -24,7 +24,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
   priority = false,
   sizes,
   webpSrc,
-  avifSrc
+  avifSrc,
 }) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [isInView, setIsInView] = useState(false);
@@ -41,7 +41,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
       },
       {
         threshold: 0.1,
-        rootMargin: '50px'
+        rootMargin: '50px',
       }
     );
 
@@ -80,14 +80,10 @@ const LazyImage: React.FC<LazyImageProps> = ({
       {isInView && (
         <picture>
           {/* AVIF format for modern browsers (best compression) */}
-          {avifSrc && (
-            <source srcSet={avifSrc} type="image/avif" />
-          )}
+          {avifSrc && <source srcSet={avifSrc} type="image/avif" />}
 
           {/* WebP format for modern browsers */}
-          {webpSrc && (
-            <source srcSet={webpSrc} type="image/webp" />
-          )}
+          {webpSrc && <source srcSet={webpSrc} type="image/webp" />}
 
           {/* Fallback to original format */}
           <img
@@ -99,9 +95,9 @@ const LazyImage: React.FC<LazyImageProps> = ({
             }`}
             onLoad={handleLoad}
             onError={handleError}
-            loading={priority ? "eager" : "lazy"}
+            loading={priority ? 'eager' : 'lazy'}
             decoding="async"
-            sizes={sizes || "(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"}
+            sizes={sizes || '(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'}
           />
         </picture>
       )}
@@ -109,12 +105,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
       {/* Error state */}
       {hasError && (
         <div className="absolute inset-0 bg-gray-200 flex items-center justify-center">
-          <svg
-            className="w-8 h-8 text-gray-400"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
+          <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
               strokeLinecap="round"
               strokeLinejoin="round"

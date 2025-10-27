@@ -67,8 +67,8 @@ export const getBundleSize = () => {
   if ('performance' in window && 'getEntriesByType' in performance) {
     const resources = performance.getEntriesByType('resource') as PerformanceResourceTiming[];
 
-    const jsFiles = resources.filter(resource =>
-      resource.name.includes('.js') && !resource.name.includes('node_modules')
+    const jsFiles = resources.filter(
+      (resource) => resource.name.includes('.js') && !resource.name.includes('node_modules')
     );
 
     const totalSize = jsFiles.reduce((total, file) => total + (file.transferSize || 0), 0);

@@ -20,27 +20,25 @@ const SEO: React.FC<SEOProps> = ({ data }) => {
 
     // Add JSON-LD structured data
     const structuredData = {
-      "@context": "https://schema.org",
-      "@type": "Person",
-      "name": personalInfo.name,
-      "jobTitle": personalInfo.title,
-      "description": personalInfo.bio,
-      "image": personalInfo.avatar,
-      "sameAs": [
-        personalInfo.contact.linkedin,
-        personalInfo.contact.github,
-        personalInfo.contact.portfolio
-      ].filter(Boolean),
-      "contactPoint": {
-        "@type": "ContactPoint",
-        "email": personalInfo.contact.email,
-        "contactType": "professional"
+      '@context': 'https://schema.org',
+      '@type': 'Person',
+      name: personalInfo.name,
+      jobTitle: personalInfo.title,
+      description: personalInfo.bio,
+      image: personalInfo.avatar,
+      sameAs: [personalInfo.contact.linkedin, personalInfo.contact.github, personalInfo.contact.portfolio].filter(
+        Boolean
+      ),
+      contactPoint: {
+        '@type': 'ContactPoint',
+        email: personalInfo.contact.email,
+        contactType: 'professional',
       },
-      "hasOccupation": {
-        "@type": "Occupation",
-        "name": personalInfo.title,
-        "skills": data.skills.frontend.concat(data.skills.backend, data.skills.tools).map(skill => skill.name)
-      }
+      hasOccupation: {
+        '@type': 'Occupation',
+        name: personalInfo.title,
+        skills: data.skills.frontend.concat(data.skills.backend, data.skills.tools).map((skill) => skill.name),
+      },
     };
 
     // Remove existing structured data
@@ -88,7 +86,6 @@ const SEO: React.FC<SEOProps> = ({ data }) => {
     addTwitterTag('twitter:title', `${personalInfo.name} - ${personalInfo.title}`);
     addTwitterTag('twitter:description', personalInfo.bio || `${personalInfo.name} - ${personalInfo.title}`);
     addTwitterTag('twitter:image', personalInfo.avatar);
-
   }, [personalInfo, data.skills]);
 
   return null; // This component doesn't render anything

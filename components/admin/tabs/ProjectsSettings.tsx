@@ -20,13 +20,13 @@ const ProjectsSettings: React.FC<Props> = ({ data, setData }) => {
   const [errors, setErrors] = useState<ProjectErrors[]>([]);
   const [generatingStates, setGeneratingStates] = useState<Record<string, boolean>>({});
   const [itemToDelete, setItemToDelete] = useState<number | null>(null);
-  
+
   const [draggedItem, setDraggedItem] = useState<number | null>(null);
   const [dragOverItem, setDragOverItem] = useState<number | null>(null);
   const dragItemIndex = useRef<number | null>(null);
-  
+
   const setGenerating = (id: string, value: boolean) => {
-    setGeneratingStates(prev => ({...prev, [id]: value}));
+    setGeneratingStates((prev) => ({ ...prev, [id]: value }));
   };
 
   const validateField = (name: string, value: string): string => {
@@ -38,24 +38,30 @@ const ProjectsSettings: React.FC<Props> = ({ data, setData }) => {
     }
     return '';
   };
-  
+
   const handleBlur = (index: number, e: React.FocusEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     const error = validateField(name, value);
-    setErrors(prev => {
-        const newErrors = [...prev];
-        if (!newErrors[index]) newErrors[index] = {};
-        newErrors[index][name as keyof ProjectErrors] = error;
-        return newErrors;
+    setErrors((prev) => {
+      const newErrors = [...prev];
+      if (!newErrors[index]) newErrors[index] = {};
+      newErrors[index][name as keyof ProjectErrors] = error;
+      return newErrors;
     });
   };
 
   const handleItemChange = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setData(prev => {
+    setData((prev) => {
       const newItems = [...prev.projects];
       if (name === 'tags') {
-         newItems[index] = { ...newItems[index], tags: value.split(',').map(s => s.trim()).filter(Boolean) };
+        newItems[index] = {
+          ...newItems[index],
+          tags: value
+            .split(',')
+            .map((s) => s.trim())
+            .filter(Boolean),
+        };
       } else {
         newItems[index] = { ...newItems[index], [name]: value };
       }
@@ -64,13 +70,13 @@ const ProjectsSettings: React.FC<Props> = ({ data, setData }) => {
   };
 
   const handleDescriptionChange = (index: number, value: string) => {
-    setData(prev => {
-        const newItems = [...prev.projects];
-        newItems[index] = { ...newItems[index], description: value };
-        return { ...prev, projects: newItems };
+    setData((prev) => {
+      const newItems = [...prev.projects];
+      newItems[index] = { ...newItems[index], description: value };
+      return { ...prev, projects: newItems };
     });
   };
-  
+
   const generateDescription = async (index: number) => {
     const project = data.projects[index];
     setGenerating(`desc_${project.id}`, true);
@@ -81,44 +87,55 @@ const ProjectsSettings: React.FC<Props> = ({ data, setData }) => {
     }
     setGenerating(`desc_${project.id}`, false);
   };
-  
+
   const suggestTags = async (index: number) => {
     const project = data.projects[index];
     setGenerating(`tags_${project.id}`, true);
     const prompt = `Based on the following project description, list the key technologies or concepts as tags. Return only a comma-separated list (e.g., E-commerce, React, Stripe):\n\n${project.description.replace(/<[^>]+>/g, '')}`;
     const result = await generateContent(data.settings.ai, prompt);
     if (result) {
-        const newTags = result.split(',').map(s => s.trim()).filter(Boolean);
-        setData(prev => {
-            const newItems = [...prev.projects];
-            const currentTags = newItems[index].tags || [];
-            const mergedTags = [...new Set([...currentTags, ...newTags])];
-            newItems[index].tags = mergedTags;
-            return { ...prev, projects: newItems };
-        });
+      const newTags = result
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean);
+      setData((prev) => {
+        const newItems = [...prev.projects];
+        const currentTags = newItems[index].tags || [];
+        const mergedTags = [...new Set([...currentTags, ...newTags])];
+        newItems[index].tags = mergedTags;
+        return { ...prev, projects: newItems };
+      });
     }
     setGenerating(`tags_${project.id}`, false);
   };
 
   const addItem = () => {
-    const newItem: Project = {id: uuidv4(), name: '', description: '', image: '', repoLink: '', demoLink: '', tags: []};
-    setData(prev => ({
+    const newItem: Project = {
+      id: uuidv4(),
+      name: '',
+      description: '',
+      image: '',
+      repoLink: '',
+      demoLink: '',
+      tags: [],
+    };
+    setData((prev) => ({
       ...prev,
-      projects: [...prev.projects, newItem]
+      projects: [...prev.projects, newItem],
     }));
   };
-  
+
   const handleRemoveClick = (index: number) => {
     setItemToDelete(index);
   };
-  
+
   const handleConfirmRemove = () => {
     if (itemToDelete === null) return;
-    setData(prev => ({
+    setData((prev) => ({
       ...prev,
-      projects: prev.projects.filter((_, i) => i !== itemToDelete)
+      projects: prev.projects.filter((_, i) => i !== itemToDelete),
     }));
-    setErrors(prev => prev.filter((_, i) => i !== itemToDelete));
+    setErrors((prev) => prev.filter((_, i) => i !== itemToDelete));
     setItemToDelete(null);
   };
 
@@ -141,7 +158,7 @@ const ProjectsSettings: React.FC<Props> = ({ data, setData }) => {
       return;
     }
 
-    setData(prev => {
+    setData((prev) => {
       const newItems = [...prev.projects];
       const draggedItemContent = newItems.splice(dragItemIndex.current!, 1)[0];
       newItems.splice(dragOverItem, 0, draggedItemContent);
@@ -169,73 +186,126 @@ const ProjectsSettings: React.FC<Props> = ({ data, setData }) => {
           const isDragTarget = dragOverItem === index && !isDragged;
 
           return (
-            <div 
-              key={project.id} 
+            <div
+              key={project.id}
               className={`border p-4 rounded-md mb-4 transition-all duration-200 
                 ${isDragged ? 'opacity-50 ring-2 ring-primary' : 'border-border-color'}
                 ${isDragTarget ? 'bg-primary/10' : ''}`}
             >
-              <div 
+              <div
                 className="flex justify-between items-center mb-4 pb-2 border-b border-border-color/50 cursor-grab active:cursor-grabbing"
-                draggable 
+                draggable
                 onDragStart={(e) => handleDragStart(e, index)}
                 onDragOver={(e) => handleDragOver(e, index)}
                 onDrop={handleDrop}
                 onDragLeave={handleDragLeave}
                 onDragEnd={handleDragEnd}
               >
-                <h4 className="text-md font-semibold text-text-primary truncate pr-2">{project.name || 'New Project'}</h4>
-                <Bars3Icon className="w-6 h-6 text-text-secondary flex-shrink-0"/>
+                <h4 className="text-md font-semibold text-text-primary truncate pr-2">
+                  {project.name || 'New Project'}
+                </h4>
+                <Bars3Icon className="w-6 h-6 text-text-secondary flex-shrink-0" />
               </div>
-              <InputField label="Project Name" name="name" value={project.name} onChange={e => handleItemChange(index, e)} onBlur={e => handleBlur(index, e)} placeholder="e.g., E-commerce Platform" error={errors[index]?.name}/>
-              
+              <InputField
+                label="Project Name"
+                name="name"
+                value={project.name}
+                onChange={(e) => handleItemChange(index, e)}
+                onBlur={(e) => handleBlur(index, e)}
+                placeholder="e.g., E-commerce Platform"
+                error={errors[index]?.name}
+              />
+
               <div className="mb-4">
-                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-1">
-                    <label className="block text-sm font-medium text-text-secondary">Description</label>
-                    <button
-                        onClick={() => generateDescription(index)}
-                        disabled={generatingStates[`desc_${project.id}`]}
-                        className="bg-secondary/80 hover:bg-secondary text-white px-3 py-1 text-xs rounded-md flex items-center disabled:opacity-50"
-                      >
-                        {generatingStates[`desc_${project.id}`] ? <SpinnerIcon className="w-4 h-4 mr-1 animate-spin" /> : <SparklesIcon className="w-4 h-4 mr-1" />}
-                        Generate
-                    </button>
-                  </div>
-                  <RichTextEditor name={`description-${project.id}`} value={project.description} onChange={value => handleDescriptionChange(index, value)} />
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-1">
+                  <label className="block text-sm font-medium text-text-secondary">Description</label>
+                  <button
+                    onClick={() => generateDescription(index)}
+                    disabled={generatingStates[`desc_${project.id}`]}
+                    className="bg-secondary/80 hover:bg-secondary text-white px-3 py-1 text-xs rounded-md flex items-center disabled:opacity-50"
+                  >
+                    {generatingStates[`desc_${project.id}`] ? (
+                      <SpinnerIcon className="w-4 h-4 mr-1 animate-spin" />
+                    ) : (
+                      <SparklesIcon className="w-4 h-4 mr-1" />
+                    )}
+                    Generate
+                  </button>
+                </div>
+                <RichTextEditor
+                  name={`description-${project.id}`}
+                  value={project.description}
+                  onChange={(value) => handleDescriptionChange(index, value)}
+                />
               </div>
 
               <div className="mb-4">
-                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-1">
-                    <label htmlFor={`tags-${project.id}`} className="block text-sm font-medium text-text-secondary">Tags (comma-separated)</label>
-                     <button
-                        onClick={() => suggestTags(index)}
-                        disabled={!project.description || generatingStates[`tags_${project.id}`]}
-                        className="bg-secondary/80 hover:bg-secondary text-white px-3 py-1 text-xs rounded-md flex items-center disabled:opacity-50"
-                      >
-                        {generatingStates[`tags_${project.id}`] ? <SpinnerIcon className="w-4 h-4 mr-1 animate-spin" /> : <SparklesIcon className="w-4 h-4 mr-1" />}
-                        Suggest
-                    </button>
-                  </div>
-                  <InputField
-                      label=""
-                      name="tags"
-                      value={Array.isArray(project.tags) ? project.tags.join(', ') : ''}
-                      onChange={e => handleItemChange(index, e)}
-                      placeholder="e.g., React, Node.js, Stripe"
-                  />
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-1">
+                  <label htmlFor={`tags-${project.id}`} className="block text-sm font-medium text-text-secondary">
+                    Tags (comma-separated)
+                  </label>
+                  <button
+                    onClick={() => suggestTags(index)}
+                    disabled={!project.description || generatingStates[`tags_${project.id}`]}
+                    className="bg-secondary/80 hover:bg-secondary text-white px-3 py-1 text-xs rounded-md flex items-center disabled:opacity-50"
+                  >
+                    {generatingStates[`tags_${project.id}`] ? (
+                      <SpinnerIcon className="w-4 h-4 mr-1 animate-spin" />
+                    ) : (
+                      <SparklesIcon className="w-4 h-4 mr-1" />
+                    )}
+                    Suggest
+                  </button>
+                </div>
+                <InputField
+                  label=""
+                  name="tags"
+                  value={Array.isArray(project.tags) ? project.tags.join(', ') : ''}
+                  onChange={(e) => handleItemChange(index, e)}
+                  placeholder="e.g., React, Node.js, Stripe"
+                />
               </div>
 
-              <InputField label="Image URL" name="image" value={project.image} onChange={e => handleItemChange(index, e)} onBlur={e => handleBlur(index, e)} placeholder="https://example.com/project.png" error={errors[index]?.image}/>
-              <InputField label="Repository URL" name="repoLink" value={project.repoLink} onChange={e => handleItemChange(index, e)} onBlur={e => handleBlur(index, e)} placeholder="https://github.com/user/repo" error={errors[index]?.repoLink}/>
-              <InputField label="Demo URL" name="demoLink" value={project.demoLink} onChange={e => handleItemChange(index, e)} onBlur={e => handleBlur(index, e)} placeholder="https://project-demo.com" error={errors[index]?.demoLink}/>
-              <button onClick={() => handleRemoveClick(index)} className="text-red-500 hover:text-red-700 text-sm mt-2 flex items-center gap-1">
+              <InputField
+                label="Image URL"
+                name="image"
+                value={project.image}
+                onChange={(e) => handleItemChange(index, e)}
+                onBlur={(e) => handleBlur(index, e)}
+                placeholder="https://example.com/project.png"
+                error={errors[index]?.image}
+              />
+              <InputField
+                label="Repository URL"
+                name="repoLink"
+                value={project.repoLink}
+                onChange={(e) => handleItemChange(index, e)}
+                onBlur={(e) => handleBlur(index, e)}
+                placeholder="https://github.com/user/repo"
+                error={errors[index]?.repoLink}
+              />
+              <InputField
+                label="Demo URL"
+                name="demoLink"
+                value={project.demoLink}
+                onChange={(e) => handleItemChange(index, e)}
+                onBlur={(e) => handleBlur(index, e)}
+                placeholder="https://project-demo.com"
+                error={errors[index]?.demoLink}
+              />
+              <button
+                onClick={() => handleRemoveClick(index)}
+                className="text-red-500 hover:text-red-700 text-sm mt-2 flex items-center gap-1"
+              >
                 <TrashIcon className="w-4 h-4" />
                 Remove
               </button>
             </div>
           );
         })}
-        <button onClick={addItem} className="bg-primary text-white px-4 py-2 rounded-md">Add Project</button>
+        <button onClick={addItem} className="bg-primary text-white px-4 py-2 rounded-md">
+          Add Project
+        </button>
       </AdminSection>
       <ConfirmationModal
         isOpen={itemToDelete !== null}

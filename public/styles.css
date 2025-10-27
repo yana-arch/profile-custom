@@ -114,8 +114,8 @@
   .print-hidden,
   header,
   footer,
-  [aria-label*="admin"],
-  [aria-label*="Switch to"] {
+  [aria-label*='admin'],
+  [aria-label*='Switch to'] {
     display: none !important;
   }
 
@@ -153,8 +153,8 @@
     text-decoration: none !important;
   }
 
-  a[href^="http"]:after {
-    content: " (" attr(href) ")";
+  a[href^='http']:after {
+    content: ' (' attr(href) ')';
     font-size: 9pt;
     color: #555 !important;
   }

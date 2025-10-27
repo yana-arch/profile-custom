@@ -67,7 +67,6 @@ export {
   LinkIcon,
 };
 
-
 // Brand Icons
 export const LinkedInIcon: React.FC<IconProps> = (props) => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" {...props}>

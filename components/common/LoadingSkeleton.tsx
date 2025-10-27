@@ -8,13 +8,7 @@ interface SkeletonProps {
   lines?: number;
 }
 
-const Skeleton: React.FC<SkeletonProps> = ({
-  className = '',
-  variant = 'rectangular',
-  width,
-  height,
-  lines = 1
-}) => {
+const Skeleton: React.FC<SkeletonProps> = ({ className = '', variant = 'rectangular', width, height, lines = 1 }) => {
   const baseClasses = 'animate-pulse bg-gray-200 dark:bg-gray-700';
 
   const getVariantClasses = () => {
@@ -53,18 +47,11 @@ const Skeleton: React.FC<SkeletonProps> = ({
     );
   }
 
-  return (
-    <div
-      className={`${baseClasses} ${getVariantClasses()} ${className}`}
-      style={skeletonStyle}
-    />
-  );
+  return <div className={`${baseClasses} ${getVariantClasses()} ${className}`} style={skeletonStyle} />;
 };
 
 // Pre-built skeleton components for common use cases
-export const TextSkeleton: React.FC<Omit<SkeletonProps, 'variant'>> = (props) => (
-  <Skeleton {...props} variant="text" />
-);
+export const TextSkeleton: React.FC<Omit<SkeletonProps, 'variant'>> = (props) => <Skeleton {...props} variant="text" />;
 
 export const CardSkeleton: React.FC<{ className?: string }> = ({ className = '' }) => (
   <div className={`p-6 bg-white dark:bg-gray-800 rounded-lg shadow ${className}`}>

@@ -37,7 +37,9 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ isOpen, onClose, 
         className="bg-card-background p-6 rounded-lg shadow-xl max-w-sm w-full border border-border-color animate-slideUp"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 id="modal-title" className="text-xl font-bold text-text-primary mb-4">{title}</h2>
+        <h2 id="modal-title" className="text-xl font-bold text-text-primary mb-4">
+          {title}
+        </h2>
         <p className="text-text-secondary mb-6">{message}</p>
         <div className="flex justify-end gap-4">
           <button
