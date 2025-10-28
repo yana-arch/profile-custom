@@ -24,11 +24,11 @@ const Header: React.FC<{ data: ProfileData }> = ({ data }) => {
   return (
     <header className="sticky top-0 bg-background/80 backdrop-blur-sm z-40 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20">
-          <div className="flex items-center">
+        <div className="flex items-center justify-center h-20">
+          {/* <div className="flex items-center">
             <img src={data.personalInfo.avatar} alt="avatar" className="w-10 h-10 rounded-full mr-4" />
             <span className="text-xl font-bold text-text-primary">{data.personalInfo.name}</span>
-          </div>
+          </div> */}
           <nav className="hidden md:flex items-center space-x-4">
             {visibleSections.map(([key]) => (
               <a

@@ -124,8 +124,11 @@ export class TemplateService {
     } = await supabase.auth.getUser();
 
     if (authError || !user) {
+      console.error('Template upload failed: User not authenticated', { authError, user });
       throw new Error('User not authenticated');
     }
+
+    console.log('Template upload: Auth check passed', { userId: user.id, userEmail: user.email });
 
     const newTemplate = {
       name,
@@ -141,13 +144,21 @@ export class TemplateService {
       total_ratings: 0,
     };
 
+    console.log('Template upload: Attempting insert', { templateName: name, authorId: user.id });
+
     const { data, error } = await supabase.from('templates').insert(newTemplate).select().single();
 
     if (error) {
-      console.error('Error creating template:', error);
+      console.error('Template upload failed: Database error', {
+        error,
+        errorCode: error.code,
+        errorMessage: error.message,
+        templateData: newTemplate
+      });
       throw error;
     }
 
+    console.log('Template upload: Success', { templateId: data.id });
     return data as Template;
   }
 

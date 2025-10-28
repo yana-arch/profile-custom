@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback, Suspense, lazy } from 'react';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { queryClient } from './src/lib/react-query';
 import { ProfileData } from './types';
 import { DEFAULT_PROFILE_DATA, getNewProfileData } from './constants';
 import Profile from './components/Profile';

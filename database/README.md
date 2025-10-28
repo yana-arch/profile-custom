@@ -41,76 +41,32 @@ Dự án sử dụng **Supabase** (PostgreSQL) để quản lý dữ liệu đa 
    - **Redirect URLs**: Thêm các URL cần thiết
    - Bật **Email Confirmations** nếu cần
 
-### Bước 4: Setup User Synchronization
+### Bước 4: Cài đặt Row Level Security (RLS) toàn diện
 
-**Quan trọng:** Để authentication hoạt động đúng với custom users table:
+**Quan trọng:** Cần cài đặt RLS bảo mật cho tất cả bảng:
 
-**Cách 1: Sử dụng Supabase Dashboard (khuyên dùng)**
+**Cách 1: Sử dụng file SQL hoàn chỉnh (khuyên dùng - ĐÃ SỬA FIZED)**
 
-1. Vào **SQL Editor** trong Supabase
-2. Chạy từng lệnh sau đây:
+1. Vào **SQL Editor** trong Supabase Dashboard
+2. Copy toàn bộ nội dung từ file `database/setup_comprehensive_rls_fixed.sql`
+3. Paste và chạy (`Run`)
 
-```sql
--- Enable RLS
-ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+**File này đã được sửa để khắc phục các lỗi:**
+- ✅ Cho phép tạo user tự động qua triggers
+- ✅ Ngăn trùng lặp user records
+- ✅ Cấp quyền đúng cho anonymous/ authenticated users
 
--- RLS Policies
-CREATE POLICY "Users can view own profile" ON users FOR SELECT USING (auth.uid() = id);
-CREATE POLICY "Users can update own profile" ON users FOR UPDATE USING (auth.uid() = id);
-CREATE POLICY "Service role has full access" ON users FOR ALL USING (auth.role() = 'service_role');
+File này bao gồm:
+- RLS policies cho tất cả bảng (users, templates, profiles, etc.)
+- Permissions và grants cần thiết
+- Database functions (generate_unique_slug, generate_share_token)
+- Indexes bổ sung cho performance
+- User synchronization triggers
 
--- Grant permissions
-GRANT USAGE ON SCHEMA public TO anon, authenticated;
-GRANT ALL ON users TO anon, authenticated;
+**Cách 2: Dùng file backup (nếu có vấn đề)**
 
--- Function to auto-create user record
-CREATE OR REPLACE FUNCTION handle_new_user()
-RETURNS TRIGGER AS $$
-BEGIN
-  INSERT INTO users (id, email, full_name, created_at, updated_at)
-  VALUES (
-    NEW.id,
-    NEW.email,
-    COALESCE(NEW.raw_user_meta_data->>'full_name', ''),
-    NEW.created_at,
-    NEW.updated_at
-  );
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
--- Trigger to sync auth.users with custom users table
-DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
-CREATE TRIGGER on_auth_user_created
-  AFTER INSERT ON auth.users
-  FOR EACH ROW EXECUTE FUNCTION handle_new_user();
-
--- Function to update user record
-CREATE OR REPLACE FUNCTION handle_user_update()
-RETURNS TRIGGER AS $$
-BEGIN
-  UPDATE users
-  SET
-    email = NEW.email,
-    full_name = COALESCE(NEW.raw_user_meta_data->>'full_name', users.full_name),
-    updated_at = NEW.updated_at,
-    last_login = NEW.last_sign_in_at
-  WHERE id = NEW.id;
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
--- Trigger for updates
-DROP TRIGGER IF EXISTS on_auth_user_updated ON auth.users;
-CREATE TRIGGER on_auth_user_updated
-  AFTER UPDATE ON auth.users
-  FOR EACH ROW EXECUTE FUNCTION handle_user_update();
-```
-
-**Cách 2: Sử dụng file SQL (nếu cách 1 không hoạt động)**
-
-- Copy nội dung từ file `database/setup_rls.sql`
-- Paste và chạy trong SQL Editor
+- Copy nội dung từ file `database/setup_rls.sql` (chỉ cho users table)
+- Sau đó chạy `database/trigger_user_sync.sql` để sync authentication
 
 ### Bước 5: Row Level Security (RLS)
 

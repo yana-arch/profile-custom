@@ -42,11 +42,9 @@ export class AuthService {
       }
 
       if (session?.user) {
-        // Update last login
-        await (supabase as any)
-          .from('users')
-          .update({ last_login: new Date().toISOString() })
-          .eq('id', session.user.id);
+        // Ensure user record exists and update last login
+        await this.ensureUserRecord(session.user);
+        await this.updateLastLogin(session.user.id);
 
         this.updateState({ user: session.user, loading: false });
       } else {
@@ -56,11 +54,9 @@ export class AuthService {
       // Listen for auth changes
       supabase.auth.onAuthStateChange(async (event, session) => {
         if (event === 'SIGNED_IN' && session?.user) {
-          // Update last login
-          await (supabase as any)
-            .from('users')
-            .update({ last_login: new Date().toISOString() })
-            .eq('id', session.user.id);
+          // Ensure user record exists and update last login
+          await this.ensureUserRecord(session.user);
+          await this.updateLastLogin(session.user.id);
 
           this.updateState({ user: session.user, loading: false, error: null });
         } else if (event === 'SIGNED_OUT') {
@@ -179,6 +175,22 @@ export class AuthService {
     }
   }
 
+  // Update user's last login timestamp
+  private async updateLastLogin(userId: string) {
+    try {
+      const { error } = await (supabase as any)
+        .from('users')
+        .update({ last_login: new Date().toISOString() })
+        .eq('id', userId);
+
+      if (error) {
+        console.error('Error updating last login:', error);
+      }
+    } catch (error) {
+      console.error('Error updating last login:', error);
+    }
+  }
+
   // Verify email OTP (for signup confirmation)
   async verifyOtp(email: string, token: string) {
     this.updateState({ loading: true, error: null });
@@ -252,19 +264,15 @@ export class AuthService {
       throw new Error('User not authenticated');
     }
 
-    try {
-      const { error } = await (supabase as any)
-        .from('users')
-        .update({
-          full_name: updates.full_name,
-          avatar_url: updates.avatar_url,
-        })
-        .eq('id', this.authState.user.id);
+    const { error } = await (supabase as any)
+      .from('users')
+      .update({
+        full_name: updates.full_name,
+        avatar_url: updates.avatar_url,
+      })
+      .eq('id', this.authState.user.id);
 
-      if (error) throw error;
-    } catch (error) {
-      throw error;
-    }
+    if (error) throw error;
   }
 }
 
