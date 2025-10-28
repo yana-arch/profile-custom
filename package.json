@@ -21,6 +21,7 @@
     "@tanstack/react-query": "^5.90.5",
     "html2canvas": "^1.4.1",
     "jspdf": "^3.0.3",
+    "pptxgenjs": "^4.0.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-quill": "2.0.0",

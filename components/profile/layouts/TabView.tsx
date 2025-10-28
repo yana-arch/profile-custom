@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ProfileData } from '../../../types';
 import { generateProfilePDF } from '../../../utils/pdfExport';
+import { generateProfilePPTFromData } from '../../../utils/pptExport';
 import {
   UserIcon,
   BriefcaseIcon,
@@ -12,6 +13,7 @@ import {
   DocumentArrowDownIcon,
   HeartIcon,
   TrophyIcon,
+  ChevronDownIcon,
 } from '../../icons/Icons';
 import Footer from '../Footer';
 import AboutSection from '../sections/AboutSection';
@@ -56,6 +58,7 @@ const TabView: React.FC<{ data: ProfileData }> = ({ data }) => {
   );
 
   const [activeTab, setActiveTab] = useState(visibleTabs[0]?.id || '');
+  const [isExportDropdownOpen, setIsExportDropdownOpen] = useState(false);
 
   // Reset active tab if it's been disabled or has no content
   useEffect(() => {
@@ -65,11 +68,22 @@ const TabView: React.FC<{ data: ProfileData }> = ({ data }) => {
   }, [data, activeTab, visibleTabs]);
 
   const handleDownloadPDF = async () => {
+    setIsExportDropdownOpen(false);
     try {
       await generateProfilePDF(data);
     } catch (error) {
       console.error('PDF generation failed:', error);
       alert('Failed to generate PDF. Please try again.');
+    }
+  };
+
+  const handleDownloadPPT = async () => {
+    setIsExportDropdownOpen(false);
+    try {
+      await generateProfilePPTFromData(data);
+    } catch (error) {
+      console.error('PPT generation failed:', error);
+      alert('Failed to generate PPT. Please try again.');
     }
   };
 
@@ -81,14 +95,6 @@ const TabView: React.FC<{ data: ProfileData }> = ({ data }) => {
           <h1 className="text-2xl font-bold text-text-primary">{data.personalInfo.name}</h1>
         </div>
         <div className="flex gap-2">
-          <button
-            onClick={handleDownloadPDF}
-            className="dynamic-button bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 flex items-center transition-colors"
-            title="Download PDF CV"
-          >
-            <DocumentArrowDownIcon className="w-5 h-5 mr-2" />
-            Download PDF
-          </button>
           {data.personalInfo.cvFileUrl && (
             <a
               href={data.personalInfo.cvFileUrl}
@@ -102,6 +108,53 @@ const TabView: React.FC<{ data: ProfileData }> = ({ data }) => {
           )}
         </div>
       </header>
+
+      {/* Export Dropdown - Fixed Position */}
+      <div className="fixed bottom-52 left-4 z-50 print-hidden">
+        <button
+          onClick={() => setIsExportDropdownOpen(!isExportDropdownOpen)}
+          className="bg-indigo-600 hover:bg-indigo-700 text-white p-3 rounded-full shadow-lg transition-colors flex items-center"
+          title="Export options"
+        >
+          <DocumentArrowDownIcon className="h-6 w-6" />
+          <ChevronDownIcon className={`h-4 w-4 ml-1 transition-transform ${isExportDropdownOpen ? 'rotate-180' : ''}`} />
+        </button>
+
+        {isExportDropdownOpen && (
+          <>
+            {/* Backdrop to close dropdown */}
+            <button
+              className="fixed inset-0 z-40 bg-transparent"
+              onClick={() => setIsExportDropdownOpen(false)}
+              aria-label="Close export menu"
+            />
+
+            {/* Dropdown menu */}
+            <div className="absolute bottom-full mb-2 left-0 bg-white rounded-lg shadow-xl border border-gray-200 min-w-48 z-50">
+              <button
+                onClick={handleDownloadPDF}
+                className="w-full flex items-center px-4 py-3 text-left hover:bg-gray-50 transition-colors text-gray-700 border-b border-gray-100"
+              >
+                <div className="w-4 h-4 bg-green-600 rounded mr-3 flex items-center justify-center">
+                  <DocumentArrowDownIcon className="h-3 w-3 text-white" />
+                </div>
+                <span className="font-medium">Download as PDF</span>
+              </button>
+
+              <button
+                onClick={handleDownloadPPT}
+                className="w-full flex items-center px-4 py-3 text-left hover:bg-gray-50 transition-colors text-gray-700"
+              >
+                <div className="w-4 h-4 bg-blue-600 rounded mr-3 flex items-center justify-center">
+                  <DocumentArrowDownIcon className="h-3 w-3 text-white" />
+                </div>
+                <span className="font-medium">Export as PPT</span>
+              </button>
+            </div>
+          </>
+        )}
+      </div>
+
       <nav className="flex flex-wrap gap-2 bg-card-background p-2 rounded-lg shadow-sm mb-8">
         {visibleTabs.map((tab) => (
           <button

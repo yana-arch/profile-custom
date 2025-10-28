@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ProfileData } from '../../../types';
-import { ChevronLeftIcon, ChevronRightIcon } from '../../icons/Icons';
+import { ChevronLeftIcon, ChevronRightIcon, DocumentArrowDownIcon, ChevronDownIcon } from '../../icons/Icons';
+import { generateProfilePDF } from '../../../utils/pdfExport';
+import { generateProfilePPT, generateProfilePPTFromData, captureSlidesForPPT } from '../../../utils/pptExport';
+import Header from '../Header';
 import HeroSection from '../sections/HeroSection';
 import AboutSection from '../sections/AboutSection';
 import ExperienceSection from '../sections/ExperienceSection';
@@ -15,6 +18,7 @@ import ContactSection from '../sections/ContactSection';
 const SlideView: React.FC<{ data: ProfileData }> = ({ data }) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [isExportDropdownOpen, setIsExportDropdownOpen] = useState(false);
 
   const contentAvailable = {
     hero: true,
@@ -63,8 +67,37 @@ const SlideView: React.FC<{ data: ProfileData }> = ({ data }) => {
     }
   }, [slides, currentSlide]);
 
+  const handleDownloadPDF = async () => {
+    setIsExportDropdownOpen(false);
+    try {
+      await generateProfilePDF(data);
+    } catch (error) {
+      console.error('PDF generation failed:', error);
+      alert('Failed to generate PDF. Please try again.');
+    }
+  };
+
+  const handleDownloadPPT = async () => {
+    setIsExportDropdownOpen(false);
+    try {
+      // First try to capture the current slides
+      const slideElements = await captureSlidesForPPT(scrollContainerRef.current!, slides);
+      await generateProfilePPT(slideElements, undefined, { format: 'widescreen' });
+    } catch (error) {
+      console.error('PPT generation failed:', error);
+      try {
+        // Fallback to data-based generation
+        await generateProfilePPTFromData(data, { format: 'widescreen' });
+      } catch (fallbackError) {
+        console.error('Fallback PPT generation failed:', fallbackError);
+        alert('Failed to generate PPT. Please try again.');
+      }
+    }
+  };
+
   return (
     <div className="h-screen w-screen relative">
+      <Header data={data} viewLayout="slide" slideContainerRef={scrollContainerRef} slides={slides} />
       <div ref={scrollContainerRef} className="h-full w-full overflow-y-scroll snap-y snap-mandatory scroll-smooth">
         {slides.map((slide) => (
           <div key={slide.id} className="h-full w-full snap-center flex items-center justify-center flex-shrink-0">
@@ -105,6 +138,52 @@ const SlideView: React.FC<{ data: ProfileData }> = ({ data }) => {
           ))}
         </div>
       )}
+
+      {/* Export Dropdown - Fixed Position */}
+      <div className="fixed bottom-52 left-4 z-50 print-hidden">
+        <button
+          onClick={() => setIsExportDropdownOpen(!isExportDropdownOpen)}
+          className="bg-indigo-600 hover:bg-indigo-700 text-white p-3 rounded-full shadow-lg transition-colors flex items-center"
+          title="Export options"
+        >
+          <DocumentArrowDownIcon className="h-6 w-6" />
+          <ChevronDownIcon className={`h-4 w-4 ml-1 transition-transform ${isExportDropdownOpen ? 'rotate-180' : ''}`} />
+        </button>
+
+        {isExportDropdownOpen && (
+          <>
+            {/* Backdrop to close dropdown */}
+            <button
+              className="fixed inset-0 z-40 bg-transparent"
+              onClick={() => setIsExportDropdownOpen(false)}
+              aria-label="Close export menu"
+            />
+
+            {/* Dropdown menu */}
+            <div className="absolute bottom-full mb-2 left-0 bg-white rounded-lg shadow-xl border border-gray-200 min-w-48 z-50">
+              <button
+                onClick={handleDownloadPDF}
+                className="w-full flex items-center px-4 py-3 text-left hover:bg-gray-50 transition-colors text-gray-700 border-b border-gray-100"
+              >
+                <div className="w-4 h-4 bg-green-600 rounded mr-3 flex items-center justify-center">
+                  <DocumentArrowDownIcon className="h-3 w-3 text-white" />
+                </div>
+                <span className="font-medium">Download as PDF</span>
+              </button>
+
+              <button
+                onClick={handleDownloadPPT}
+                className="w-full flex items-center px-4 py-3 text-left hover:bg-gray-50 transition-colors text-gray-700"
+              >
+                <div className="w-4 h-4 bg-blue-600 rounded mr-3 flex items-center justify-center">
+                  <DocumentArrowDownIcon className="h-3 w-3 text-white" />
+                </div>
+                <span className="font-medium">Export as PPT</span>
+              </button>
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
 };

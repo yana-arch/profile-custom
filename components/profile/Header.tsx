@@ -1,9 +1,18 @@
 import React, { useState } from 'react';
 import { ProfileData } from '../../types';
 import { DocumentArrowDownIcon, Bars3Icon, XMarkIcon } from '../icons/Icons';
+import { generateProfilePPT, generateProfilePPTFromData, captureSlidesForPPT } from '../../utils/pptExport';
 
-const Header: React.FC<{ data: ProfileData }> = ({ data }) => {
+interface HeaderProps {
+  data: ProfileData;
+  viewLayout?: string;
+  slideContainerRef?: React.RefObject<HTMLElement>;
+  slides?: Array<{ id: string; component: React.ReactElement }>;
+}
+
+const Header: React.FC<HeaderProps> = ({ data, viewLayout = 'scroll', slideContainerRef, slides = [] }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isExportingPPT, setIsExportingPPT] = useState(false);
 
   const contentAvailable = {
     about: true,
@@ -20,6 +29,33 @@ const Header: React.FC<{ data: ProfileData }> = ({ data }) => {
   const visibleSections = Object.entries(data.settings.sections).filter(
     ([key, visible]) => visible && contentAvailable[key as keyof typeof contentAvailable]
   );
+
+  const handleDownloadPPT = async () => {
+    if (viewLayout === 'slide' && slideContainerRef?.current && slides.length > 0) {
+      // For slide view, capture the displayed slides
+      try {
+        setIsExportingPPT(true);
+        const slideElements = await captureSlidesForPPT(slideContainerRef.current, slides);
+        await generateProfilePPT(slideElements, undefined, { format: 'widescreen' });
+      } catch (error) {
+        console.error('PPT generation failed:', error);
+        alert('Failed to generate PPT. Please try again.');
+      } finally {
+        setIsExportingPPT(false);
+      }
+    } else {
+      // For other views, generate from data directly
+      try {
+        setIsExportingPPT(true);
+        await generateProfilePPTFromData(data, { format: 'widescreen' });
+      } catch (error) {
+        console.error('PPT generation failed:', error);
+        alert('Failed to generate PPT. Please try again.');
+      } finally {
+        setIsExportingPPT(false);
+      }
+    }
+  };
 
   return (
     <header className="sticky top-0 bg-background/80 backdrop-blur-sm z-40 shadow-sm">
@@ -41,16 +77,20 @@ const Header: React.FC<{ data: ProfileData }> = ({ data }) => {
             ))}
           </nav>
           <div className="flex items-center">
-            {data.personalInfo.cvFileUrl && (
-              <a
-                href={data.personalInfo.cvFileUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="dynamic-button bg-primary hover:opacity-90 text-white font-bold py-2 px-4 flex items-center"
-              >
-                <DocumentArrowDownIcon className="w-5 h-5 mr-2" />
-                <span className="hidden sm:inline">CV</span>
-              </a>
+            {(data.personalInfo.cvFileUrl || viewLayout === 'slide') && (
+              <>
+                {data.personalInfo.cvFileUrl && (
+                  <a
+                    href={data.personalInfo.cvFileUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="dynamic-button bg-primary hover:opacity-90 text-white font-bold py-2 px-4 flex items-center"
+                  >
+                    <DocumentArrowDownIcon className="w-5 h-5 mr-2" />
+                    <span className="hidden sm:inline">CV</span>
+                  </a>
+                )}
+              </>
             )}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
